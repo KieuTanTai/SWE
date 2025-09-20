@@ -1,0 +1,38 @@
+Đề xuất giải pháp theo dõi vị trí xe theo thời gian thực (Real-time tracking)
+1. Thành phần chính
+
+Thiết bị GPS trên xe (hoặc smartphone tài xế): thu thập vị trí và gửi dữ liệu định kỳ.
+
+Máy chủ trung tâm (Server SSB 1.0): nhận dữ liệu, xử lý và lưu trữ.
+
+Ứng dụng phụ huynh: hiển thị vị trí xe trên bản đồ.
+
+Dashboard nhà trường: giám sát vị trí, lộ trình và sự cố.
+
+2. Cách thức hoạt động
+
+Xe buýt gửi vị trí GPS
+
+Cứ 1-2 giây, thiết bị GPS hoặc điện thoại tài xế gửi tọa độ (kinh độ, vĩ độ) về server.
+
+Server xử lý & lưu trữ
+
+Server nhận dữ liệu, cập nhật vị trí mới nhất vào cơ sở dữ liệu.
+
+Phụ huynh & nhà trường nhận dữ liệu
+
+App phụ huynh và dashboard của trường kết nối đến server để hiển thị vị trí mới nhất.
+
+Khi xe đến gần điểm đón, server tự động gửi thông báo push cho phụ huynh.
+
+Cảnh báo sự cố
+
+Tài xế gửi báo cáo sự cố → server → thông báo ngay cho phụ huynh & nhà trường.
+
+3. Ưu điểm
+
+Phụ huynh yên tâm: theo dõi vị trí xe con mình theo thời gian thực.
+
+Nhà trường quản lý dễ dàng: nắm được trạng thái từng chuyến xe.
+
+Nâng cao an toàn: có thông báo khi sự cố xảy ra hoặc xe đến gần điểm đón.

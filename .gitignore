@@ -1,36 +1,97 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ============================================
+# .gitignore cho dự án SWE (CachyOS, NextJS, NodeJS)
+# ============================================
+# Chú thích: Ignore các file/folder không nên commit lên git cho cả frontend và backend
+# Đảm bảo code dễ maintain, không để lẫn các file tạm, build, môi trường...
+
+######################
+# FRONTEND (NextJS)
+######################
 
 # dependencies
-/node_modules
-/.pnp
-.pnp.js
+/frontend/node_modules
+/frontend/.pnp
+/frontend/.pnp.*
+/frontend/yarn/*
+!/frontend/yarn/patches
+!/frontend/yarn/plugins
+!/frontend/yarn/releases
+!/frontend/yarn/versions
 
 # testing
-/coverage
+/frontend/coverage
 
-# next.js
-/.next/
-/out/
-
-# production
-/build
+# next.js build/production
+/frontend/.next/
+/frontend/out/
+/frontend/build
 
 # misc
-.DS_Store
-*.pem
+/frontend/.DS_Store
+/frontend/*.pem
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# debug logs
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/.pnpm-debug.log*
 
-# local env files
-.env*.local
-.env
+# env files (biến môi trường)
+/frontend/.env*
+/frontend/.env.local
+/frontend/.env.production
+/frontend/.env.development
 
-# vercel
-.vercel
+# vercel deployment
+/frontend/.vercel
 
 # typescript
-*.tsbuildinfo
-next-env.d.ts
+/frontend/*.tsbuildinfo
+/frontend/next-env.d.ts
+
+######################
+# BACKEND (NodeJS)
+######################
+
+# dependencies
+/backend/node_modules
+
+# testing
+/backend/coverage
+
+# build
+/backend/dist
+/backend/build
+
+# misc
+/backend/.DS_Store
+/backend/*.pem
+
+# debug logs
+/backend/npm-debug.log*
+/backend/yarn-debug.log*
+/backend/yarn-error.log*
+/backend/.pnpm-debug.log*
+
+# env files (biến môi trường)
+/backend/.env*
+/backend/.env.local
+/backend/.env.production
+/backend/.env.development
+
+# typescript
+/backend/*.tsbuildinfo
+
+######################
+# CHUNG CHO TOÀN DỰ ÁN
+######################
+
+# IDE/Công cụ
+.vscode
+.idea
+
+# MacOS system file
+.DS_Store
+
+# Private key (bảo mật)
+*.pem

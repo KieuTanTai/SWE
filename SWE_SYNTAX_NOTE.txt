@@ -1,0 +1,11 @@
+QUY ĐỊNH SYNTAX CHO DỰ ÁN SWE:
+1. Tên file, folder: kiểu kebab-case, không dấu, không ký tự đặc biệt, ngắn gọn.
+2. frontend: ReactJS/TS + NextJS/TS, chia nhỏ các folder: components, pages, interfaces, services, models, utils.
+3. backend: NodeJS, chia nhỏ: controllers, models, services, interfaces, utils.
+4. Platform-Rule: Quy tắc chung cho FE/BE, có BE-rules và FE-rules.
+5. Others: Script DB (mariadb/mysql), dữ liệu giả (fake-data).
+6. Mỗi folder cần file _placeholder để IDE nhận diện.
+7. Nếu chuyển Clean Architecture, tạo thêm folder interfaces cho FE/BE.
+8. DB: Tên bảng/column kiểu snake_case, file script .sql.
+9. Luôn log chi tiết, dễ đọc, dùng console.table cho mảng, console.log cho object.
+10. Không code tất cả vào một file, chia nhỏ chức năng.

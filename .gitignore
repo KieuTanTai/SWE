@@ -8,6 +8,12 @@
 # FRONTEND (NextJS)
 ######################
 /others/*/*.bkp
+/others/*/*.backup
+/others/*/*.old
+/others/*/*.orig
+/others/*/*.tmp
+/others/*/*.temp
+/others/*/*.docx#
 
 # dependencies
 /frontend/node_modules

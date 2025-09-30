@@ -1,0 +1,61 @@
+PLAN 1 :
+1. Managers
+2. Drivers
+3. Parents
+4. Students
+5. Bus (Vehices)
+6. Address
+7. Routes
+8. Schedules
+9. Detail Schedules
+10. Notifications
+11. Reports
+12.Roles
+13. Accounts
+
+PLAN 2:
+1. Accounts
+2. Roles
+3. Address
+4. Person (Managers - Parents - Students - Drivers)
+5. Bus (Vehices)
+6. Routes
+7. Schedules
+8. Detail Schedules
+9. Notifications
+10. Reports
+
+
+INTERFACES:
+1. IVehices
+2. IPerson
+3. IRoles
+4. IRoutes
+5. IAddress
+6. ISchedules
+7. IDetailSchedules
+8. INotifications
+9. IReports
+10. IAccounts
+11. ITransports
+12.ILogResult
+13.ILogResults
+.....
+
+ENUM:
+1. IncidentTypeEnum
+2. ParentTypeEnum
+3. SchedulesTypeEnum
+4. PersonTypeEnum
+.....
+
+UNSAVED CLASS:
+1. BusLocation
+2. LogEntry
+...
+
+SAVE ON ANOTHER LOCATION (NOT ON DB)
+1. LogResult
+2. LogResults
+
+

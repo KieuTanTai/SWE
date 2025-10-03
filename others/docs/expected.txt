@@ -1,18 +1,3 @@
-PLAN 1 :
-1. Managers
-2. Drivers
-3. Parents
-4. Students
-5. Bus (Vehices)
-6. Address
-7. Routes
-8. Schedules
-9. Detail Schedules
-10. Notifications
-11. Reports
-12.Roles
-13. Accounts
-
 PLAN 2:
 1. Accounts
 2. Roles
@@ -25,6 +10,8 @@ PLAN 2:
 9. Notifications
 10. Reports
 
+// NEED TO CONFIRM
+- MERGE TABLE 9 + 10
 
 INTERFACES:
 1. IVehices
@@ -58,4 +45,10 @@ SAVE ON ANOTHER LOCATION (NOT ON DB)
 1. LogResult
 2. LogResults
 
+person -> parent -> parent_student -> student -> person
 
+
+STRICT:
+1. Type on Person
+2. Type on Parent
+3. Relation on closing cycle relation.

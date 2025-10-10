@@ -84,7 +84,6 @@
 /backend/.env*
 /backend/.env.local
 /backend/.env.production
-/backend/
 # typescript
 /backend/*.tsbuildinfo
 

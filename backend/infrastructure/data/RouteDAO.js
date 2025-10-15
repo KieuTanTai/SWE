@@ -1,0 +1,3 @@
+class RouteDAO extends BaseDAO {
+
+}

@@ -2,10 +2,27 @@ import fs from 'fs';
 import mysql from 'mysql2/promise';
 
 class Connection {
+    /**
+     * @property {string} configPath
+     * @property {string} connectionName
+     * @property {import('mysql2/promise').Pool|null} pool
+     * @property {string|null} config
+     */
+
+    /**
+     * 
+     * @param {string} configPath 
+     * @param {string} connectionName 
+     */
+
     constructor(configPath, connectionName = 'DefaultConnection') {
+        /** @type {string} */
         this.configPath = configPath;
+        /** @type {string} */
         this.connectionName = connectionName;
+        /** @type {import('mysql2/promise').Pool|null} */
         this.pool = null;
+        /** @type {string|null} */
         this.config = null;
     }
 
@@ -33,7 +50,24 @@ class Connection {
         }
     }
 
+    /**
+     * @typedef {Object} DBConfig
+     * @property {string} [host]
+     * @property {string} [database]
+     * @property {string} [user]
+     * @property {string} [password]
+     * @property {string} [charset]
+     * @property {number} [connectionLimit]
+     * @property {number} [connectTimeout]
+     */
+
+    /**
+     * Parses a connection string into a DBConfig object.
+     * @param {string} connectionString
+     * @returns {DBConfig}
+     */
     parseConnectionString(connectionString) {
+        /** @type {DBConfig} */
         const config = {};
         const parts = connectionString.split(';').filter(p => p.trim());
 
@@ -79,7 +113,6 @@ class Connection {
 
             // Read configuration
             const connectionString = this.readConfig();
-
             // Parse connection string
             const dbConfig = this.parseConnectionString(connectionString);
 
@@ -116,6 +149,10 @@ class Connection {
         return await this.pool.getConnection();
     }
 
+    /**
+     * @param {string} sql
+     * @param {Array} params
+     */
     async query(sql, params = []) {
         if (!this.pool) {
             await this.connect();
@@ -140,6 +177,12 @@ class Connection {
         }
     }
 
+    /**
+     * 
+     * @param {string} configPath 
+     * @param {string} connectionName 
+     * @returns 
+     */
     static getInstance(configPath, connectionName = 'DefaultConnection') {
         return new Connection(configPath, connectionName);
     }

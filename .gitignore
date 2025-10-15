@@ -56,6 +56,9 @@
 /frontend/*.tsbuildinfo
 /frontend/next-env.d.ts
 
+# TEST
+/test/*
+
 ######################
 # BACKEND (NodeJS)
 ######################

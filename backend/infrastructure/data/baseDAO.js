@@ -1,8 +1,6 @@
 import mysql from 'mysql2/promise';
-
-class BaseDAO {
-
-    
+import BaseGetDAO from './baseGetDAO.js';
+class BaseDAO extends BaseGetDAO {
     /**
      * Creates an instance of BaseDAO.
      * @param {mysql.PoolConnection} connection
@@ -11,156 +9,276 @@ class BaseDAO {
      * @memberof BaseDAO
      */
 
-    constructor(connection, tableName, primaryKeyName = 'id') {
-        this.connection = connection;
-        this.tableName = tableName;
-        this.primaryKeyName = primaryKeyName;
+    constructor(connection, tableName, primaryKeyName = 'id'){
+        super(connection, tableName, primaryKeyName);
     }
 
     /**
      *
-     * @return {Promise<Array>} 
+     *
+     * @param {*} data
+     * @return {Promise<string|number>} InsertId or -1 if failed
      * @memberof BaseDAO
      */
-    async getAll() {
+    async create(data) {
         try {
-            const sql = `select * from ${this.tableName}`;
-            let [results] = await this.connection.query(sql);
-            if (!Array.isArray(results))
-                return [];
-            return results;
+            if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+                console.error('Error: data must be a non-null object');
+                return -1;
+            }
+            
+            const columns = Object.keys(data);
+            const values = Object.values(data);
+
+            if (columns.length === 0) {
+                console.error('Error: No columns to insert');
+                return -1;
+            }
+
+            if (values.length === 0) {
+                console.error('Error: No values to insert');
+                return -1;
+            }
+
+            const sql = this.getCreateQueryString(columns);
+            this.connection.beginTransaction();
+            const [result] = await this.connection.execute(sql, values);
+
+            if (result && typeof result === 'object' && 'insertId' in result) {
+                this.connection.commit();
+                return result.insertId;
+            }
+            this.connection.rollback();
+            return -1;
         } catch (exception) {
+            this.connection.rollback();
             if (exception instanceof Error)
                 console.error(`Error: ${exception.message}`);
             else
                 console.error(`Exception: ${exception}`);
-            return [];
+            return -1;
         }
     }
 
-    
+    /**
+     *
+     *
+     * @param {string[]} arrayColumns
+     * @param {Array<Object>} arrayValues
+     * @return {Promise<number>} 
+     * @memberof BaseDAO
+     */
+    async multiCreate(arrayColumns, arrayValues) {
+        try {
+            if (!Array.isArray(arrayValues) || arrayValues.length === 0) {
+                console.error('Error: arrayValues must be a non-empty array');
+                return -1;
+            }
+            
+            const query = this.getMultiCreateQueryString(arrayColumns, arrayValues.length);
+            this.connection.beginTransaction();
+            arrayValues = arrayValues.flatMap(Object.values);
+            const [results] = await this.connection.execute(query, arrayValues);
+
+            if (results && typeof results === 'object' && 'affectedRows' in results) {
+                this.connection.commit();
+                return results.affectedRows;
+            }
+            this.connection.rollback();
+            return -1;
+        } catch (error) {
+            this.connection.rollback();
+            if (error instanceof Error)
+                console.error(`Error: ${error.message}`);
+            else
+                console.error(`Exception: ${error}`);
+            return -1;
+        }
+    }
+
     /**
      *
      *
      * @param {string|number} id
+     * @param {*} data
+     * @return {Promise<number>} Number of affected rows or -1 if failed
      * @memberof BaseDAO
      */
-    async getById(id) {
+    async updateById(id, data) {
         try {
-            const sql = `select * from ${this.tableName} where ${this.primaryKeyName} = ?`
+            if (id === null || id === undefined) {
+                console.error('Error: id must be provided');
+                return -1;
+            }
+            if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+                console.error('Error: data must be a non-null object');
+                return -1;
+            }
+            
+            const columns = Object.keys(data);
+            const values = Object.values(data);
+
+            if (columns.length === 0) {
+                console.error('Error: No columns to update');
+                return -1;
+            }
+
+            if (values.length === 0) {
+                console.error('Error: No values to update');
+                return -1;
+            }
+
+            const sql = this.getUpdateByIdQueryString(columns);
+            this.connection.beginTransaction();
+            values.push(id);
+            const [result] = await this.connection.execute(sql, values);
+
+            if (result && typeof result === 'object' && 'affectedRows' in result) {
+                this.connection.commit();
+                return result.affectedRows;
+            }
+            this.connection.rollback();
+            return -1;
         } catch (exception) {
-            console.log(exception.message);
+            this.connection.rollback();
+            if (exception instanceof Error)
+                console.error(`Error: ${exception.message}`);
+            else
+                console.error(`Exception: ${exception}`);
+            return -1;
         }
-    } 
-
-    /**
-     *
-     *
-     * @param {string} [selectString="*"]
-     * @return {string} 
-     * @memberof BaseDAO
-     */
-    getGetAllQuery(selectString = "*") {
-        return `select ${selectString} from ${this.tableName}`;
     }
 
-    
     /**
      *
      *
-     * @param {string} [selectString="*"]
-     * @return {string} 
+     * @param {Array<{[key: string]: any}>} arrayValues
+     * @return {Promise<number>} Number of affected rows or -1 if failed
      * @memberof BaseDAO
      */
-    getByIdQuery(selectString = "*") {
-        return `select ${selectString} from ${this.tableName} where ${this.primaryKeyName} = ?`;
-    }
+    async multiUpdateById(arrayValues) {
+        try {
+            if (!Array.isArray(arrayValues) || arrayValues.length === 0) {
+                console.error('Error: arrayValues must be a non-empty array');
+                return -1;
+            }
 
-    
-    /**
-     *
-     *
-     * @param {string} [selectString="*"]
-     * @param {string} [whereClause=""]
-     * @return {string} 
-     * @memberof BaseDAO
-     */
-    getBySelectionQuery(selectString = "*", whereClause = "") {
-        return `select ${selectString} from ${this.tableName} ${whereClause}`;
+            const listIds = arrayValues.map(item => item[this.primaryKeyName]);
+            const columns = Object.keys(arrayValues[0]).filter(col => col !== this.primaryKeyName);
+            if (columns.length === 0) {
+                console.error('Error: No columns to update');
+                return -1;
+            }
+
+            if (listIds.length === 0) {
+                console.error('Error: No IDs provided');
+                return -1;
+            }
+
+            const query = this.getMultiUpdateByIdQueryString(columns, arrayValues.length);
+            this.connection.beginTransaction();
+
+            const values = [];
+            arrayValues.forEach(item => {
+                columns.forEach(col => {
+                    values.push(item[this.primaryKeyName]);
+                    values.push(item[col]);
+                });
+            });
+            values.push(listIds);
+            
+            const [results] = await this.connection.execute(query, values);
+            if (results && typeof results === 'object' && 'affectedRows' in results) {
+                this.connection.commit();
+                return results.affectedRows;
+            }
+            this.connection.rollback();
+            return -1;  
+        } catch (error) {
+            this.connection.rollback();
+            if (error instanceof Error)
+                console.error(`Error: ${error.message}`);
+            else
+                console.error(`Exception: ${error}`);
+            return -1;
+        }
     }
 
     /**
      * Generate INSERT query string
-     * @param {JSON} data - Object with column names as keys
-     * @return {Object} Object containing query string and values array
+     * @param {string[]} columns - Array of column names
+     * @return { string} containing query string
      * @memberof BaseDAO
      */
-    getCreateQueryString(data) {
-        const columns = Object.keys(data);
+    getCreateQueryString(columns) {
         const placeholders = columns.map(() => '?').join(', ');
-        const values = Object.values(data);
-        
-        const query = `INSERT INTO ${this.tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
-        
-        return {
-            query,
-            values
-        };
+        return `INSERT INTO ${this.tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
+    }
+
+    /**
+     *
+     *
+     * @param {string[]} columns
+     * @param {number} numberOfRows
+     * @return {string} 
+     * @memberof BaseDAO
+     */
+    getMultiCreateQueryString(columns, numberOfRows) {
+        const placeholders = columns.map(() => '?').join(', ');
+        const allPlaceholders = Array(numberOfRows).fill(`(${placeholders})`).join(', ');
+        return `INSERT INTO ${this.tableName} (${columns.join(', ')}) VALUES ${allPlaceholders}`;
     }
 
     /**
      * Generate UPDATE query string with WHERE clause
-     * @param {JSON} data - Object with column names to update as keys
-     * @param {Object} whereConditions - Object with WHERE conditions
-     * @return {Object} Object containing query string and values array
+     * @param {string[]} setColumns - array of column names to update
+     * @param {string[]} whereColumns - array of column names for WHERE clause
+     * @return {string} query string with placeholders
      * @memberof BaseDAO
      */
-    getUpdateQueryString(data, whereConditions) {
-        const setColumns = Object.keys(data);
+    getUpdateQueryString(setColumns, whereColumns) {
         const setClause = setColumns.map(col => `${col} = ?`).join(', ');
-        const setValues = Object.values(data);
-        
-        const whereColumns = Object.keys(whereConditions);
         const whereClause = whereColumns.map(col => `${col} = ?`).join(' AND ');
-        const whereValues = Object.values(whereConditions);
         
-        const query = `UPDATE ${this.tableName} SET ${setClause} WHERE ${whereClause}`;
-        const values = [...setValues, ...whereValues];
-        
-        return {
-            query,
-            values
-        };
+        return `UPDATE ${this.tableName} SET ${setClause} WHERE ${whereClause}`;
     }
 
     /**
      * Generate UPDATE query string by primary key
-     * @param {JSON} data - Object with column names to update as keys
-     * @param {string|number} id - Primary key value
-     * @return {Object} Object containing query string and values array
+     * @param {string[]} setColumns - array of column names to update
+     * @return {string} query string with placeholders
      * @memberof BaseDAO
      */
-    getUpdateByIdQueryString(data, id) {
-        return this.getUpdateQueryString(data, { [this.primaryKeyName]: id });
+    getUpdateByIdQueryString(setColumns) {
+        const setClause = setColumns.map(col => `${col} = ?`).join(', ');
+        
+        return `UPDATE ${this.tableName} SET ${setClause} WHERE ${this.primaryKeyName} = ?`;
+    }
+
+    /**
+     *
+     *
+     * @param {string[]} setColumns
+     * @param {number} numberOfRows
+     * @return {string}
+     * @memberof BaseDAO
+     */
+    getMultiUpdateByIdQueryString(setColumns, numberOfRows) {
+        const setClause = setColumns.map(col => `${col} = CASE`).join(', ');
+        const whenClause = Array(numberOfRows).fill(`WHEN ${this.primaryKeyName} = ? THEN ?`).join(' ');
+        return `UPDATE ${this.tableName} SET ${setClause} ${whenClause} END WHERE ${this.primaryKeyName} IN (?)`;
     }
 
     /**
      * Generate DELETE query string with WHERE clause
-     * @param {Object} whereConditions - Object with WHERE conditions
-     * @return {Object} Object containing query string and values array
+     * @param {string[]} whereColumns - array of column names for WHERE clause
+     * @return {string} query string with placeholders
      * @memberof BaseDAO
      */
-    getDeleteQueryString(whereConditions) {
-        const whereColumns = Object.keys(whereConditions);
+    getDeleteQueryString(whereColumns) {
         const whereClause = whereColumns.map(col => `${col} = ?`).join(' AND ');
-        const values = Object.values(whereConditions);
         
-        const query = `DELETE FROM ${this.tableName} WHERE ${whereClause}`;
-        
-        return {
-            query,
-            values
-        };
+        return `DELETE FROM ${this.tableName} WHERE ${whereClause}`;
     }
 
     /**

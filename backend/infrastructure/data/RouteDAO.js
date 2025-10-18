@@ -36,7 +36,17 @@ class RouteDAO extends BaseDAO {
      * @memberof RouteDAO
      */
     async getByRouteId(routeId) {
+        if (routeId === "" || routeId === null || routeId === undefined || !Number.isInteger(routeId)) {
+            console.warn(`Warning: routeId is invalid : ${routeId}`);
+            return new Route({});
+        }
+
         try {
+            if (Number.parseInt(routeId.toString()) <= 0) {
+                console.warn(`Warning: routeId must be greater than zero : ${routeId}`);
+                return new Route({});
+            }
+
             const result = await this._protectedGetById(routeId);
             if (!result) {
                 console.warn(`Warning: No data found for routeId ${routeId}`);
@@ -84,6 +94,11 @@ class RouteDAO extends BaseDAO {
      * @memberof RouteDAO
      */
     async getByRouteStatus(routeStatus) {
+        if (routeStatus === null || routeStatus === undefined || typeof routeStatus !== 'boolean') {
+            console.warn(`Warning: routeStatus is invalid : ${routeStatus}`);
+            return [];
+        }
+
         try {
             const results = await this._protectedGetBySelection(["*"], [routeStatus],
                 `WHERE route_status = ?`);
@@ -106,6 +121,11 @@ class RouteDAO extends BaseDAO {
      * @memberof RouteDAO
      */
     async createRoute(route) {
+        if (!(route instanceof Route)) {
+            console.warn(`Warning: Invalid route object`);
+            return -1;
+        }
+
         try {
             const result = await this._protectedCreate(route);
             return result;
@@ -131,6 +151,44 @@ class RouteDAO extends BaseDAO {
             }));
             const results = await this._protectedMultiCreate(["route_name", "route_status"], valueInserts);
             return results;
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     *
+     *
+     * @param {Route} route
+     * @return {Promise<number>} 
+     * @memberof RouteDAO
+     */
+    async updateRoute(route) {
+        try {
+            const result = await this._protectedUpdateById(route.route_id, route);
+            return result;
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     *
+     *
+     * @param {Route[]} routes
+     * @return {Promise<number>} 
+     * @memberof RouteDAO
+     */
+    async updateRoutes(routes) {
+        if (!Array.isArray(routes) || routes.length === 0) {
+            console.warn(`Warning: routes must be a non-empty array`);
+            return 1;
+        }
+
+        try {
+            const 
         } catch (error) {
             console.error(`Error: ${error.message}`);
             return -1;

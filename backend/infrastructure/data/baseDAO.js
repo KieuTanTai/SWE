@@ -65,13 +65,19 @@ class BaseDAO extends BaseGetDAO {
      *
      * @param {string[]} arrayColumns
      * @param {Array<Object>} arrayValues
-     * @return {Promise<number>} 
+     * @return {Promise<number|number[]>} Array of InsertIds or -1 if failed
      * @memberof BaseDAO
      */
     async _protectedMultiCreate(arrayColumns, arrayValues) {
+        const insertedIds = [];
         try {
             if (!Array.isArray(arrayValues) || arrayValues.length === 0) {
                 console.error('Error: arrayValues must be a non-empty array');
+                return -1;
+            }
+            
+            if (!Array.isArray(arrayColumns) || arrayColumns.length === 0) {
+                console.error('Error: arrayColumns must be a non-empty array');
                 return -1;
             }
 
@@ -82,7 +88,10 @@ class BaseDAO extends BaseGetDAO {
 
             if (results && typeof results === 'object' && 'affectedRows' in results) {
                 this.connection.commit();
-                return results.affectedRows;
+                const affectedRows = results.affectedRows;
+                for (let i = 0; i < affectedRows; i++)
+                    insertedIds.push(results.insertId + i);
+                return insertedIds;
             }
             this.connection.rollback();
             return -1;

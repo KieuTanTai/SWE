@@ -5,7 +5,7 @@
 class Route {
     constructor({
         route_id = null,
-        route_name,
+        route_name = "",
         route_status = true
     }) {
         this.route_id = route_id;
@@ -33,6 +33,11 @@ class Route {
     /**
      * Create Route from database row
      */
+    /**
+     * Create Route from database row
+     * @param {Object} row - The database row
+     * @returns {Route} - A new Route instance
+     */
     static fromDatabase(row) {
         return new Route({
             route_id: row.route_id,
@@ -59,4 +64,4 @@ class Route {
     }
 }
 
-module.exports = Route;
+export default Route;

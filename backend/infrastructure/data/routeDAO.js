@@ -143,6 +143,11 @@ class RouteDAO extends BaseDAO {
      * @memberof RouteDAO
      */
     async createRoutes(routes) {
+        if (!Array.isArray(routes) || routes.length === 0) {
+            console.warn(`Warning: routes must be a non-empty array`);
+            return -1;
+        }
+
         try {
             const insertIds = [];
             const valueInserts = routes.map(route => ({
@@ -164,7 +169,11 @@ class RouteDAO extends BaseDAO {
      * @return {Promise<number>} 
      * @memberof RouteDAO
      */
-    async updateRoute(route) {
+    async #updateRoute(route) {
+        if (!route) {
+            console.warn(`Warning: Invalid route: ${route}`);
+            return -1;
+        }
         try {
             const result = await this._protectedUpdateById(route.route_id, route);
             return result;
@@ -181,19 +190,127 @@ class RouteDAO extends BaseDAO {
      * @return {Promise<number>} 
      * @memberof RouteDAO
      */
-    async updateRoutes(routes) {
+    async #updateRoutes(routes) {
         if (!Array.isArray(routes) || routes.length === 0) {
             console.warn(`Warning: routes must be a non-empty array`);
             return 1;
         }
 
         try {
-            const 
+            const arrayValues = routes.map(route => ({
+                route_id: route.route_id,
+                route_name: route.route_name,
+                route_status: route.route_status
+            }));
+            const result = await this._protectedMultiUpdateById(arrayValues);
+            return result;
         } catch (error) {
             console.error(`Error: ${error.message}`);
             return -1;
         }
     }
 
-    
+    /**
+     * Update the name of a specific route
+     * @param {string|number} routeId
+     * @param {string} newName
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     */
+    async updateRouteName(routeId, newName) {
+        if (!routeId || typeof newName !== 'string' || newName.trim() === '') {
+            console.warn(`Warning: Invalid routeId or newName`);
+            return -1;
+        }
+        try {
+            const result = await this.getByRouteId(routeId);
+            if (!result) {
+                console.warn(`Warning: No route found for routeId ${routeId}`);
+                return -1;
+            }
+            if (result.route_name === newName) {
+                console.info(`Info: Route name is already '${newName}' for routeId ${routeId}`);
+                return 0;
+            }
+            result.route_name = newName;
+            return await this.#updateRoute(result);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Update the status of a specific route
+     * @param {number} routeId
+     * @param {boolean} newStatus
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     */
+    async updateRouteStatus(routeId, newStatus) {
+        if (!routeId || typeof newStatus !== 'boolean') {
+            console.warn(`Warning: Invalid routeId or newStatus`);
+            return -1;
+        }
+        
+        try {
+            const result = await this.getByRouteId(routeId);
+            if (!result) {
+                console.warn(`Warning: No route found for routeId ${routeId}`);
+                return -1;
+            }
+
+            if (result.route_status === newStatus) {
+                console.info(`Info: Route status is already '${newStatus}' for routeId ${routeId}`);
+                return 0;
+            }
+            result.route_status = newStatus;
+            return await this.#updateRoute(result);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Update the names of multiple routes
+     * @param {Array<{route_id: number, route_name: string}>} routes
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     */
+    async updateRouteNames(routes) {
+        if (!Array.isArray(routes) || routes.length === 0) {
+            console.warn(`Warning: routes must be a non-empty array`);
+            return -1;
+        }
+        try {
+            const formattedRoutes = routes.map(route => new Route({
+                route_id: route.route_id,
+                route_name: route.route_name
+            }));
+            return await this.#updateRoutes(formattedRoutes);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Update the statuses of multiple routes
+     * @param {Array<{route_id: number, route_status: boolean}>} routes
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     */
+    async updateRouteStatuses(routes) {
+        if (!Array.isArray(routes) || routes.length === 0) {
+            console.warn(`Warning: routes must be a non-empty array`);
+            return -1;
+        }
+        try {
+            const formattedRoutes = routes.map(route => new Route({
+                route_id: route.route_id,
+                route_status: route.route_status
+            }));
+            return await this.#updateRoutes(formattedRoutes);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
 }

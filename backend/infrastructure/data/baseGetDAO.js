@@ -19,9 +19,9 @@ export default class BaseGetDAO {
      * @return {Promise<Array>} 
      * @memberof BaseDAO
      */
-    async getAll() {
+    async _protectedGetAll() {
         try {
-            const sql = this.getAllQuery();
+            const sql = this._protectedGetAllQuery();
             let [results] = await this.connection.query(sql);
             if (!Array.isArray(results))
                 return [];
@@ -42,14 +42,14 @@ export default class BaseGetDAO {
      * @param {string|number} id
      * @memberof BaseDAO
      */
-    async getById(id) {
+    async _protectedGetById(id) {
         try {
             if (id === null || id === undefined) {
                 console.error('Error: id must be provided');
                 return null;
             }
-            
-            const sql = this.getByIdQuery();
+
+            const sql = this._protectedGetByIdQuery();
             let [results] = await this.connection.query(sql, [id]);
             if (!Array.isArray(results) || results.length === 0)
                 return null;
@@ -71,14 +71,14 @@ export default class BaseGetDAO {
      * @return {Promise<Array>} 
      * @memberof BaseDAO
      */
-    async getBySelection(selectColumns = ["*"], params = [], whereClause = "") {
+    async _protectedGetBySelection(selectColumns = ["*"], params = [], whereClause = "") {
         try {
             if (!Array.isArray(selectColumns) || selectColumns.length === 0) {
                 console.error('Error: selectColumns must be a non-empty array');
                 return [];
             }
 
-            const sql = this.getBySelectionQuery(selectColumns, whereClause);
+            const sql = this._protectedGetBySelectionQuery(selectColumns, whereClause);
             let [results] = await this.connection.query(sql, params);
             if (!Array.isArray(results) || results.length === 0)
                 return [];
@@ -99,7 +99,7 @@ export default class BaseGetDAO {
      * @return {string} 
      * @memberof BaseDAO
      */
-    getAllQuery(selectColumns = ["*"]) {
+    _protectedGetAllQuery(selectColumns = ["*"]) {
         return `select ${selectColumns.join(", ")} from ${this.tableName}`;
     }
 
@@ -110,7 +110,7 @@ export default class BaseGetDAO {
      * @return {string} 
      * @memberof BaseDAO
      */
-    getByIdQuery(selectColumns = ["*"]) {
+    _protectedGetByIdQuery(selectColumns = ["*"]) {
         return `select ${selectColumns.join(", ")} from ${this.tableName} where ${this.primaryKeyName} = ?`;
     }
 
@@ -123,7 +123,7 @@ export default class BaseGetDAO {
      * @return {string} 
      * @memberof BaseDAO
      */
-    getBySelectionQuery(selectColumns = ["*"], whereClause = "") {
+    _protectedGetBySelectionQuery(selectColumns = ["*"], whereClause = "") {
         return `select ${selectColumns.join(", ")} from ${this.tableName} ${whereClause}`;
     }
 }

@@ -20,7 +20,7 @@ class BaseDAO extends BaseGetDAO {
      * @return {Promise<string|number>} InsertId or -1 if failed
      * @memberof BaseDAO
      */
-    async create(data) {
+    async _protectedCreate(data) {
         try {
             if (typeof data !== 'object' || data === null || Array.isArray(data)) {
                 console.error('Error: data must be a non-null object');
@@ -40,7 +40,7 @@ class BaseDAO extends BaseGetDAO {
                 return -1;
             }
 
-            const sql = this.getCreateQueryString(columns);
+            const sql = this._protectedGetCreateQueryString(columns);
             this.connection.beginTransaction();
             const [result] = await this.connection.execute(sql, values);
 
@@ -68,14 +68,14 @@ class BaseDAO extends BaseGetDAO {
      * @return {Promise<number>} 
      * @memberof BaseDAO
      */
-    async multiCreate(arrayColumns, arrayValues) {
+    async _protectedMultiCreate(arrayColumns, arrayValues) {
         try {
             if (!Array.isArray(arrayValues) || arrayValues.length === 0) {
                 console.error('Error: arrayValues must be a non-empty array');
                 return -1;
             }
-            
-            const query = this.getMultiCreateQueryString(arrayColumns, arrayValues.length);
+
+            const query = this._protectedGetMultiCreateQueryString(arrayColumns, arrayValues.length);
             this.connection.beginTransaction();
             arrayValues = arrayValues.flatMap(Object.values);
             const [results] = await this.connection.execute(query, arrayValues);
@@ -104,7 +104,7 @@ class BaseDAO extends BaseGetDAO {
      * @return {Promise<number>} Number of affected rows or -1 if failed
      * @memberof BaseDAO
      */
-    async updateById(id, data) {
+    async _protectedUpdateById(id, data) {
         try {
             if (id === null || id === undefined) {
                 console.error('Error: id must be provided');
@@ -128,7 +128,7 @@ class BaseDAO extends BaseGetDAO {
                 return -1;
             }
 
-            const sql = this.getUpdateByIdQueryString(columns);
+            const sql = this._protectedGetUpdateByIdQueryString(columns);
             this.connection.beginTransaction();
             values.push(id);
             const [result] = await this.connection.execute(sql, values);
@@ -156,7 +156,7 @@ class BaseDAO extends BaseGetDAO {
      * @return {Promise<number>} Number of affected rows or -1 if failed
      * @memberof BaseDAO
      */
-    async multiUpdateById(arrayValues) {
+    async _protectedMultiUpdateById(arrayValues) {
         try {
             if (!Array.isArray(arrayValues) || arrayValues.length === 0) {
                 console.error('Error: arrayValues must be a non-empty array');
@@ -175,7 +175,7 @@ class BaseDAO extends BaseGetDAO {
                 return -1;
             }
 
-            const query = this.getMultiUpdateByIdQueryString(columns, arrayValues.length);
+            const query = this._protectedGetMultiUpdateByIdQueryString(columns, arrayValues.length);
             this.connection.beginTransaction();
 
             const values = [];
@@ -205,96 +205,12 @@ class BaseDAO extends BaseGetDAO {
     }
 
     /**
-     *
-     *
-     * @param {string|number} id
-     * @param {boolean} [isSoftDelete=false]
-     * @param {string} [setCommand=""]
-     * @return {Promise<number>} Number of affected rows or -1 if failed
-     * @memberof BaseDAO
-     */
-    async deleteById(id, isSoftDelete = false, setCommand = "") {
-        try {
-            if (id === null || id === undefined) {
-                console.error('Error: id must be provided');
-                return -1;
-            }
-
-            let sql;
-            if (isSoftDelete) {
-                sql = `UPDATE ${this.tableName} SET ${setCommand} = 1 WHERE ${this.primaryKeyName} = ?`;
-            } else {
-                sql = this.getDeleteByIdQueryString();
-            }
-
-            this.connection.beginTransaction();
-            const [result] = await this.connection.execute(sql, [id]);
-
-            if (result && typeof result === 'object' && 'affectedRows' in result) {
-                this.connection.commit();
-                return result.affectedRows;
-            }
-            this.connection.rollback();
-            return -1;
-        } catch (exception) {
-            this.connection.rollback();
-            if (exception instanceof Error)
-                console.error(`Error: ${exception.message}`);
-            else
-                console.error(`Exception: ${exception}`);
-            return -1;
-        }
-    }
-
-    /**
-     *
-     *
-     * @param {string[]|number[]} arrayIds
-     * @param {boolean} [isSoftDelete=false]
-     * @param {string} [setCommand=""]
-     * @return {Promise<number>} Number of affected rows or -1 if failed
-     * @memberof BaseDAO
-     */
-    async deleteByIds(arrayIds, isSoftDelete = false, setCommand = "") {
-        try {
-            if (!Array.isArray(arrayIds) || arrayIds.length === 0) {
-                console.error('Error: arrayIds must be a non-empty array');
-                return -1;
-            }
-
-            let sql;
-            if (isSoftDelete) {
-                sql = `UPDATE ${this.tableName} SET ${setCommand} = 1 WHERE ${this.primaryKeyName} IN (?)`;
-            } else {
-                sql = `DELETE FROM ${this.tableName} WHERE ${this.primaryKeyName} IN (?)`;
-            }
-
-            this.connection.beginTransaction();
-            const [results] = await this.connection.execute(sql, [arrayIds]);
-
-            if (results && typeof results === 'object' && 'affectedRows' in results) {
-                this.connection.commit();
-                return results.affectedRows;
-            }
-            this.connection.rollback();
-            return -1;
-        } catch (exception) {
-            this.connection.rollback();
-            if (exception instanceof Error)
-                console.error(`Error: ${exception.message}`);
-            else
-                console.error(`Exception: ${exception}`);
-            return -1;
-        }
-    }
-
-    /**
      * Generate INSERT query string
      * @param {string[]} columns - Array of column names
      * @return { string} containing query string
      * @memberof BaseDAO
      */
-    getCreateQueryString(columns) {
+    _protectedGetCreateQueryString(columns) {
         const placeholders = columns.map(() => '?').join(', ');
         return `INSERT INTO ${this.tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
     }
@@ -307,7 +223,7 @@ class BaseDAO extends BaseGetDAO {
      * @return {string} 
      * @memberof BaseDAO
      */
-    getMultiCreateQueryString(columns, numberOfRows) {
+    _protectedGetMultiCreateQueryString(columns, numberOfRows) {
         const placeholders = columns.map(() => '?').join(', ');
         const allPlaceholders = Array(numberOfRows).fill(`(${placeholders})`).join(', ');
         return `INSERT INTO ${this.tableName} (${columns.join(', ')}) VALUES ${allPlaceholders}`;
@@ -320,7 +236,7 @@ class BaseDAO extends BaseGetDAO {
      * @return {string} query string with placeholders
      * @memberof BaseDAO
      */
-    getUpdateQueryString(setColumns, whereColumns) {
+    _protectedGetUpdateQueryString(setColumns, whereColumns) {
         const setClause = setColumns.map(col => `${col} = ?`).join(', ');
         const whereClause = whereColumns.map(col => `${col} = ?`).join(' AND ');
         
@@ -333,7 +249,7 @@ class BaseDAO extends BaseGetDAO {
      * @return {string} query string with placeholders
      * @memberof BaseDAO
      */
-    getUpdateByIdQueryString(setColumns) {
+    _protectedGetUpdateByIdQueryString(setColumns) {
         const setClause = setColumns.map(col => `${col} = ?`).join(', ');
         
         return `UPDATE ${this.tableName} SET ${setClause} WHERE ${this.primaryKeyName} = ?`;
@@ -347,7 +263,7 @@ class BaseDAO extends BaseGetDAO {
      * @return {string}
      * @memberof BaseDAO
      */
-    getMultiUpdateByIdQueryString(setColumns, numberOfRows) {
+    _protectedGetMultiUpdateByIdQueryString(setColumns, numberOfRows) {
         const setClause = setColumns.map(col => `${col} = CASE`).join(', ');
         const whenClause = Array(numberOfRows).fill(`WHEN ${this.primaryKeyName} = ? THEN ?`).join(' ');
         return `UPDATE ${this.tableName} SET ${setClause} ${whenClause} END WHERE ${this.primaryKeyName} IN (?)`;
@@ -359,7 +275,7 @@ class BaseDAO extends BaseGetDAO {
      * @return {string} query string with placeholders
      * @memberof BaseDAO
      */
-    getDeleteQueryString(whereColumns) {
+    _protectedGetDeleteQueryString(whereColumns) {
         const whereClause = whereColumns.map(col => `${col} = ?`).join(' AND ');
         
         return `DELETE FROM ${this.tableName} WHERE ${whereClause}`;
@@ -370,7 +286,7 @@ class BaseDAO extends BaseGetDAO {
      * @return {string} Object containing query string and values array
      * @memberof BaseDAO
      */
-    getDeleteByIdQueryString() {
+    _protectedGetDeleteByIdQueryString() {
         return `DELETE FROM ${this.tableName} WHERE ${this.primaryKeyName} = ?`;
     }
 }

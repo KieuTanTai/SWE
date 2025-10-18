@@ -205,6 +205,90 @@ class BaseDAO extends BaseGetDAO {
     }
 
     /**
+     *
+     *
+     * @param {string|number} id
+     * @param {boolean} [isSoftDelete=false]
+     * @param {string} [setCommand=""]
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     * @memberof BaseDAO
+     */
+    async deleteById(id, isSoftDelete = false, setCommand = "") {
+        try {
+            if (id === null || id === undefined) {
+                console.error('Error: id must be provided');
+                return -1;
+            }
+
+            let sql;
+            if (isSoftDelete) {
+                sql = `UPDATE ${this.tableName} SET ${setCommand} = 1 WHERE ${this.primaryKeyName} = ?`;
+            } else {
+                sql = this.getDeleteByIdQueryString();
+            }
+
+            this.connection.beginTransaction();
+            const [result] = await this.connection.execute(sql, [id]);
+
+            if (result && typeof result === 'object' && 'affectedRows' in result) {
+                this.connection.commit();
+                return result.affectedRows;
+            }
+            this.connection.rollback();
+            return -1;
+        } catch (exception) {
+            this.connection.rollback();
+            if (exception instanceof Error)
+                console.error(`Error: ${exception.message}`);
+            else
+                console.error(`Exception: ${exception}`);
+            return -1;
+        }
+    }
+
+    /**
+     *
+     *
+     * @param {string[]|number[]} arrayIds
+     * @param {boolean} [isSoftDelete=false]
+     * @param {string} [setCommand=""]
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     * @memberof BaseDAO
+     */
+    async deleteByIds(arrayIds, isSoftDelete = false, setCommand = "") {
+        try {
+            if (!Array.isArray(arrayIds) || arrayIds.length === 0) {
+                console.error('Error: arrayIds must be a non-empty array');
+                return -1;
+            }
+
+            let sql;
+            if (isSoftDelete) {
+                sql = `UPDATE ${this.tableName} SET ${setCommand} = 1 WHERE ${this.primaryKeyName} IN (?)`;
+            } else {
+                sql = `DELETE FROM ${this.tableName} WHERE ${this.primaryKeyName} IN (?)`;
+            }
+
+            this.connection.beginTransaction();
+            const [results] = await this.connection.execute(sql, [arrayIds]);
+
+            if (results && typeof results === 'object' && 'affectedRows' in results) {
+                this.connection.commit();
+                return results.affectedRows;
+            }
+            this.connection.rollback();
+            return -1;
+        } catch (exception) {
+            this.connection.rollback();
+            if (exception instanceof Error)
+                console.error(`Error: ${exception.message}`);
+            else
+                console.error(`Exception: ${exception}`);
+            return -1;
+        }
+    }
+
+    /**
      * Generate INSERT query string
      * @param {string[]} columns - Array of column names
      * @return { string} containing query string

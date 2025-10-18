@@ -21,7 +21,7 @@ const Driver = require('./Driver');
 const Student = require('./Student');
 
 // Transportation Models
-const Route = require('./Route');
+const Route = require('./Route').default;
 const DetailRoute = require('./DetailRoute');
 const Bus = require('./Bus');
 const BusRoute = require('./BusRoute');

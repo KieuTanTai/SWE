@@ -4,8 +4,8 @@
  */
 class Role {
     constructor({
-        role_id = null,
-        role_name,
+        role_id = 0,
+        role_name = "",
         role_created_date = new Date(),
         role_active_status = true
     }) {

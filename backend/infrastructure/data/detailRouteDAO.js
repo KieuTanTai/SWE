@@ -69,7 +69,7 @@ class DetailRouteDAO extends BaseDAO {
 
         try {
             const results = await this._protectedGetBySelection(["*"], [routeId],
-                `WHERE route_id = ?`);
+                `WHERE ${dbSchema.DETAIL_ROUTE_COLUMNS.ROUTE_ID} = ?`);
             if (!results || results.length === 0) {
                 console.warn(`Warning: No detail routes found for routeId ${routeId}`);
                 return [];
@@ -96,7 +96,7 @@ class DetailRouteDAO extends BaseDAO {
 
         try {
             const results = await this._protectedGetBySelection(["*"], [startPointId],
-                `WHERE detail_route_start_point_id = ?`);
+                `WHERE ${dbSchema.DETAIL_ROUTE_COLUMNS.ROUTE_START_POINT_ID} = ?`);
             if (!results || results.length === 0) {
                 console.warn(`Warning: No detail routes found for startPointId ${startPointId}`);
                 return [];
@@ -123,7 +123,7 @@ class DetailRouteDAO extends BaseDAO {
 
         try {
             const results = await this._protectedGetBySelection(["*"], [endPointId],
-                `WHERE detail_route_end_point_id = ?`);
+                `WHERE ${dbSchema.DETAIL_ROUTE_COLUMNS.ROUTE_END_POINT_ID} = ?`);
             if (!results || results.length === 0) {
                 console.warn(`Warning: No detail routes found for endPointId ${endPointId}`);
                 return [];
@@ -150,7 +150,7 @@ class DetailRouteDAO extends BaseDAO {
 
         try {
             const results = await this._protectedGetBySelection(["*"], [distance],
-                `WHERE detail_route_distance = ?`);
+                `WHERE ${dbSchema.DETAIL_ROUTE_COLUMNS.ROUTE_DISTANCE} = ?`);
             if (!results || results.length === 0) {
                 console.warn(`Warning: No detail routes found for distance ${distance}`);
                 return [];
@@ -199,10 +199,11 @@ class DetailRouteDAO extends BaseDAO {
 
         try {
             const insertIds = [];
-            const values = detailRoutes.map(detail => ({route_id: detail.route_id,
-                detail_route_start_point_id: detail.detail_route_start_point_id,
-                detail_route_end_point_id: detail.detail_route_end_point_id,
-                detail_route_distance: detail.detail_route_distance
+            const values = detailRoutes.map(detail => ({
+                [dbSchema.DETAIL_ROUTE_COLUMNS.ROUTE_ID]: detail.route_id,
+                [dbSchema.DETAIL_ROUTE_COLUMNS.DETAIL_ROUTE_START_POINT_ID]: detail.detail_route_start_point_id,
+                [dbSchema.DETAIL_ROUTE_COLUMNS.DETAIL_ROUTE_END_POINT_ID]: detail.detail_route_end_point_id,
+                [dbSchema.DETAIL_ROUTE_COLUMNS.DETAIL_ROUTE_DISTANCE]: detail.detail_route_distance
             }));
             
             const columns = [dbSchema.DETAIL_ROUTE_COLUMNS.ROUTE_ID,
@@ -297,14 +298,7 @@ class DetailRouteDAO extends BaseDAO {
         }
 
         try {
-            const values = detailRoutes.map(detail => ({
-                detail_route_id: detail.detail_route_id,
-                detail_route_start_point_id: detail.detail_route_start_point_id,
-                detail_route_end_point_id: detail.detail_route_end_point_id,
-                detail_route_distance: detail.detail_route_distance
-            }));
-
-            const results = await this._protectedMultiUpdateById(values);
+            const results = await this._protectedMultiUpdateById(detailRoutes);
             return results;
         } catch (error) {
             console.error(`Error: ${error.message}`);
@@ -365,8 +359,8 @@ class DetailRouteDAO extends BaseDAO {
 
         try {
             const formattedRoutes = newDetailRoutes.map(detail => new DetailRoute({
-                detail_route_id: detail.detail_route_id,
-                detail_route_distance: detail.detail_route_distance
+                [dbSchema.DETAIL_ROUTE_COLUMNS.DETAIL_ROUTE_ID]: detail.detail_route_id,
+                [dbSchema.DETAIL_ROUTE_COLUMNS.DETAIL_ROUTE_DISTANCE]: detail.detail_route_distance
             }));
             return await this.#updateDetailRoutes(formattedRoutes);
         } catch (error) {
@@ -413,8 +407,8 @@ class DetailRouteDAO extends BaseDAO {
         }
         try {
             const formattedRoutes = detailRoutes.map(detail => new DetailRoute({
-                detail_route_id: detail.detail_route_id,
-                detail_route_start_point_id: detail.detail_route_start_point_id
+                [dbSchema.DETAIL_ROUTE_COLUMNS.DETAIL_ROUTE_ID]: detail.detail_route_id,
+                [dbSchema.DETAIL_ROUTE_COLUMNS.DETAIL_ROUTE_START_POINT_ID]: detail.detail_route_start_point_id
             }));
             return await this.#updateDetailRoutes(formattedRoutes);
         } catch (error) {
@@ -465,8 +459,8 @@ class DetailRouteDAO extends BaseDAO {
         }
         try {
             const formattedRoutes = detailRoutes.map(detail => new DetailRoute({
-                detail_route_id: detail.detail_route_id,
-                detail_route_end_point_id: detail.detail_route_end_point_id
+                [dbSchema.DETAIL_ROUTE_COLUMNS.DETAIL_ROUTE_ID]: detail.detail_route_id,
+                [dbSchema.DETAIL_ROUTE_COLUMNS.DETAIL_ROUTE_END_POINT_ID]: detail.detail_route_end_point_id
             }));
             return await this.#updateDetailRoutes(formattedRoutes);
         } catch (error) {

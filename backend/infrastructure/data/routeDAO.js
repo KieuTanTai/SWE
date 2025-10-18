@@ -31,38 +31,38 @@ class RouteDAO extends BaseDAO {
     /**
      *
      *
-     * @param {string|number} routeId
-     * @return {Promise<Route|null>} 
+     * @param {number} routeId
+     * @return {Promise<Route>} 
      * @memberof RouteDAO
      */
     async getByRouteId(routeId) {
-        if (routeId === "" || routeId === null || routeId === undefined || !Number.isInteger(routeId)) {
+        if (routeId === null || routeId === undefined || !Number.isInteger(routeId)) {
             console.warn(`Warning: routeId is invalid : ${routeId}`);
-            return new Route({});
+            return new Route();
         }
 
         try {
             if (Number.parseInt(routeId.toString()) <= 0) {
                 console.warn(`Warning: routeId must be greater than zero : ${routeId}`);
-                return new Route({});
+                return new Route();
             }
 
             const result = await this._protectedGetById(routeId);
             if (!result) {
                 console.warn(`Warning: No data found for routeId ${routeId}`);
-                return new Route({});
+                return new Route();
             }
             return Route.fromDatabase(result);
         } catch (error) {
             console.error(`Error: ${error.message}`);
-            return new Route({});
+            return new Route();
         }
     }
 
     /**
      *
      *
-     * @param {string[]|number[]} routeIds
+     * @param {number[]} routeIds
      * @return {Promise<Route[]>} 
      * @memberof RouteDAO
      */
@@ -89,6 +89,61 @@ class RouteDAO extends BaseDAO {
     /**
      *
      *
+     * @param {string} routeName
+     * @return {Promise<Route>} 
+     * @memberof RouteDAO
+     */
+    async getByRouteName(routeName) {
+        if (!routeName || typeof routeName !== 'string' || routeName.trim() === '') {
+            console.warn(`Warning: routeName is invalid : ${routeName}`);
+            return new Route();
+        }
+
+        try {
+            const results = await this._protectedGetBySelection(["*"], [routeName],
+                `WHERE ${dbSchema.ROUTE_COLUMNS.ROUTE_NAME} = ?`);
+            if (!results || results.length === 0) {
+                console.warn(`Warning: No routes found for routeName ${routeName}`);
+                return new Route();
+            }
+            return results.map(row => Route.fromDatabase(row))[0];
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return new Route();
+        }
+    }
+
+    /**
+     *
+     *
+     * @param {string} partialName
+     * @return {Promise<Route[]>} 
+     * @memberof RouteDAO
+     */
+    async getLikeRouteName(partialName) {
+        if (!partialName || typeof partialName !== 'string' || partialName.trim() === '') {
+            console.warn(`Warning: partialName is invalid : ${partialName}`);
+            return [];
+        }
+
+        try {
+            const likePattern = `%${partialName}%`;
+            const results = await this._protectedGetBySelection(["*"], [likePattern],
+                `WHERE ${dbSchema.ROUTE_COLUMNS.ROUTE_NAME} LIKE ?`);
+            if (!results || results.length === 0) {
+                console.warn(`Warning: No routes found matching partialName ${partialName}`);
+                return [];
+            }
+            return results.map(row => Route.fromDatabase(row));
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return [];
+        }
+    }
+
+    /**
+     *
+     *
      * @param {boolean} routeStatus
      * @return {Promise<Route[]>} 
      * @memberof RouteDAO
@@ -101,7 +156,7 @@ class RouteDAO extends BaseDAO {
 
         try {
             const results = await this._protectedGetBySelection(["*"], [routeStatus],
-                `WHERE route_status = ?`);
+                `WHERE ${dbSchema.ROUTE_COLUMNS.ROUTE_STATUS} = ?`);
             if (!results || results.length === 0) {
                 console.warn(`Warning: No routes found for routeStatus ${routeStatus}`);
                 return [];
@@ -149,12 +204,11 @@ class RouteDAO extends BaseDAO {
         }
 
         try {
-            const insertIds = [];
             const valueInserts = routes.map(route => ({
-                route_name: route.route_name,
-                route_status: route.route_status
+                [dbSchema.ROUTE_COLUMNS.ROUTE_NAME]: route.route_name,
+                [dbSchema.ROUTE_COLUMNS.ROUTE_STATUS]: route.route_status
             }));
-            const results = await this._protectedMultiCreate(["route_name", "route_status"], valueInserts);
+            const results = await this._protectedMultiCreate([dbSchema.ROUTE_COLUMNS.ROUTE_NAME, dbSchema.ROUTE_COLUMNS.ROUTE_STATUS], valueInserts);
             return results;
         } catch (error) {
             console.error(`Error: ${error.message}`);
@@ -175,7 +229,7 @@ class RouteDAO extends BaseDAO {
             return -1;
         }
         try {
-            const result = await this._protectedUpdateById(route.route_id, route);
+            const result = await this._protectedUpdateById(route[dbSchema.ROUTE_COLUMNS.ROUTE_ID], route);
             return result;
         } catch (error) {
             console.error(`Error: ${error.message}`);
@@ -197,12 +251,7 @@ class RouteDAO extends BaseDAO {
         }
 
         try {
-            const arrayValues = routes.map(route => ({
-                route_id: route.route_id,
-                route_name: route.route_name,
-                route_status: route.route_status
-            }));
-            const result = await this._protectedMultiUpdateById(arrayValues);
+            const result = await this._protectedMultiUpdateById(routes);
             return result;
         } catch (error) {
             console.error(`Error: ${error.message}`);
@@ -212,7 +261,7 @@ class RouteDAO extends BaseDAO {
 
     /**
      * Update the name of a specific route
-     * @param {string|number} routeId
+     * @param {number} routeId
      * @param {string} newName
      * @return {Promise<number>} Number of affected rows or -1 if failed
      */
@@ -272,7 +321,7 @@ class RouteDAO extends BaseDAO {
 
     /**
      * Update the names of multiple routes
-     * @param {Array<{route_id: number, route_name: string}>} routes
+     * @param {Route[]} routes
      * @return {Promise<number>} Number of affected rows or -1 if failed
      */
     async updateRouteNames(routes) {
@@ -282,8 +331,8 @@ class RouteDAO extends BaseDAO {
         }
         try {
             const formattedRoutes = routes.map(route => new Route({
-                route_id: route.route_id,
-                route_name: route.route_name
+                [dbSchema.ROUTE_COLUMNS.ROUTE_ID]: route.route_id,
+                [dbSchema.ROUTE_COLUMNS.ROUTE_NAME]: route.route_name
             }));
             return await this.#updateRoutes(formattedRoutes);
         } catch (error) {
@@ -294,7 +343,7 @@ class RouteDAO extends BaseDAO {
 
     /**
      * Update the statuses of multiple routes
-     * @param {Array<{route_id: number, route_status: boolean}>} routes
+     * @param {Route[]} routes
      * @return {Promise<number>} Number of affected rows or -1 if failed
      */
     async updateRouteStatuses(routes) {
@@ -304,8 +353,8 @@ class RouteDAO extends BaseDAO {
         }
         try {
             const formattedRoutes = routes.map(route => new Route({
-                route_id: route.route_id,
-                route_status: route.route_status
+                [dbSchema.ROUTE_COLUMNS.ROUTE_ID]: route.route_id,
+                [dbSchema.ROUTE_COLUMNS.ROUTE_STATUS]: route.route_status
             }));
             return await this.#updateRoutes(formattedRoutes);
         } catch (error) {

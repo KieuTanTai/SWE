@@ -4,9 +4,9 @@
  */
 class Account {
     constructor({
-        account_id = null,
-        account_email,
-        account_password,
+        account_id = 0,
+        account_email = '',
+        account_password = '',
         account_create_date = new Date(),
         account_last_updated_date = new Date(),
         account_login_status = false

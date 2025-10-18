@@ -4,7 +4,7 @@
  */
 class Route {
     constructor({
-        route_id = null,
+        route_id = 0,
         route_name = "",
         route_status = true
     }) {

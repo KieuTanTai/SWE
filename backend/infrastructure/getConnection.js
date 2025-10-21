@@ -1,38 +1,28 @@
 import fs from 'fs';
 import mysql from 'mysql2/promise';
-
+import path from 'path';
+import { fileURLToPath } from 'url';
+// 🔧 Lấy đường dẫn thật của file này
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 class Connection {
-    /**
-     * @property {string} configPath
-     * @property {string} connectionName
-     * @property {import('mysql2/promise').Pool|null} pool
-     * @property {string|null} config
-     */
-
-    /**
-     * 
-     * @param {string} configPath 
-     * @param {string} connectionName 
-     */
-
     constructor(configPath, connectionName = 'DefaultConnection') {
-        /** @type {string} */
         this.configPath = configPath;
-        /** @type {string} */
         this.connectionName = connectionName;
-        /** @type {import('mysql2/promise').Pool|null} */
         this.pool = null;
-        /** @type {string|null} */
         this.config = null;
     }
 
     readConfig() {
         try {
-            if (!fs.existsSync(this.configPath)) {
-                throw new Error(`Configuration file not found: ${this.configPath}`);
+            // 🔧 Cập nhật dòng này:
+            const fullPath = path.resolve(__dirname, '..', this.configPath);
+
+            if (!fs.existsSync(fullPath)) {
+                throw new Error(`Configuration file not found: ${fullPath}`);
             }
 
-            const rawData = fs.readFileSync(this.configPath, 'utf8');
+            const rawData = fs.readFileSync(fullPath, 'utf8');
             const json = JSON.parse(rawData);
 
             if (!json.ConnectionStrings) {

@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "server=localhost;database=ssb;user=root;password=;"
+  }
+}

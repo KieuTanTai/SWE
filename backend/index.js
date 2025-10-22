@@ -1,5 +1,18 @@
 import express from 'express';
+import bodyParser from 'body-parser';
+import DriverController from './controllers/DriverController.js';
+import ReportController from './controllers/ReportController.js';
+import ParentController from './controllers/ParentController.js';
+
+
+
 const app = express();
+app.use(bodyParser.json());
+
+app.use('/api/driver', DriverController);
+app.use('/api/parent', ParentController);
+app.use('/api/report', ReportController);
+
 
 const PORT = 5000;
 

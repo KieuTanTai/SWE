@@ -1,5 +1,5 @@
 
-import Connection from '../getConnection.js';
+import Connection from '../connection/getConnection.js';
 const connection = new Connection('./config.json');
 
 

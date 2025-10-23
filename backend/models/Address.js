@@ -89,4 +89,4 @@ class Address {
     }
 }
 
-module.exports = Address;
+export default Address;

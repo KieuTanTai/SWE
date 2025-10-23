@@ -65,4 +65,4 @@ class BusRoute {
     }
 }
 
-module.exports = BusRoute;
+export default BusRoute;

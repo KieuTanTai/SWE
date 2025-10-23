@@ -1,9 +1,9 @@
-import { Route } from "../../models";
-import { default as BaseDAO } from "./baseDAO";
-import dbSchema from "./dbSchema";
+import { Route } from "../../models/index.js";
+import { default as BaseDAO } from "./baseDAO.js";
+import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise"
 
-class RouteDAO extends BaseDAO {
+export default class RouteDAO extends BaseDAO {
     
     /**
      * Creates an instance of RouteDAO.
@@ -172,7 +172,7 @@ class RouteDAO extends BaseDAO {
      *
      *
      * @param {Route} route
-     * @return {Promise<string|number>} 
+     * @return {Promise<number>} 
      * @memberof RouteDAO
      */
     async createRoute(route) {
@@ -321,7 +321,7 @@ class RouteDAO extends BaseDAO {
 
     /**
      * Update the names of multiple routes
-     * @param {Route[]} routes
+     * @param {Array<{route_id: number, route_name: string}>} routes - Plain objects with snake_case properties
      * @return {Promise<number>} Number of affected rows or -1 if failed
      */
     async updateRouteNames(routes) {
@@ -343,7 +343,7 @@ class RouteDAO extends BaseDAO {
 
     /**
      * Update the statuses of multiple routes
-     * @param {Route[]} routes
+     * @param {Array<{route_id: number, route_status: boolean}>} routes - Plain objects with snake_case properties
      * @return {Promise<number>} Number of affected rows or -1 if failed
      */
     async updateRouteStatuses(routes) {

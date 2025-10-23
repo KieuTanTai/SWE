@@ -4,38 +4,38 @@
  */
 
 // Authentication & Authorization Models
-const Account = require('./Account');
-const Role = require('./Role');
-const AccountRole = require('./AccountRole');
+import Account from './Account.js';
+import Role from './Role.js';
+import AccountRole from './AccountRole.js';
 
 // Location Models
-const LocationCity = require('./LocationCity');
-const LocationDistrict = require('./LocationDistrict');
-const LocationWard = require('./LocationWard');
-const Address = require('./Address');
+import LocationCity from './LocationCity.js';
+import LocationDistrict from './LocationDistrict.js';
+import LocationWard from './LocationWard.js';
+import Address from './Address.js';
 
 // Person & Related Models
-const Person = require('./Person');
-const Parent = require('./Parent');
-const Driver = require('./Driver');
-const Student = require('./Student');
+import Person from './Person.js';
+import Parent from './Parent.js';
+import Driver from './Driver.js';
+import Student from './Student.js';
 
 // Transportation Models
-const Route = require('./Route').default;
-const DetailRoute = require('./DetailRoute');
-const Bus = require('./Bus');
-const BusRoute = require('./BusRoute');
+import Route from './Route.js';
+import DetailRoute from './DetailRoute.js';
+import Bus from './Bus.js';
+import BusRoute from './BusRoute.js';
 
 // Scheduling Models
-const TimeRole = require('./TimeRole');
-const Schedule = require('./Schedule');
-const DetailSchedule = require('./DetailSchedule');
-const PickupSchedule = require('./PickupSchedule');
+import TimeRole from './TimeRole.js';
+import Schedule from './Schedule.js';
+import DetailSchedule from './DetailSchedule.js';
+import PickupSchedule from './PickupSchedule.js';
 
 // Reporting Models
-const Report = require('./Report');
+import Report from './Report.js';
 
-module.exports = {
+export {
     // Authentication & Authorization
     Account,
     Role,

@@ -1,8 +1,8 @@
-import { DetailRoute } from "../../models";
-import BaseDAO from "./baseDAO";
-import { default as dbSchema } from "./dbSchema";
+import { DetailRoute } from "../../models/index.js";
+import BaseDAO from "./baseDAO.js";
+import { default as dbSchema } from "./dbSchema.js";
 import mySql from "mysql2/promise"
-class DetailRouteDAO extends BaseDAO {
+export default class DetailRouteDAO extends BaseDAO {
     /**
      * @param {mySql.PoolConnection} connection
      */
@@ -166,7 +166,7 @@ class DetailRouteDAO extends BaseDAO {
      *
      *
      * @param {DetailRoute} detailRoute
-     * @return {Promise<string|number>} 
+     * @return {Promise<number>} 
      * @memberof DetailRouteDAO
      */
     async createDetailRoute(detailRoute) {
@@ -345,9 +345,8 @@ class DetailRouteDAO extends BaseDAO {
     }
 
     /**
-     *
-     *
-     * @param {DetailRoute[]} newDetailRoutes
+     * Update distances cho nhiều detail routes
+     * @param {Array<{detail_route_id: number, detail_route_distance: number}>} newDetailRoutes - Plain objects with snake_case properties
      * @return {Promise<number>} 
      * @memberof DetailRouteDAO
      */
@@ -396,8 +395,8 @@ class DetailRouteDAO extends BaseDAO {
     }
 
     /**
-     * 
-     * @param {DetailRoute[]} detailRoutes
+     * Update start point ids cho nhiều detail routes
+     * @param {Array<{detail_route_id: number, detail_route_start_point_id: number}>} detailRoutes - Plain objects with snake_case properties
      * @return {Promise<number>} 
      */
     async updateStartPointIds(detailRoutes) {
@@ -448,8 +447,8 @@ class DetailRouteDAO extends BaseDAO {
     }
 
     /**
-     * 
-     * @param {DetailRoute[]} detailRoutes
+     * Update end point ids cho nhiều detail routes
+     * @param {Array<{detail_route_id: number, detail_route_end_point_id: number}>} detailRoutes - Plain objects with snake_case properties
      * @return {Promise<number>} 
      */
     async updateEndPointIds(detailRoutes) {

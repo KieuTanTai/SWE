@@ -5,11 +5,11 @@
 class Report {
     constructor({
         report_id = null,
-        report_driver_id,
+        report_driver_id = 0,
         report_time = new Date(),
-        report_type,
+        report_type = '',
         report_content = null
-    }) {
+    } = {}) {
         this.report_id = report_id;
         this.report_driver_id = report_driver_id;
         this.report_time = report_time;
@@ -105,4 +105,4 @@ class Report {
     }
 }
 
-module.exports = Report;
+export default Report;

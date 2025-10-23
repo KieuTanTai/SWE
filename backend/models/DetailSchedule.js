@@ -71,4 +71,4 @@ class DetailSchedule {
     }
 }
 
-module.exports = DetailSchedule;
+export default DetailSchedule;

@@ -4,11 +4,11 @@
  */
 class Driver {
     constructor({
-        driver_person_id,
+        driver_person_id = 0,
         driver_experience = 0,
         driver_experience_type = 'year',
         driver_late_arrival_count = 0
-    }) {
+    } = {}) {
         this.driver_person_id = driver_person_id;
         this.driver_experience = driver_experience;
         this.driver_experience_type = driver_experience_type; // 'day', 'month', 'year'
@@ -90,4 +90,4 @@ class Driver {
     }
 }
 
-module.exports = Driver;
+export default Driver;

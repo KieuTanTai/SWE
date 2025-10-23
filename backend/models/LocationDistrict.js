@@ -69,4 +69,4 @@ class LocationDistrict {
     }
 }
 
-module.exports = LocationDistrict;
+export default LocationDistrict;

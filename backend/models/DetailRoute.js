@@ -81,4 +81,4 @@ class DetailRoute {
     }
 }
 
-module.exports = DetailRoute;
+export default DetailRoute;

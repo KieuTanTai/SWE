@@ -59,4 +59,4 @@ class LocationCity {
     }
 }
 
-module.exports = LocationCity;
+export default LocationCity;

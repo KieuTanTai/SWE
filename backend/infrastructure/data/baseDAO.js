@@ -17,7 +17,7 @@ class BaseDAO extends BaseGetDAO {
      *
      *
      * @param {*} data
-     * @return {Promise<string|number>} InsertId or -1 if failed
+     * @return {Promise<number>} InsertId or -1 if failed
      * @memberof BaseDAO
      */
     async _protectedCreate(data) {

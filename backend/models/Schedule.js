@@ -42,15 +42,19 @@ class Schedule {
         };
     }
 
+
     /**
-     * Get schedule duration in days
+     *
+     *
+     * @return {number} 
+     * @memberof Schedule
      */
     getDurationInDays() {
         if (!this.schedule_start_date || !this.schedule_end_date) return null;
 
         const start = new Date(this.schedule_start_date);
         const end = new Date(this.schedule_end_date);
-        const diffTime = Math.abs(end - start);
+        const diffTime = Math.abs(end.getTime() - start.getTime());
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
 
@@ -95,4 +99,4 @@ class Schedule {
     }
 }
 
-module.exports = Schedule;
+export default Schedule;

@@ -185,7 +185,7 @@ class AccountRoleDAO extends BaseDAO {
     /**
      * Create a new account-role relationship
      * @param {AccountRole} accountRole
-     * @return {Promise<string|number>} 
+     * @return {Promise<number>} 
      * @memberof AccountRoleDAO
      */
     async createAccountRole(accountRole) {

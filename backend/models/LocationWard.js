@@ -67,4 +67,4 @@ class LocationWard {
     }
 }
 
-module.exports = LocationWard;
+export default LocationWard;

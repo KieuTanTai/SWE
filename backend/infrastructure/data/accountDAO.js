@@ -177,7 +177,7 @@ class AccountDAO extends BaseDAO {
     /**
      * Create a new account
      * @param {Account} account
-     * @return {Promise<string|number>} 
+     * @return {Promise<number>} 
      * @memberof AccountDAO
      */
     async createAccount(account) {
@@ -365,7 +365,7 @@ class AccountDAO extends BaseDAO {
 
     /**
      * Update emails of multiple accounts
-     * @param {Account[]} accounts
+     * @param {Array<{account_id: number, account_email: string}>} accounts - Plain objects with snake_case properties
      * @return {Promise<number>} Number of affected rows or -1 if failed
      */
     async updateEmails(accounts) {
@@ -387,7 +387,7 @@ class AccountDAO extends BaseDAO {
 
     /**
      * Update passwords of multiple accounts
-     * @param {Account[]} accounts
+     * @param {Array<{account_id: number, account_password: string}>} accounts - Plain objects with snake_case properties
      * @return {Promise<number>} Number of affected rows or -1 if failed
      */
     async updatePasswords(accounts) {
@@ -409,7 +409,7 @@ class AccountDAO extends BaseDAO {
 
     /**
      * Update login statuses of multiple accounts
-     * @param {Account[]} accounts
+     * @param {Array<{account_id: number, account_login_status: boolean}>} accounts - Plain objects with snake_case properties
      * @return {Promise<number>} Number of affected rows or -1 if failed
      */
     async updateLoginStatuses(accounts) {

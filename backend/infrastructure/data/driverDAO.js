@@ -1,62 +1,469 @@
+import { Driver } from "../../models/index.js";
+import { default as BaseDAO } from "./baseDAO.js";
+import dbSchema from "./dbSchema.js";
+import mySql from "mysql2/promise";
 
-import Connection from '../connection/getConnection.js';
-const connection = new Connection('./config.json');
+/**
+ * DriverDAO
+ * Data Access Object for Driver table operations
+ */
+export default class DriverDAO extends BaseDAO {
+    
+    /**
+     * Creates an instance of DriverDAO.
+     * @param {mySql.PoolConnection} connection
+     * @memberof DriverDAO
+     */
+    constructor(connection) {
+        super(connection, "Driver", dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID);
+    }
 
+    /**
+     * Get all drivers
+     * @return {Promise<Driver[]>} 
+     * @memberof DriverDAO
+     */
+    async getAllDrivers() {
+        try {
+            const results = await this._protectedGetAll();
+            if (!results || results.length === 0) {
+                console.warn(`Warning: No drivers found`);
+                return [];
+            }
+            return results.map(row => Driver.fromDatabase(row));
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return [];
+        }
+    }
 
+    /**
+     * Get driver by person ID
+     * @param {number} driverPersonId
+     * @return {Promise<Driver>} 
+     * @memberof DriverDAO
+     */
+    async getByDriverPersonId(driverPersonId) {
+        if (driverPersonId === null || driverPersonId === undefined || !Number.isInteger(driverPersonId)) {
+            console.warn(`Warning: driverPersonId is invalid : ${driverPersonId}`);
+            const emptyDriver = {};
+            emptyDriver[dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID] = 0;
+            return new Driver(emptyDriver);
+        }
 
-class DriverDAO {
-  constructor() {
-    this.tableName = 'driver'; // 🔧 đổi đúng tên bảng trong DB của bạn
-  }
+        try {
+            if (Number.parseInt(driverPersonId.toString()) <= 0) {
+                console.warn(`Warning: driverPersonId must be greater than zero : ${driverPersonId}`);
+                const emptyDriver = {};
+                emptyDriver[dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID] = 0;
+                return new Driver(emptyDriver);
+            }
 
-  async getAll() {
-    const pool = await connection.connect();
-    const [rows] = await pool.query(`SELECT * FROM ${this.tableName}`);
-    return rows;
-  }
+            const result = await this._protectedGetById(driverPersonId);
+            if (!result) {
+                console.warn(`Warning: No data found for driverPersonId ${driverPersonId}`);
+                const emptyDriver = {};
+                emptyDriver[dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID] = 0;
+                return new Driver(emptyDriver);
+            }
+            return Driver.fromDatabase(result);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            const emptyDriver = {};
+            emptyDriver[dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID] = 0;
+            return new Driver(emptyDriver);
+        }
+    }
 
-  async getById(id) {
-    const pool = await connection.connect();
-    const [rows] = await pool.query(`SELECT * FROM ${this.tableName} WHERE id = ?`, [id]);
-    return rows[0] || null;
-  }
+    /**
+     * Get drivers by multiple person IDs
+     * @param {number[]} driverPersonIds
+     * @return {Promise<Driver[]>} 
+     * @memberof DriverDAO
+     */
+    async getByDriverPersonIds(driverPersonIds) {
+        if (!Array.isArray(driverPersonIds) || driverPersonIds.length === 0) {
+            console.warn(`Warning: driverPersonIds must be a non-empty array`);
+            return [];
+        }
 
-  async insert(data) {
-    const pool = await connection.connect();
-    const columns = Object.keys(data).join(', ');
-    const values = Object.values(data);
-    const placeholders = values.map(() => '?').join(', ');
+        try {
+            const results = await this._protectedGetBySelection(["*"], driverPersonIds,
+                `WHERE ${this.primaryKeyName} IN (${driverPersonIds.map(() => '?').join(', ')})`);
+            if (!results || results.length === 0) {
+                console.warn(`Warning: No drivers found for provided driverPersonIds`);
+                return [];
+            }
+            return results.map(row => Driver.fromDatabase(row));
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return [];
+        }
+    }
 
-    const sql = `INSERT INTO ${this.tableName} (${columns}) VALUES (${placeholders})`;
+    /**
+     * Get drivers by experience type
+     * @param {string} experienceType - 'day', 'month', 'year'
+     * @return {Promise<Driver[]>} 
+     * @memberof DriverDAO
+     */
+    async getByExperienceType(experienceType) {
+        if (!experienceType || typeof experienceType !== 'string' || experienceType.trim() === '') {
+            console.warn(`Warning: experienceType is invalid : ${experienceType}`);
+            return [];
+        }
 
-    // ✅ Khai báo kiểu rõ ràng để TypeScript hiểu đúng
-    /** @type {[import('mysql2').ResultSetHeader, any]} */
-    const [result] = await pool.query(sql, values);
+        try {
+            const results = await this._protectedGetBySelection(["*"], [experienceType],
+                `WHERE ${dbSchema.DRIVER_COLUMNS.DRIVER_EXPERIENCE_TYPE} = ?`);
+            if (!results || results.length === 0) {
+                console.warn(`Warning: No drivers found for experienceType ${experienceType}`);
+                return [];
+            }
+            return results.map(row => Driver.fromDatabase(row));
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return [];
+        }
+    }
 
-    return { id: result.insertId, ...data };
-  }
+    /**
+     * Get drivers by minimum experience
+     * @param {number} minExperience
+     * @param {string} experienceType - 'day', 'month', 'year'
+     * @return {Promise<Driver[]>} 
+     * @memberof DriverDAO
+     */
+    async getByMinExperience(minExperience, experienceType = 'year') {
+        if (typeof minExperience !== 'number' || minExperience < 0) {
+            console.warn(`Warning: minExperience is invalid : ${minExperience}`);
+            return [];
+        }
 
-  async update(id, data) {
-    const pool = await connection.connect();
-    const columns = Object.keys(data).map(key => `${key} = ?`).join(', ');
-    const values = [...Object.values(data), id];
-    const sql = `UPDATE ${this.tableName} SET ${columns} WHERE id = ?`;
+        try {
+            const results = await this._protectedGetBySelection(["*"], [minExperience, experienceType],
+                `WHERE ${dbSchema.DRIVER_COLUMNS.DRIVER_EXPERIENCE} >= ? AND ${dbSchema.DRIVER_COLUMNS.DRIVER_EXPERIENCE_TYPE} = ?`);
+            if (!results || results.length === 0) {
+                console.warn(`Warning: No drivers found with experience >= ${minExperience} ${experienceType}`);
+                return [];
+            }
+            return results.map(row => Driver.fromDatabase(row));
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return [];
+        }
+    }
 
-    /** @type {[import('mysql2').ResultSetHeader, any]} */
-    const [result] = await pool.query(sql, values);
+    /**
+     * Get drivers by maximum late arrival count
+     * @param {number} maxLateArrivalCount
+     * @return {Promise<Driver[]>} 
+     * @memberof DriverDAO
+     */
+    async getByMaxLateArrivalCount(maxLateArrivalCount) {
+        if (typeof maxLateArrivalCount !== 'number' || maxLateArrivalCount < 0) {
+            console.warn(`Warning: maxLateArrivalCount is invalid : ${maxLateArrivalCount}`);
+            return [];
+        }
 
-    return result.affectedRows > 0;
-  }
+        try {
+            const results = await this._protectedGetBySelection(["*"], [maxLateArrivalCount],
+                `WHERE ${dbSchema.DRIVER_COLUMNS.DRIVER_LATE_ARRIVAL_COUNT} <= ?`);
+            if (!results || results.length === 0) {
+                console.warn(`Warning: No drivers found with late arrival count <= ${maxLateArrivalCount}`);
+                return [];
+            }
+            return results.map(row => Driver.fromDatabase(row));
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return [];
+        }
+    }
 
-  async delete(id) {
-    const pool = await connection.connect();
-    const sql = `DELETE FROM ${this.tableName} WHERE id = ?`;
+    /**
+     * Create a new driver
+     * @param {Driver} driver
+     * @return {Promise<number>} The driver_person_id or -1 if failed
+     * @memberof DriverDAO
+     */
+    async createDriver(driver) {
+        if (!(driver instanceof Driver)) {
+            console.warn(`Warning: Invalid driver object`);
+            return -1;
+        }
 
-    /** @type {[import('mysql2').ResultSetHeader, any]} */
-    const [result] = await pool.query(sql, [id]);
+        try {
+            const result = await this._protectedCreate(driver);
+            return result;
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
 
-    return result.affectedRows > 0;
-  }
+    /**
+     * Create multiple drivers
+     * @param {Driver[]} drivers
+     * @return {Promise<number|number[]>} Number of affected rows or array of IDs, or -1 if failed
+     * @memberof DriverDAO
+     */
+    async createDrivers(drivers) {
+        if (!Array.isArray(drivers) || drivers.length === 0) {
+            console.warn(`Warning: drivers must be a non-empty array`);
+            return -1;
+        }
+
+        try {
+            const valueInserts = drivers.map(driver => ({
+                [dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID]: driver.driver_person_id,
+                [dbSchema.DRIVER_COLUMNS.DRIVER_EXPERIENCE]: driver.driver_experience,
+                [dbSchema.DRIVER_COLUMNS.DRIVER_EXPERIENCE_TYPE]: driver.driver_experience_type,
+                [dbSchema.DRIVER_COLUMNS.DRIVER_LATE_ARRIVAL_COUNT]: driver.driver_late_arrival_count
+            }));
+            const results = await this._protectedMultiCreate([
+                dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID,
+                dbSchema.DRIVER_COLUMNS.DRIVER_EXPERIENCE,
+                dbSchema.DRIVER_COLUMNS.DRIVER_EXPERIENCE_TYPE,
+                dbSchema.DRIVER_COLUMNS.DRIVER_LATE_ARRIVAL_COUNT
+            ], valueInserts);
+            return results;
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Private method to update a single driver
+     * @param {Driver} driver
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     * @memberof DriverDAO
+     */
+    async #updateDriver(driver) {
+        if (!driver) {
+            console.warn(`Warning: Invalid driver: ${driver}`);
+            return -1;
+        }
+        try {
+            const result = await this._protectedUpdateById(driver[dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID], driver);
+            return result;
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Private method to update multiple drivers
+     * @param {Driver[]} drivers
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     * @memberof DriverDAO
+     */
+    async #updateDrivers(drivers) {
+        if (!Array.isArray(drivers) || drivers.length === 0) {
+            console.warn(`Warning: drivers must be a non-empty array`);
+            return -1;
+        }
+
+        try {
+            const result = await this._protectedMultiUpdateById(drivers);
+            return result;
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Update driver experience
+     * @param {number} driverPersonId
+     * @param {number} newExperience
+     * @param {string} experienceType
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     * @memberof DriverDAO
+     */
+    async updateExperience(driverPersonId, newExperience, experienceType) {
+        if (!driverPersonId || !Number.isInteger(driverPersonId)) {
+            console.warn(`Warning: Invalid driverPersonId`);
+            return -1;
+        }
+
+        if (typeof newExperience !== 'number' || newExperience < 0) {
+            console.warn(`Warning: Invalid newExperience`);
+            return -1;
+        }
+
+        try {
+            const result = await this.getByDriverPersonId(driverPersonId);
+            if (!result || !result.driver_person_id) {
+                console.warn(`Warning: No driver found for driverPersonId ${driverPersonId}`);
+                return -1;
+            }
+            if (result.driver_experience === newExperience && result.driver_experience_type === experienceType) {
+                console.info(`Info: Experience is already ${newExperience} ${experienceType} for driverPersonId ${driverPersonId}`);
+                return 0;
+            }
+            result.driver_experience = newExperience;
+            result.driver_experience_type = experienceType;
+            return await this.#updateDriver(result);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Update driver late arrival count
+     * @param {number} driverPersonId
+     * @param {number} newLateArrivalCount
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     * @memberof DriverDAO
+     */
+    async updateLateArrivalCount(driverPersonId, newLateArrivalCount) {
+        if (!driverPersonId || !Number.isInteger(driverPersonId)) {
+            console.warn(`Warning: Invalid driverPersonId`);
+            return -1;
+        }
+
+        if (typeof newLateArrivalCount !== 'number' || newLateArrivalCount < 0) {
+            console.warn(`Warning: Invalid newLateArrivalCount`);
+            return -1;
+        }
+
+        try {
+            const result = await this.getByDriverPersonId(driverPersonId);
+            if (!result || !result.driver_person_id) {
+                console.warn(`Warning: No driver found for driverPersonId ${driverPersonId}`);
+                return -1;
+            }
+            if (result.driver_late_arrival_count === newLateArrivalCount) {
+                console.info(`Info: Late arrival count is already ${newLateArrivalCount} for driverPersonId ${driverPersonId}`);
+                return 0;
+            }
+            result.driver_late_arrival_count = newLateArrivalCount;
+            return await this.#updateDriver(result);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Increment late arrival count for a driver
+     * @param {number} driverPersonId
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     * @memberof DriverDAO
+     */
+    async incrementLateArrivalCount(driverPersonId) {
+        if (!driverPersonId || !Number.isInteger(driverPersonId)) {
+            console.warn(`Warning: Invalid driverPersonId`);
+            return -1;
+        }
+
+        try {
+            const result = await this.getByDriverPersonId(driverPersonId);
+            if (!result || !result.driver_person_id) {
+                console.warn(`Warning: No driver found for driverPersonId ${driverPersonId}`);
+                return -1;
+            }
+            result.driver_late_arrival_count += 1;
+            return await this.#updateDriver(result);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Update experiences of multiple drivers
+     * @param {Array<{driver_person_id: number, driver_experience: number, driver_experience_type: string}>} drivers - Plain objects with snake_case properties
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     * @memberof DriverDAO
+     */
+    async updateExperiences(drivers) {
+        if (!Array.isArray(drivers) || drivers.length === 0) {
+            console.warn(`Warning: drivers must be a non-empty array`);
+            return -1;
+        }
+        try {
+            const formattedDrivers = drivers.map(driver => {
+                const obj = {};
+                obj[dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID] = driver.driver_person_id;
+                obj[dbSchema.DRIVER_COLUMNS.DRIVER_EXPERIENCE] = driver.driver_experience;
+                obj[dbSchema.DRIVER_COLUMNS.DRIVER_EXPERIENCE_TYPE] = driver.driver_experience_type;
+                return new Driver(obj);
+            });
+            return await this.#updateDrivers(formattedDrivers);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Update late arrival counts of multiple drivers
+     * @param {Array<{driver_person_id: number, driver_late_arrival_count: number}>} drivers - Plain objects with snake_case properties
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     * @memberof DriverDAO
+     */
+    async updateLateArrivalCounts(drivers) {
+        if (!Array.isArray(drivers) || drivers.length === 0) {
+            console.warn(`Warning: drivers must be a non-empty array`);
+            return -1;
+        }
+        try {
+            const formattedDrivers = drivers.map(driver => {
+                const obj = {};
+                obj[dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID] = driver.driver_person_id;
+                obj[dbSchema.DRIVER_COLUMNS.DRIVER_LATE_ARRIVAL_COUNT] = driver.driver_late_arrival_count;
+                return new Driver(obj);
+            });
+            return await this.#updateDrivers(formattedDrivers);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Delete driver by person ID
+     * @param {number} driverPersonId
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     * @memberof DriverDAO
+     */
+    async deleteDriver(driverPersonId) {
+        if (!driverPersonId || !Number.isInteger(driverPersonId)) {
+            console.warn(`Warning: Invalid driverPersonId`);
+            return -1;
+        }
+
+        try {
+            const result = await this._protectedDeleteById(driverPersonId);
+            return result;
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
+
+    /**
+     * Delete multiple drivers by person IDs
+     * @param {number[]} driverPersonIds
+     * @return {Promise<number>} Number of affected rows or -1 if failed
+     * @memberof DriverDAO
+     */
+    async deleteDrivers(driverPersonIds) {
+        if (!Array.isArray(driverPersonIds) || driverPersonIds.length === 0) {
+            console.warn(`Warning: driverPersonIds must be a non-empty array`);
+            return -1;
+        }
+
+        try {
+            const result = await this._protectedDeleteByIds(driverPersonIds);
+            return result;
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return -1;
+        }
+    }
 }
-
-export default new DriverDAO();

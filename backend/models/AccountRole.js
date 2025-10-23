@@ -63,4 +63,4 @@ class AccountRole {
     }
 }
 
-module.exports = AccountRole;
+export default AccountRole;

@@ -62,4 +62,4 @@ class TimeRole {
     }
 }
 
-module.exports = TimeRole;
+export default TimeRole;

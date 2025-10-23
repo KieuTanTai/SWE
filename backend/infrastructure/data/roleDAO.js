@@ -166,7 +166,7 @@ class RoleDAO extends BaseDAO {
     /**
      * Create a new role
      * @param {Role} role
-     * @return {Promise<string|number>} 
+     * @return {Promise<number>} 
      * @memberof RoleDAO
      */
     async createRole(role) {
@@ -314,8 +314,8 @@ class RoleDAO extends BaseDAO {
     }
 
     /**
-     * Update names of multiple roles
-     * @param {Role[]} roles
+     * Update role names of multiple roles
+     * @param {Array<{role_id: number, role_name: string}>} roles - Plain objects with snake_case properties
      * @return {Promise<number>} Number of affected rows or -1 if failed
      */
     async updateRoleNames(roles) {
@@ -337,7 +337,7 @@ class RoleDAO extends BaseDAO {
 
     /**
      * Update active statuses of multiple roles
-     * @param {Role[]} roles
+     * @param {Array<{role_id: number, role_active_status: boolean}>} roles - Plain objects with snake_case properties
      * @return {Promise<number>} Number of affected rows or -1 if failed
      */
     async updateActiveStatuses(roles) {

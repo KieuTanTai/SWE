@@ -59,4 +59,4 @@ class PickupSchedule {
     }
 }
 
-module.exports = PickupSchedule;
+export default PickupSchedule;

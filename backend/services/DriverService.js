@@ -1,25 +1,24 @@
 import { default as DriverDAO } from "../infrastructure/data/driverDAO.js";
 import Driver from "../models/Driver.js";
+import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
  * DriverService
  * Service layer for managing drivers
+ * Manages its own database connections and transactions
  */
 class DriverService {
-    /**
-     * @param {DriverDAO} driverRepository
-     */
-    constructor(driverRepository) {
-        this.driverRepository = driverRepository;
-    }
-
     /**
      * Get all drivers
      * @return {Promise<{success: boolean, data?: Driver[], error?: string}>}
      */
     async getAllDrivers() {
         try {
-            const results = await this.driverRepository.getAllDrivers();
+            const results = await withConnection(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.getAllDrivers();
+            });
+            
             return {
                 success: true,
                 data: results
@@ -46,7 +45,11 @@ class DriverService {
                 };
             }
 
-            const result = await this.driverRepository.getByDriverPersonId(driverPersonId);
+            const result = await withConnection(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.getByDriverPersonId(driverPersonId);
+            });
+            
             return {
                 success: true,
                 data: result
@@ -73,7 +76,11 @@ class DriverService {
                 };
             }
 
-            const results = await this.driverRepository.getByDriverPersonIds(driverPersonIds);
+            const results = await withConnection(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.getByDriverPersonIds(driverPersonIds);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -100,7 +107,11 @@ class DriverService {
                 };
             }
 
-            const results = await this.driverRepository.getByExperienceType(experienceType);
+            const results = await withConnection(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.getByExperienceType(experienceType);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -127,7 +138,11 @@ class DriverService {
                 };
             }
 
-            const results = await this.driverRepository.getByMinExperience(minExperience);
+            const results = await withConnection(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.getByMinExperience(minExperience);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -154,7 +169,11 @@ class DriverService {
                 };
             }
 
-            const results = await this.driverRepository.getByMaxLateArrivalCount(maxLateCount);
+            const results = await withConnection(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.getByMaxLateArrivalCount(maxLateCount);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -181,7 +200,11 @@ class DriverService {
                 };
             }
 
-            const result = await this.driverRepository.createDriver(driver);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.createDriver(driver);
+            });
+            
             if (result === -1) {
                 return {
                     success: false,
@@ -215,7 +238,11 @@ class DriverService {
                 };
             }
 
-            const result = await this.driverRepository.createDrivers(drivers);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.createDrivers(drivers);
+            });
+            
             if (result === -1) {
                 return {
                     success: false,
@@ -251,7 +278,11 @@ class DriverService {
                 };
             }
 
-            const result = await this.driverRepository.updateExperience(driverPersonId, newExperience, experienceType);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.updateExperience(driverPersonId, newExperience, experienceType);
+            });
+            
             if (result === -1) {
                 return {
                     success: false,
@@ -286,7 +317,11 @@ class DriverService {
                 };
             }
 
-            const result = await this.driverRepository.updateLateArrivalCount(driverPersonId, newCount);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.updateLateArrivalCount(driverPersonId, newCount);
+            });
+            
             if (result === -1) {
                 return {
                     success: false,
@@ -320,7 +355,11 @@ class DriverService {
                 };
             }
 
-            const result = await this.driverRepository.incrementLateArrivalCount(driverPersonId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.incrementLateArrivalCount(driverPersonId);
+            });
+            
             if (result === -1) {
                 return {
                     success: false,
@@ -354,7 +393,11 @@ class DriverService {
                 };
             }
 
-            const result = await this.driverRepository.updateExperiences(drivers);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.updateExperiences(drivers);
+            });
+            
             if (result === -1) {
                 return {
                     success: false,
@@ -388,7 +431,11 @@ class DriverService {
                 };
             }
 
-            const result = await this.driverRepository.updateLateArrivalCounts(drivers);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.updateLateArrivalCounts(drivers);
+            });
+            
             if (result === -1) {
                 return {
                     success: false,
@@ -422,7 +469,11 @@ class DriverService {
                 };
             }
 
-            const result = await this.driverRepository.deleteDriver(driverPersonId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.deleteDriver(driverPersonId);
+            });
+            
             if (result === -1) {
                 return {
                     success: false,
@@ -456,7 +507,11 @@ class DriverService {
                 };
             }
 
-            const result = await this.driverRepository.deleteDrivers(driverPersonIds);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DriverDAO(connection);
+                return await repo.deleteDrivers(driverPersonIds);
+            });
+            
             if (result === -1) {
                 return {
                     success: false,

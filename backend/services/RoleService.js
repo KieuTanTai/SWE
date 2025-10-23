@@ -1,17 +1,13 @@
 import { default as RoleDAO } from "../infrastructure/data/roleDAO.js";
 import { Role } from "../models/index.js";
+import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
  * RoleService
  * Service layer for managing roles
+ * Manages its own database connections and transactions
  */
 class RoleService {
-    /**
-     * @param {RoleDAO} roleRepository
-     */
-    constructor(roleRepository) {
-        this.roleRepository = roleRepository;
-    }
 
     /**
      * Get all roles
@@ -19,7 +15,11 @@ class RoleService {
      */
     async getAllRoles() {
         try {
-            const results = await this.roleRepository.getAllRoles();
+            const results = await withConnection(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.getAllRoles();
+            });
+            
             return {
                 success: true,
                 data: results
@@ -46,7 +46,11 @@ class RoleService {
                 };
             }
 
-            const result = await this.roleRepository.getByRoleId(roleId);
+            const result = await withConnection(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.getByRoleId(roleId);
+            });
+            
             return {
                 success: true,
                 data: result
@@ -73,7 +77,11 @@ class RoleService {
                 };
             }
 
-            const results = await this.roleRepository.getByIds(roleIds);
+            const results = await withConnection(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.getByIds(roleIds);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -100,7 +108,11 @@ class RoleService {
                 };
             }
 
-            const result = await this.roleRepository.getByRoleName(roleName);
+            const result = await withConnection(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.getByRoleName(roleName);
+            });
+            
             return {
                 success: true,
                 data: result
@@ -127,7 +139,11 @@ class RoleService {
                 };
             }
 
-            const results = await this.roleRepository.getLikeRoleName(roleNamePattern);
+            const results = await withConnection(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.getLikeRoleName(roleNamePattern);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -154,7 +170,11 @@ class RoleService {
                 };
             }
 
-            const results = await this.roleRepository.getByActiveStatus(activeStatus);
+            const results = await withConnection(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.getByActiveStatus(activeStatus);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -181,7 +201,10 @@ class RoleService {
                 };
             }
 
-            const result = await this.roleRepository.createRole(role);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.createRole(role);
+            });
             
             if (result === -1) {
                 return {
@@ -216,7 +239,10 @@ class RoleService {
                 };
             }
 
-            const result = await this.roleRepository.createRoles(roles);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.createRoles(roles);
+            });
             
             if (result === -1) {
                 return {
@@ -259,7 +285,10 @@ class RoleService {
                 };
             }
 
-            const result = await this.roleRepository.updateRoleName(roleId, newRoleName);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.updateRoleName(roleId, newRoleName);
+            });
             
             if (result === -1) {
                 return {
@@ -302,7 +331,10 @@ class RoleService {
                 };
             }
 
-            const result = await this.roleRepository.updateActiveStatus(roleId, activeStatus);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.updateActiveStatus(roleId, activeStatus);
+            });
             
             if (result === -1) {
                 return {
@@ -337,7 +369,10 @@ class RoleService {
                 };
             }
 
-            const result = await this.roleRepository.updateRoleNames(roles);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.updateRoleNames(roles);
+            });
             
             if (result === -1) {
                 return {
@@ -372,7 +407,10 @@ class RoleService {
                 };
             }
 
-            const result = await this.roleRepository.updateActiveStatuses(roles);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RoleDAO(connection);
+                return await repo.updateActiveStatuses(roles);
+            });
             
             if (result === -1) {
                 return {

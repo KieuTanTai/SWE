@@ -1,25 +1,24 @@
 import { default as RouteDAO } from "../infrastructure/data/routeDAO.js";
 import { Route } from "../models/index.js";
+import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
  * RouteService
  * Service layer for managing routes
+ * Manages its own database connections and transactions
  */
 class RouteService {
-    /**
-     * @param {RouteDAO} routeRepository
-     */
-    constructor(routeRepository) {
-        this.routeRepository = routeRepository;
-    }
-
     /**
      * Get all routes
      * @return {Promise<{success: boolean, data?: Route[], error?: string}>}
      */
     async getAllRoutes() {
         try {
-            const results = await this.routeRepository.getAllRoutes();
+            const results = await withConnection(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.getAllRoutes();
+            });
+            
             return {
                 success: true,
                 data: results
@@ -46,7 +45,11 @@ class RouteService {
                 };
             }
 
-            const result = await this.routeRepository.getByRouteId(routeId);
+            const result = await withConnection(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.getByRouteId(routeId);
+            });
+            
             return {
                 success: true,
                 data: result
@@ -73,7 +76,11 @@ class RouteService {
                 };
             }
 
-            const results = await this.routeRepository.getByRouteIds(routeIds);
+            const results = await withConnection(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.getByRouteIds(routeIds);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -100,7 +107,11 @@ class RouteService {
                 };
             }
 
-            const result = await this.routeRepository.getByRouteName(routeName);
+            const result = await withConnection(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.getByRouteName(routeName);
+            });
+            
             return {
                 success: true,
                 data: result
@@ -127,7 +138,11 @@ class RouteService {
                 };
             }
 
-            const results = await this.routeRepository.getLikeRouteName(routeNamePattern);
+            const results = await withConnection(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.getLikeRouteName(routeNamePattern);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -154,7 +169,11 @@ class RouteService {
                 };
             }
 
-            const results = await this.routeRepository.getByRouteStatus(routeStatus);
+            const results = await withConnection(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.getByRouteStatus(routeStatus);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -181,7 +200,10 @@ class RouteService {
                 };
             }
 
-            const result = await this.routeRepository.createRoute(route);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.createRoute(route);
+            });
             
             if (result === -1) {
                 return {
@@ -216,7 +238,10 @@ class RouteService {
                 };
             }
 
-            const result = await this.routeRepository.createRoutes(routes);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.createRoutes(routes);
+            });
             
             if (result === -1) {
                 return {
@@ -259,7 +284,10 @@ class RouteService {
                 };
             }
 
-            const result = await this.routeRepository.updateRouteName(routeId, newRouteName);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.updateRouteName(routeId, newRouteName);
+            });
             
             if (result === -1) {
                 return {
@@ -302,7 +330,10 @@ class RouteService {
                 };
             }
 
-            const result = await this.routeRepository.updateRouteStatus(routeId, routeStatus);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.updateRouteStatus(routeId, routeStatus);
+            });
             
             if (result === -1) {
                 return {
@@ -337,7 +368,10 @@ class RouteService {
                 };
             }
 
-            const result = await this.routeRepository.updateRouteNames(routes);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.updateRouteNames(routes);
+            });
             
             if (result === -1) {
                 return {
@@ -372,7 +406,10 @@ class RouteService {
                 };
             }
 
-            const result = await this.routeRepository.updateRouteStatuses(routes);
+            const result = await withTransaction(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.updateRouteStatuses(routes);
+            });
             
             if (result === -1) {
                 return {

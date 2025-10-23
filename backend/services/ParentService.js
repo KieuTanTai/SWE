@@ -1,25 +1,24 @@
 import { default as ParentDAO } from "../infrastructure/data/parentDAO.js";
 import { Parent } from "../models/index.js";
+import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
  * ParentService
  * Service layer for managing parents
+ * Manages its own database connections and transactions
  */
 class ParentService {
-    /**
-     * @param {ParentDAO} parentRepository
-     */
-    constructor(parentRepository) {
-        this.parentRepository = parentRepository;
-    }
-
     /**
      * Get all parents
      * @return {Promise<{success: boolean, data?: Parent[], error?: string}>}
      */
     async getAllParents() {
         try {
-            const results = await this.parentRepository.getAllParents();
+            const results = await withConnection(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.getAllParents();
+            });
+            
             return {
                 success: true,
                 data: results
@@ -46,7 +45,11 @@ class ParentService {
                 };
             }
 
-            const result = await this.parentRepository.getByParentPersonId(parentPersonId);
+            const result = await withConnection(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.getByParentPersonId(parentPersonId);
+            });
+            
             return {
                 success: true,
                 data: result
@@ -73,7 +76,11 @@ class ParentService {
                 };
             }
 
-            const results = await this.parentRepository.getByParentPersonIds(parentPersonIds);
+            const results = await withConnection(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.getByParentPersonIds(parentPersonIds);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -100,7 +107,11 @@ class ParentService {
                 };
             }
 
-            const results = await this.parentRepository.getByAddressId(addressId);
+            const results = await withConnection(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.getByAddressId(addressId);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -127,7 +138,11 @@ class ParentService {
                 };
             }
 
-            const results = await this.parentRepository.getByParentType(parentType);
+            const results = await withConnection(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.getByParentType(parentType);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -154,7 +169,11 @@ class ParentService {
                 };
             }
 
-            const results = await this.parentRepository.getByJob(job);
+            const results = await withConnection(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.getByJob(job);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -181,7 +200,11 @@ class ParentService {
                 };
             }
 
-            const results = await this.parentRepository.getLikeJob(jobPattern);
+            const results = await withConnection(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.getLikeJob(jobPattern);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -208,7 +231,11 @@ class ParentService {
                 };
             }
 
-            const result = await this.parentRepository.createParent(parent);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.createParent(parent);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -242,7 +269,11 @@ class ParentService {
                 };
             }
 
-            const result = await this.parentRepository.createParents(parents);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.createParents(parents);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -277,7 +308,11 @@ class ParentService {
                 };
             }
 
-            const result = await this.parentRepository.updateAddressId(parentPersonId, newAddressId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.updateAddressId(parentPersonId, newAddressId);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -312,7 +347,11 @@ class ParentService {
                 };
             }
 
-            const result = await this.parentRepository.updateJob(parentPersonId, newJob);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.updateJob(parentPersonId, newJob);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -347,7 +386,11 @@ class ParentService {
                 };
             }
 
-            const result = await this.parentRepository.updateParentType(parentPersonId, newType);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.updateParentType(parentPersonId, newType);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -381,7 +424,11 @@ class ParentService {
                 };
             }
 
-            const result = await this.parentRepository.updateAddressIds(parents);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.updateAddressIds(parents);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -415,7 +462,11 @@ class ParentService {
                 };
             }
 
-            const result = await this.parentRepository.updateJobs(parents);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.updateJobs(parents);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -449,7 +500,11 @@ class ParentService {
                 };
             }
 
-            const result = await this.parentRepository.updateParentTypes(parents);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.updateParentTypes(parents);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -483,7 +538,11 @@ class ParentService {
                 };
             }
 
-            const result = await this.parentRepository.deleteParent(parentPersonId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.deleteParent(parentPersonId);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -517,7 +576,11 @@ class ParentService {
                 };
             }
 
-            const result = await this.parentRepository.deleteParents(parentPersonIds);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.deleteParents(parentPersonIds);
+            });
+
             if (result === -1) {
                 return {
                     success: false,

@@ -1,296 +1,265 @@
 import express from "express";
-import Connection from "../infrastructure/connection/getConnection.js";
-import AccountRoleDAO from "../infrastructure/data/accountRoleDAO.js";
 import AccountRoleService from "../services/AccountRoleService.js";
+import { AccountRole } from "../models/index.js";
 
 const router = express.Router();
 
-/**
- * Initialize service with database connection
- * @returns {Promise<AccountRoleService>}
- */
-async function initService() {
-    const conn = new Connection('./config.json');
-    const pool = await conn.connect();
-    const connection = await pool.getConnection();
-    const accountRoleDAO = new AccountRoleDAO(connection);
-    return new AccountRoleService(accountRoleDAO);
-}
-
-/**
- * GET /api/account-roles
- * Get all account-role relationships
- */
-router.get('/', async (req, res) => {
+// GET /api/account-roles - Get all account roles
+router.get("/", async (req, res) => {
     try {
-        const service = await initService();
+        const service = new AccountRoleService();
         const result = await service.getAllAccountRoles();
-        
-        if (result.success) {
-            res.status(200).json(result.data);
-        } else {
-            res.status(500).json({ error: result.error });
-        }
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        console.error('Error in GET /account-roles:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-/**
- * GET /api/account-roles/account/:accountId
- * Get all roles for a specific account
- */
-router.get('/account/:accountId', async (req, res) => {
+// GET /api/account-roles/account/:accountId - Get roles for specific account
+router.get("/account/:accountId", async (req, res) => {
     try {
         const accountId = parseInt(req.params.accountId);
-        if (isNaN(accountId)) {
-            return res.status(400).json({ error: 'Invalid account ID' });
-        }
-
-        const service = await initService();
+        const service = new AccountRoleService();
         const result = await service.getByAccountId(accountId);
-        
-        if (result.success) {
-            res.status(200).json(result.data);
-        } else {
-            res.status(500).json({ error: result.error });
-        }
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        console.error('Error in GET /account-roles/account/:accountId:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-/**
- * GET /api/account-roles/role/:roleId
- * Get all accounts for a specific role
- */
-router.get('/role/:roleId', async (req, res) => {
+// GET /api/account-roles/accounts?ids=1,2,3 - Get roles for multiple accounts
+router.get("/accounts", async (req, res) => {
+    try {
+        const ids = req.query.ids;
+        if (!ids || typeof ids !== 'string') {
+            return res.status(400).json({ error: "Query parameter 'ids' is required" });
+        }
+        
+        const accountIds = ids.split(",").map(id => parseInt(id.trim()));
+        const service = new AccountRoleService();
+        const result = await service.getByAccountIds(accountIds);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /api/account-roles/role/:roleId - Get accounts with specific role
+router.get("/role/:roleId", async (req, res) => {
     try {
         const roleId = parseInt(req.params.roleId);
-        if (isNaN(roleId)) {
-            return res.status(400).json({ error: 'Invalid role ID' });
-        }
-
-        const service = await initService();
+        const service = new AccountRoleService();
         const result = await service.getByRoleId(roleId);
-        
-        if (result.success) {
-            res.status(200).json(result.data);
-        } else {
-            res.status(500).json({ error: result.error });
-        }
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        console.error('Error in GET /account-roles/role/:roleId:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-/**
- * GET /api/account-roles/account/:accountId/role/:roleId
- * Get specific account-role relationship
- */
-router.get('/account/:accountId/role/:roleId', async (req, res) => {
+// GET /api/account-roles/roles?ids=1,2,3 - Get accounts for multiple roles
+router.get("/roles", async (req, res) => {
+    try {
+        const ids = req.query.ids;
+        if (!ids || typeof ids !== 'string') {
+            return res.status(400).json({ error: "Query parameter 'ids' is required" });
+        }
+        
+        const roleIds = ids.split(",").map(id => parseInt(id.trim()));
+        const service = new AccountRoleService();
+        const result = await service.getByRoleIds(roleIds);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /api/account-roles/account/:accountId/role/:roleId - Get specific account-role mapping
+router.get("/account/:accountId/role/:roleId", async (req, res) => {
     try {
         const accountId = parseInt(req.params.accountId);
         const roleId = parseInt(req.params.roleId);
-        
-        if (isNaN(accountId) || isNaN(roleId)) {
-            return res.status(400).json({ error: 'Invalid account ID or role ID' });
-        }
-
-        const service = await initService();
+        const service = new AccountRoleService();
         const result = await service.getByAccountIdAndRoleId(accountId, roleId);
-        
-        if (result.success) {
-            res.status(200).json(result.data);
-        } else {
-            res.status(404).json({ error: result.error });
-        }
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        console.error('Error in GET /account-roles/account/:accountId/role/:roleId:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-/**
- * POST /api/account-roles
- * Assign a role to an account
- */
-router.post('/', async (req, res) => {
+// GET /api/account-roles/account/:accountId/has-role/:roleId - Check if account has role
+router.get("/account/:accountId/has-role/:roleId", async (req, res) => {
     try {
-        const { account_id, role_id, assigned_by } = req.body;
-        
+        const accountId = parseInt(req.params.accountId);
+        const roleId = parseInt(req.params.roleId);
+        const service = new AccountRoleService();
+        const result = await service.hasRole(accountId, roleId);
+        result.success ? res.status(200).json({ hasRole: result.data }) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /api/account-roles/account/:accountId/role-ids - Get all role IDs for account
+router.get("/account/:accountId/role-ids", async (req, res) => {
+    try {
+        const accountId = parseInt(req.params.accountId);
+        const service = new AccountRoleService();
+        const result = await service.getRoleIdsForAccount(accountId);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /api/account-roles/role/:roleId/account-ids - Get all account IDs for role
+router.get("/role/:roleId/account-ids", async (req, res) => {
+    try {
+        const roleId = parseInt(req.params.roleId);
+        const service = new AccountRoleService();
+        const result = await service.getAccountIdsForRole(roleId);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /api/account-roles - Create single account-role mapping
+router.post("/", async (req, res) => {
+    try {
+        const { account_id, role_id, assigned_date, assigned_by } = req.body;
         if (!account_id || !role_id) {
-            return res.status(400).json({ error: 'Account ID and Role ID are required' });
+            return res.status(400).json({ error: "account_id and role_id are required" });
         }
 
-        const service = await initService();
-        const result = await service.createAccountRole({ account_id, role_id, assigned_by });
-        
-        if (result.success) {
-            res.status(201).json(result.data);
-        } else {
-            res.status(400).json({ error: result.error });
-        }
+        const accountRole = new AccountRole({ account_id, role_id, assigned_date, assigned_by });
+        const service = new AccountRoleService();
+        const result = await service.createAccountRole(accountRole);
+        result.success ? res.status(201).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        console.error('Error in POST /account-roles:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-/**
- * POST /api/account-roles/bulk
- * Assign multiple roles (bulk assignment)
- */
-router.post('/bulk', async (req, res) => {
+// POST /api/account-roles/bulk - Create multiple account-role mappings
+router.post("/bulk", async (req, res) => {
     try {
-        const accountRoles = req.body;
-        
+        const { accountRoles } = req.body;
         if (!Array.isArray(accountRoles) || accountRoles.length === 0) {
-            return res.status(400).json({ error: 'Array of account-role assignments is required' });
+            return res.status(400).json({ error: "accountRoles array is required and cannot be empty" });
         }
 
-        const service = await initService();
-        const result = await service.createAccountRoles(accountRoles);
-        
-        if (result.success) {
-            res.status(201).json(result.data);
-        } else {
-            res.status(400).json({ error: result.error });
-        }
+        const accountRoleObjects = accountRoles.map(ar => new AccountRole(ar));
+        const service = new AccountRoleService();
+        const result = await service.createAccountRoles(accountRoleObjects);
+        result.success ? res.status(201).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        console.error('Error in POST /account-roles/bulk:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-/**
- * DELETE /api/account-roles/account/:accountId
- * Revoke all roles from an account
- */
-router.delete('/account/:accountId', async (req, res) => {
+// POST /api/account-roles/account/:accountId/assign-roles - Assign multiple roles to account
+router.post("/account/:accountId/assign-roles", async (req, res) => {
     try {
         const accountId = parseInt(req.params.accountId);
-        if (isNaN(accountId)) {
-            return res.status(400).json({ error: 'Invalid account ID' });
-        }
-
-        const service = await initService();
-        const result = await service.deleteByAccountId(accountId);
-        
-        if (result.success) {
-            res.status(200).json({ message: 'All roles revoked from account successfully' });
-        } else {
-            res.status(400).json({ error: result.error });
-        }
-    } catch (error) {
-        console.error('Error in DELETE /account-roles/account/:accountId:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-/**
- * DELETE /api/account-roles/role/:roleId
- * Remove a role from all accounts
- */
-router.delete('/role/:roleId', async (req, res) => {
-    try {
-        const roleId = parseInt(req.params.roleId);
-        if (isNaN(roleId)) {
-            return res.status(400).json({ error: 'Invalid role ID' });
-        }
-
-        const service = await initService();
-        const result = await service.deleteByRoleId(roleId);
-        
-        if (result.success) {
-            res.status(200).json({ message: 'Role removed from all accounts successfully' });
-        } else {
-            res.status(400).json({ error: result.error });
-        }
-    } catch (error) {
-        console.error('Error in DELETE /account-roles/role/:roleId:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-/**
- * DELETE /api/account-roles/account/:accountId/role/:roleId
- * Revoke a specific role from an account
- */
-router.delete('/account/:accountId/role/:roleId', async (req, res) => {
-    try {
-        const accountId = parseInt(req.params.accountId);
-        const roleId = parseInt(req.params.roleId);
-        
-        if (isNaN(accountId) || isNaN(roleId)) {
-            return res.status(400).json({ error: 'Invalid account ID or role ID' });
-        }
-
-        const service = await initService();
-        const result = await service.deleteByAccountIdAndRoleId(accountId, roleId);
-        
-        if (result.success) {
-            res.status(200).json({ message: 'Role revoked from account successfully' });
-        } else {
-            res.status(400).json({ error: result.error });
-        }
-    } catch (error) {
-        console.error('Error in DELETE /account-roles/account/:accountId/role/:roleId:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-/**
- * DELETE /api/account-roles/bulk/accounts
- * Revoke roles from multiple accounts
- */
-router.delete('/bulk/accounts', async (req, res) => {
-    try {
-        const { accountIds } = req.body;
-        
-        if (!Array.isArray(accountIds) || accountIds.length === 0) {
-            return res.status(400).json({ error: 'Array of account IDs is required' });
-        }
-
-        const service = await initService();
-        const result = await service.deleteByAccountIds(accountIds);
-        
-        if (result.success) {
-            res.status(200).json({ message: 'Roles revoked from multiple accounts successfully' });
-        } else {
-            res.status(400).json({ error: result.error });
-        }
-    } catch (error) {
-        console.error('Error in DELETE /account-roles/bulk/accounts:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-/**
- * DELETE /api/account-roles/bulk/roles
- * Remove multiple roles from all accounts
- */
-router.delete('/bulk/roles', async (req, res) => {
-    try {
         const { roleIds } = req.body;
         
         if (!Array.isArray(roleIds) || roleIds.length === 0) {
-            return res.status(400).json({ error: 'Array of role IDs is required' });
+            return res.status(400).json({ error: "roleIds array is required and cannot be empty" });
         }
 
-        const service = await initService();
-        const result = await service.deleteByRoleIds(roleIds);
-        
-        if (result.success) {
-            res.status(200).json({ message: 'Multiple roles removed from all accounts successfully' });
-        } else {
-            res.status(400).json({ error: result.error });
-        }
+        const service = new AccountRoleService();
+        const result = await service.assignRolesToAccount(accountId, roleIds);
+        result.success ? res.status(201).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        console.error('Error in DELETE /account-roles/bulk/roles:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /api/account-roles/role/:roleId/assign-accounts - Assign role to multiple accounts
+router.post("/role/:roleId/assign-accounts", async (req, res) => {
+    try {
+        const roleId = parseInt(req.params.roleId);
+        const { accountIds } = req.body;
+        
+        if (!Array.isArray(accountIds) || accountIds.length === 0) {
+            return res.status(400).json({ error: "accountIds array is required and cannot be empty" });
+        }
+
+        const service = new AccountRoleService();
+        const result = await service.assignRoleToAccounts(accountIds, roleId);
+        result.success ? res.status(201).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE /api/account-roles/account/:accountId - Delete all roles for account
+router.delete("/account/:accountId", async (req, res) => {
+    try {
+        const accountId = parseInt(req.params.accountId);
+        const service = new AccountRoleService();
+        const result = await service.deleteByAccountId(accountId);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE /api/account-roles/role/:roleId - Delete all accounts for role
+router.delete("/role/:roleId", async (req, res) => {
+    try {
+        const roleId = parseInt(req.params.roleId);
+        const service = new AccountRoleService();
+        const result = await service.deleteByRoleId(roleId);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE /api/account-roles/account/:accountId/role/:roleId - Delete specific account-role mapping
+router.delete("/account/:accountId/role/:roleId", async (req, res) => {
+    try {
+        const accountId = parseInt(req.params.accountId);
+        const roleId = parseInt(req.params.roleId);
+        const service = new AccountRoleService();
+        const result = await service.deleteByAccountIdAndRoleId(accountId, roleId);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE /api/account-roles/accounts?ids=1,2,3 - Delete all roles for multiple accounts
+router.delete("/accounts", async (req, res) => {
+    try {
+        const ids = req.query.ids;
+        if (!ids || typeof ids !== 'string') {
+            return res.status(400).json({ error: "Query parameter 'ids' is required" });
+        }
+        
+        const accountIds = ids.split(",").map(id => parseInt(id.trim()));
+        const service = new AccountRoleService();
+        const result = await service.deleteByAccountIds(accountIds);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE /api/account-roles/roles?ids=1,2,3 - Delete all accounts for multiple roles
+router.delete("/roles", async (req, res) => {
+    try {
+        const ids = req.query.ids;
+        if (!ids || typeof ids !== 'string') {
+            return res.status(400).json({ error: "Query parameter 'ids' is required" });
+        }
+        
+        const roleIds = ids.split(",").map(id => parseInt(id.trim()));
+        const service = new AccountRoleService();
+        const result = await service.deleteByRoleIds(roleIds);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });

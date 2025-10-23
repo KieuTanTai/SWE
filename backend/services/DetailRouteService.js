@@ -1,5 +1,6 @@
 import { default as DetailRouteDAO } from "../infrastructure/data/detailRouteDAO.js";
 import { DetailRoute } from "../models/index.js";
+import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
  * DetailRouteService
@@ -7,19 +8,16 @@ import { DetailRoute } from "../models/index.js";
  */
 class DetailRouteService {
     /**
-     * @param {DetailRouteDAO} detailRouteRepository
-     */
-    constructor(detailRouteRepository) {
-        this.detailRouteRepository = detailRouteRepository;
-    }
-
-    /**
      * Get all detail routes
      * @return {Promise<{success: boolean, data?: DetailRoute[], error?: string}>}
      */
     async getAllDetailRoutes() {
         try {
-            const results = await this.detailRouteRepository.getAllDetailRoutes();
+            const results = await withConnection(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.getAllDetailRoutes();
+            });
+
             return {
                 success: true,
                 data: results
@@ -46,7 +44,11 @@ class DetailRouteService {
                 };
             }
 
-            const result = await this.detailRouteRepository.getByDetailRouteId(detailRouteId);
+            const result = await withConnection(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.getByDetailRouteId(detailRouteId);
+            });
+
             return {
                 success: true,
                 data: result
@@ -73,7 +75,11 @@ class DetailRouteService {
                 };
             }
 
-            const results = await this.detailRouteRepository.getByRouteId(routeId);
+            const results = await withConnection(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.getByRouteId(routeId);
+            });
+
             return {
                 success: true,
                 data: results
@@ -100,7 +106,11 @@ class DetailRouteService {
                 };
             }
 
-            const results = await this.detailRouteRepository.getByRouteStartPointId(startPointId);
+            const results = await withConnection(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.getByRouteStartPointId(startPointId);
+            });
+
             return {
                 success: true,
                 data: results
@@ -127,7 +137,11 @@ class DetailRouteService {
                 };
             }
 
-            const results = await this.detailRouteRepository.getByRouteEndPointId(endPointId);
+            const results = await withConnection(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.getByRouteEndPointId(endPointId);
+            });
+
             return {
                 success: true,
                 data: results
@@ -154,7 +168,11 @@ class DetailRouteService {
                 };
             }
 
-            const results = await this.detailRouteRepository.getByDetailRouteDistance(distance);
+            const results = await withConnection(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.getByDetailRouteDistance(distance);
+            });
+
             return {
                 success: true,
                 data: results
@@ -181,7 +199,10 @@ class DetailRouteService {
                 };
             }
 
-            const result = await this.detailRouteRepository.createDetailRoute(detailRoute);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.createDetailRoute(detailRoute);
+            });
             
             if (result === -1) {
                 return {
@@ -216,7 +237,10 @@ class DetailRouteService {
                 };
             }
 
-            const result = await this.detailRouteRepository.createDetailRoutes(detailRoutes);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.createDetailRoutes(detailRoutes);
+            });
             
             if (result === -1) {
                 return {
@@ -259,7 +283,10 @@ class DetailRouteService {
                 };
             }
 
-            const result = await this.detailRouteRepository.updateDistance(detailId, newDistance);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.updateDistance(detailId, newDistance);
+            });
             
             if (result === -1) {
                 return {
@@ -294,7 +321,10 @@ class DetailRouteService {
                 };
             }
 
-            const result = await this.detailRouteRepository.updateDistances(newDetailRoutes);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.updateDistances(newDetailRoutes);
+            });
             
             if (result === -1) {
                 return {
@@ -337,7 +367,10 @@ class DetailRouteService {
                 };
             }
 
-            const result = await this.detailRouteRepository.updateStartPointId(detailRouteId, newStartPointId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.updateStartPointId(detailRouteId, newStartPointId);
+            });
             
             if (result === -1) {
                 return {
@@ -372,7 +405,10 @@ class DetailRouteService {
                 };
             }
 
-            const result = await this.detailRouteRepository.updateStartPointIds(detailRoutes);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.updateStartPointIds(detailRoutes);
+            });
             
             if (result === -1) {
                 return {
@@ -415,7 +451,10 @@ class DetailRouteService {
                 };
             }
 
-            const result = await this.detailRouteRepository.updateEndPointId(detailRouteId, newEndPointId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.updateEndPointId(detailRouteId, newEndPointId);
+            });
             
             if (result === -1) {
                 return {
@@ -450,7 +489,10 @@ class DetailRouteService {
                 };
             }
 
-            const result = await this.detailRouteRepository.updateEndPointIds(detailRoutes);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.updateEndPointIds(detailRoutes);
+            });
             
             if (result === -1) {
                 return {
@@ -485,7 +527,10 @@ class DetailRouteService {
                 };
             }
 
-            const result = await this.detailRouteRepository.deleteDetailRoute(detailRouteId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.deleteDetailRoute(detailRouteId);
+            });
             
             if (result === -1) {
                 return {
@@ -520,7 +565,10 @@ class DetailRouteService {
                 };
             }
 
-            const result = await this.detailRouteRepository.deleteDetailRoutes(detailRouteIds);
+            const result = await withTransaction(async (connection) => {
+                const repo = new DetailRouteDAO(connection);
+                return await repo.deleteDetailRoutes(detailRouteIds);
+            });
             
             if (result === -1) {
                 return {

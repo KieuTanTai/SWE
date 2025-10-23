@@ -1,5 +1,6 @@
 import { default as ReportDAO } from "../infrastructure/data/reportDAO.js";
 import { Report } from "../models/index.js";
+import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
  * ReportService
@@ -7,19 +8,16 @@ import { Report } from "../models/index.js";
  */
 class ReportService {
     /**
-     * @param {ReportDAO} reportRepository
-     */
-    constructor(reportRepository) {
-        this.reportRepository = reportRepository;
-    }
-
-    /**
      * Get all reports
      * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
      */
     async getAllReports() {
         try {
-            const results = await this.reportRepository.getAllReports();
+            const results = await withConnection(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.getAllReports();
+            });
+
             return {
                 success: true,
                 data: results
@@ -46,7 +44,11 @@ class ReportService {
                 };
             }
 
-            const result = await this.reportRepository.getByReportId(reportId);
+            const result = await withConnection(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.getByReportId(reportId);
+            });
+
             return {
                 success: true,
                 data: result
@@ -73,7 +75,11 @@ class ReportService {
                 };
             }
 
-            const results = await this.reportRepository.getByReportIds(reportIds);
+            const results = await withConnection(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.getByReportIds(reportIds);
+            });
+
             return {
                 success: true,
                 data: results
@@ -100,7 +106,11 @@ class ReportService {
                 };
             }
 
-            const results = await this.reportRepository.getByDriverId(driverId);
+            const results = await withConnection(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.getByDriverId(driverId);
+            });
+
             return {
                 success: true,
                 data: results
@@ -127,7 +137,11 @@ class ReportService {
                 };
             }
 
-            const results = await this.reportRepository.getByReportType(reportType);
+            const results = await withConnection(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.getByReportType(reportType);
+            });
+
             return {
                 success: true,
                 data: results
@@ -155,7 +169,11 @@ class ReportService {
                 };
             }
 
-            const results = await this.reportRepository.getByTimeRange(startTime, endTime);
+            const results = await withConnection(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.getByTimeRange(startTime, endTime);
+            });
+
             return {
                 success: true,
                 data: results
@@ -190,7 +208,11 @@ class ReportService {
                 };
             }
 
-            const results = await this.reportRepository.getByDriverIdAndType(driverId, reportType);
+            const results = await withConnection(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.getByDriverIdAndType(driverId, reportType);
+            });
+
             return {
                 success: true,
                 data: results
@@ -217,7 +239,11 @@ class ReportService {
                 };
             }
 
-            const result = await this.reportRepository.createReport(report);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.createReport(report);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -251,7 +277,11 @@ class ReportService {
                 };
             }
 
-            const result = await this.reportRepository.createReports(reports);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.createReports(reports);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -286,7 +316,11 @@ class ReportService {
                 };
             }
 
-            const result = await this.reportRepository.updateReportType(reportId, newType);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.updateReportType(reportId, newType);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -321,7 +355,11 @@ class ReportService {
                 };
             }
 
-            const result = await this.reportRepository.updateReportContent(reportId, newContent);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.updateReportContent(reportId, newContent);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -355,7 +393,11 @@ class ReportService {
                 };
             }
 
-            const result = await this.reportRepository.updateReportTypes(reports);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.updateReportTypes(reports);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -389,7 +431,11 @@ class ReportService {
                 };
             }
 
-            const result = await this.reportRepository.updateReportContents(reports);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.updateReportContents(reports);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -423,7 +469,11 @@ class ReportService {
                 };
             }
 
-            const result = await this.reportRepository.deleteReport(reportId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.deleteReport(reportId);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -457,7 +507,11 @@ class ReportService {
                 };
             }
 
-            const result = await this.reportRepository.deleteReports(reportIds);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.deleteReports(reportIds);
+            });
+
             if (result === -1) {
                 return {
                     success: false,
@@ -491,7 +545,10 @@ class ReportService {
                 };
             }
 
-            const result = await this.reportRepository.deleteByDriverId(driverId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.deleteByDriverId(driverId);
+            });
             if (result === -1) {
                 return {
                     success: false,

@@ -1,25 +1,23 @@
 import { default as AccountDAO } from "../infrastructure/data/accountDAO.js";
 import { Account } from "../models/index.js";
+import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
  * AccountService
  * Service layer for managing accounts
+ * Manages its own database connections and transactions
  */
 class AccountService {
-    /**
-     * @param {AccountDAO} accountRepository
-     */
-    constructor(accountRepository) {
-        this.accountRepository = accountRepository;
-    }
-
     /**
      * Get all accounts
      * @return {Promise<{success: boolean, data?: Account[], error?: string}>}
      */
     async getAllAccounts() {
         try {
-            const results = await this.accountRepository.getAllAccounts();
+            const results = await withConnection(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.getAllAccounts();
+            });
             return {
                 success: true,
                 data: results
@@ -46,7 +44,11 @@ class AccountService {
                 };
             }
 
-            const result = await this.accountRepository.getByAccountId(accountId);
+            const result = await withConnection(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.getByAccountId(accountId);
+            });
+            
             return {
                 success: true,
                 data: result
@@ -73,7 +75,11 @@ class AccountService {
                 };
             }
 
-            const results = await this.accountRepository.getByAccountIds(accountIds);
+            const results = await withConnection(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.getByAccountIds(accountIds);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -100,7 +106,11 @@ class AccountService {
                 };
             }
 
-            const result = await this.accountRepository.getByEmail(email);
+            const result = await withConnection(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.getByEmail(email);
+            });
+            
             return {
                 success: true,
                 data: result
@@ -127,7 +137,11 @@ class AccountService {
                 };
             }
 
-            const results = await this.accountRepository.getByEmails(emails);
+            const results = await withConnection(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.getByEmails(emails);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -154,7 +168,11 @@ class AccountService {
                 };
             }
 
-            const results = await this.accountRepository.getByLoginStatus(loginStatus);
+            const results = await withConnection(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.getByLoginStatus(loginStatus);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -181,7 +199,10 @@ class AccountService {
                 };
             }
 
-            const result = await this.accountRepository.createAccount(account);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.createAccount(account);
+            });
             
             if (result === -1) {
                 return {
@@ -216,7 +237,10 @@ class AccountService {
                 };
             }
 
-            const result = await this.accountRepository.createAccounts(accounts);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.createAccounts(accounts);
+            });
             
             if (result === -1) {
                 return {
@@ -259,7 +283,10 @@ class AccountService {
                 };
             }
 
-            const result = await this.accountRepository.updateEmail(accountId, newEmail);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.updateEmail(accountId, newEmail);
+            });
             
             if (result === -1) {
                 return {
@@ -302,7 +329,10 @@ class AccountService {
                 };
             }
 
-            const result = await this.accountRepository.updatePassword(accountId, newPassword);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.updatePassword(accountId, newPassword);
+            });
             
             if (result === -1) {
                 return {
@@ -345,7 +375,10 @@ class AccountService {
                 };
             }
 
-            const result = await this.accountRepository.updateLoginStatus(accountId, loginStatus);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.updateLoginStatus(accountId, loginStatus);
+            });
             
             if (result === -1) {
                 return {
@@ -380,7 +413,10 @@ class AccountService {
                 };
             }
 
-            const result = await this.accountRepository.updateEmails(accounts);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.updateEmails(accounts);
+            });
             
             if (result === -1) {
                 return {
@@ -415,7 +451,10 @@ class AccountService {
                 };
             }
 
-            const result = await this.accountRepository.updatePasswords(accounts);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.updatePasswords(accounts);
+            });
             
             if (result === -1) {
                 return {
@@ -450,7 +489,10 @@ class AccountService {
                 };
             }
 
-            const result = await this.accountRepository.updateLoginStatuses(accounts);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.updateLoginStatuses(accounts);
+            });
             
             if (result === -1) {
                 return {

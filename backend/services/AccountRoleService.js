@@ -1,25 +1,24 @@
 import { default as AccountRoleDAO } from "../infrastructure/data/accountRoleDAO.js";
 import { AccountRole } from "../models/index.js";
+import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
  * AccountRoleService
  * Service layer for managing account-role relationships
+ * Manages its own database connections and transactions
  */
 class AccountRoleService {
-    /**
-     * @param {AccountRoleDAO} accountRoleRepository
-     */
-    constructor(accountRoleRepository) {
-        this.accountRoleRepository = accountRoleRepository;
-    }
-
     /**
      * Get all account-role relationships
      * @return {Promise<{success: boolean, data?: AccountRole[], error?: string}>}
      */
     async getAllAccountRoles() {
         try {
-            const results = await this.accountRoleRepository.getAllAccountRoles();
+            const results = await withConnection(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.getAllAccountRoles();
+            });
+            
             return {
                 success: true,
                 data: results
@@ -46,7 +45,11 @@ class AccountRoleService {
                 };
             }
 
-            const results = await this.accountRoleRepository.getByAccountId(accountId);
+            const results = await withConnection(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.getByAccountId(accountId);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -73,7 +76,11 @@ class AccountRoleService {
                 };
             }
 
-            const results = await this.accountRoleRepository.getByAccountIds(accountIds);
+            const results = await withConnection(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.getByAccountIds(accountIds);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -100,7 +107,11 @@ class AccountRoleService {
                 };
             }
 
-            const results = await this.accountRoleRepository.getByRoleId(roleId);
+            const results = await withConnection(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.getByRoleId(roleId);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -127,7 +138,11 @@ class AccountRoleService {
                 };
             }
 
-            const results = await this.accountRoleRepository.getByRoleIds(roleIds);
+            const results = await withConnection(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.getByRoleIds(roleIds);
+            });
+            
             return {
                 success: true,
                 data: results
@@ -155,7 +170,11 @@ class AccountRoleService {
                 };
             }
 
-            const result = await this.accountRoleRepository.getByAccountIdAndRoleId(accountId, roleId);
+            const result = await withConnection(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.getByAccountIdAndRoleId(accountId, roleId);
+            });
+            
             return {
                 success: true,
                 data: result
@@ -182,7 +201,10 @@ class AccountRoleService {
                 };
             }
 
-            const result = await this.accountRoleRepository.createAccountRole(accountRole);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.createAccountRole(accountRole);
+            });
             
             if (result === -1) {
                 return {
@@ -217,7 +239,10 @@ class AccountRoleService {
                 };
             }
 
-            const result = await this.accountRoleRepository.createAccountRoles(accountRoles);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.createAccountRoles(accountRoles);
+            });
             
             if (result === -1) {
                 return {
@@ -252,7 +277,10 @@ class AccountRoleService {
                 };
             }
 
-            const result = await this.accountRoleRepository.deleteByAccountId(accountId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.deleteByAccountId(accountId);
+            });
             
             if (result === -1) {
                 return {
@@ -287,7 +315,10 @@ class AccountRoleService {
                 };
             }
 
-            const result = await this.accountRoleRepository.deleteByRoleId(roleId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.deleteByRoleId(roleId);
+            });
             
             if (result === -1) {
                 return {
@@ -323,7 +354,10 @@ class AccountRoleService {
                 };
             }
 
-            const result = await this.accountRoleRepository.deleteByAccountIdAndRoleId(accountId, roleId);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.deleteByAccountIdAndRoleId(accountId, roleId);
+            });
             
             if (result === -1) {
                 return {
@@ -358,7 +392,10 @@ class AccountRoleService {
                 };
             }
 
-            const result = await this.accountRoleRepository.deleteByAccountIds(accountIds);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.deleteByAccountIds(accountIds);
+            });
             
             if (result === -1) {
                 return {
@@ -393,7 +430,10 @@ class AccountRoleService {
                 };
             }
 
-            const result = await this.accountRoleRepository.deleteByRoleIds(roleIds);
+            const result = await withTransaction(async (connection) => {
+                const repo = new AccountRoleDAO(connection);
+                return await repo.deleteByRoleIds(roleIds);
+            });
             
             if (result === -1) {
                 return {

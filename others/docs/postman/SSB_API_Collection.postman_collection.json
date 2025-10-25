@@ -1,0 +1,1576 @@
+{
+	"info": {
+		"_postman_id": "ssb-api-collection",
+		"name": "School Bus System API",
+		"description": "Complete API collection for School Bus System (SSB) including Parent, Driver, Report, Account, Role, Account Role, and Route management. Total 95 endpoints across 7 resources.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Parents",
+			"item": [
+				{
+					"name": "Get All Parents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents"]
+						}
+					}
+				},
+				{
+					"name": "Get Parent by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/{{parent_person_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "{{parent_person_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Parents by Address",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/address/1",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "address", "1"]
+						}
+					}
+				},
+				{
+					"name": "Get Parents by Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/type/father",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "type", "father"]
+						}
+					}
+				},
+				{
+					"name": "Get Parents by Job",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/job/engineer",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "job", "engineer"]
+						}
+					}
+				},
+				{
+					"name": "Search Parents by Job Pattern",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/job/search?pattern=eng",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "job", "search"],
+							"query": [
+								{
+									"key": "pattern",
+									"value": "eng"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Parent",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"parent_person_id\": 1,\n  \"parent_address_id\": 1,\n  \"parent_job\": \"Engineer\",\n  \"parent_type\": \"father\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents"]
+						}
+					}
+				},
+				{
+					"name": "Create Multiple Parents",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"parent_person_id\": 1,\n    \"parent_address_id\": 1,\n    \"parent_job\": \"Engineer\",\n    \"parent_type\": \"father\"\n  },\n  {\n    \"parent_person_id\": 2,\n    \"parent_address_id\": 2,\n    \"parent_job\": \"Teacher\",\n    \"parent_type\": \"mother\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/bulk",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "bulk"]
+						}
+					}
+				},
+				{
+					"name": "Update Parent Address",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"addressId\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/{{parent_person_id}}/address",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "{{parent_person_id}}", "address"]
+						}
+					}
+				},
+				{
+					"name": "Update Parent Job",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"job\": \"Doctor\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/{{parent_person_id}}/job",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "{{parent_person_id}}", "job"]
+						}
+					}
+				},
+				{
+					"name": "Update Parent Type",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"guardian\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/{{parent_person_id}}/type",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "{{parent_person_id}}", "type"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Parent Addresses",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"parent_person_id\": 1,\n    \"parent_address_id\": 3\n  },\n  {\n    \"parent_person_id\": 2,\n    \"parent_address_id\": 4\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/batch/address",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "batch", "address"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Parent Jobs",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"parent_person_id\": 1,\n    \"parent_job\": \"Manager\"\n  },\n  {\n    \"parent_person_id\": 2,\n    \"parent_job\": \"Developer\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/batch/job",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "batch", "job"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Parent Types",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"parent_person_id\": 1,\n    \"parent_type\": \"father\"\n  },\n  {\n    \"parent_person_id\": 2,\n    \"parent_type\": \"mother\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/batch/type",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "batch", "type"]
+						}
+					}
+				},
+				{
+					"name": "Delete Parent",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/{{parent_person_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "{{parent_person_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Multiple Parents",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"parentPersonIds\": [1, 2, 3]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/parents/bulk",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "parents", "bulk"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Drivers",
+			"item": [
+				{
+					"name": "Get All Drivers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers"]
+						}
+					}
+				},
+				{
+					"name": "Get Driver by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/{{driver_person_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "{{driver_person_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Drivers by Experience Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/experience/type/year",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "experience", "type", "year"]
+						}
+					}
+				},
+				{
+					"name": "Get Drivers by Min Experience",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/experience/min/5",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "experience", "min", "5"]
+						}
+					}
+				},
+				{
+					"name": "Get Drivers by Max Late Count",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/late/max/3",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "late", "max", "3"]
+						}
+					}
+				},
+				{
+					"name": "Create Driver",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"driver_person_id\": 1,\n  \"driver_experience\": 5,\n  \"driver_experience_type\": \"year\",\n  \"driver_late_arrival_count\": 0\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers"]
+						}
+					}
+				},
+				{
+					"name": "Create Multiple Drivers",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"driver_person_id\": 1,\n    \"driver_experience\": 5,\n    \"driver_experience_type\": \"year\",\n    \"driver_late_arrival_count\": 0\n  },\n  {\n    \"driver_person_id\": 2,\n    \"driver_experience\": 3,\n    \"driver_experience_type\": \"year\",\n    \"driver_late_arrival_count\": 1\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/bulk",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "bulk"]
+						}
+					}
+				},
+				{
+					"name": "Update Driver Experience",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"experience\": 6,\n  \"experienceType\": \"year\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/{{driver_person_id}}/experience",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "{{driver_person_id}}", "experience"]
+						}
+					}
+				},
+				{
+					"name": "Update Driver Late Count",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"lateCount\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/{{driver_person_id}}/late-count",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "{{driver_person_id}}", "late-count"]
+						}
+					}
+				},
+				{
+					"name": "Increment Driver Late Count",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/{{driver_person_id}}/increment-late",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "{{driver_person_id}}", "increment-late"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Driver Experiences",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"driver_person_id\": 1,\n    \"driver_experience\": 7,\n    \"driver_experience_type\": \"year\"\n  },\n  {\n    \"driver_person_id\": 2,\n    \"driver_experience\": 4,\n    \"driver_experience_type\": \"year\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/batch/experience",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "batch", "experience"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Driver Late Counts",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"driver_person_id\": 1,\n    \"driver_late_arrival_count\": 0\n  },\n  {\n    \"driver_person_id\": 2,\n    \"driver_late_arrival_count\": 1\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/batch/late-count",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "batch", "late-count"]
+						}
+					}
+				},
+				{
+					"name": "Delete Driver",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/{{driver_person_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "{{driver_person_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Multiple Drivers",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"driverPersonIds\": [1, 2, 3]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/drivers/bulk",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "drivers", "bulk"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "Get All Reports",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports"]
+						}
+					}
+				},
+				{
+					"name": "Get Report by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/{{report_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "{{report_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Reports by Driver ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/driver/{{driver_person_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "driver", "{{driver_person_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Reports by Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/type/late",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "type", "late"]
+						}
+					}
+				},
+				{
+					"name": "Get Reports by Time Range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/time-range?start=2025-01-01&end=2025-12-31",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "time-range"],
+							"query": [
+								{
+									"key": "start",
+									"value": "2025-01-01"
+								},
+								{
+									"key": "end",
+									"value": "2025-12-31"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Reports by Driver and Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/driver/{{driver_person_id}}/type/late",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "driver", "{{driver_person_id}}", "type", "late"]
+						}
+					}
+				},
+				{
+					"name": "Create Report",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"report_driver_id\": 1,\n  \"report_time\": \"2025-10-23T10:00:00Z\",\n  \"report_type\": \"late\",\n  \"report_content\": \"Driver was 15 minutes late\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports"]
+						}
+					}
+				},
+				{
+					"name": "Create Multiple Reports",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"report_driver_id\": 1,\n    \"report_time\": \"2025-10-23T10:00:00Z\",\n    \"report_type\": \"start_pickup\",\n    \"report_content\": \"Started pickup route\"\n  },\n  {\n    \"report_driver_id\": 1,\n    \"report_time\": \"2025-10-23T11:00:00Z\",\n    \"report_type\": \"dropped_off\",\n    \"report_content\": \"Completed drop-off\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/bulk",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "bulk"]
+						}
+					}
+				},
+				{
+					"name": "Update Report Type",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"warning\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/{{report_id}}/type",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "{{report_id}}", "type"]
+						}
+					}
+				},
+				{
+					"name": "Update Report Content",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Updated: Driver was 20 minutes late\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/{{report_id}}/content",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "{{report_id}}", "content"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Report Types",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"report_id\": 1,\n    \"report_type\": \"warning\"\n  },\n  {\n    \"report_id\": 2,\n    \"report_type\": \"late\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/batch/type",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "batch", "type"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Report Contents",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"report_id\": 1,\n    \"report_content\": \"Updated content 1\"\n  },\n  {\n    \"report_id\": 2,\n    \"report_content\": \"Updated content 2\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/batch/content",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "batch", "content"]
+						}
+					}
+				},
+				{
+					"name": "Delete Report",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/{{report_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "{{report_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Multiple Reports",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reportIds\": [1, 2, 3]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/bulk",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "bulk"]
+						}
+					}
+				},
+				{
+					"name": "Delete Reports by Driver ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/reports/driver/{{driver_person_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "reports", "driver", "{{driver_person_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Accounts",
+			"item": [
+				{
+					"name": "Get All Accounts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts"]
+						}
+					}
+				},
+				{
+					"name": "Get Account by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts/{{account_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts", "{{account_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Account by Email",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts/email/user@example.com",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts", "email", "user@example.com"]
+						}
+					}
+				},
+				{
+					"name": "Get Accounts by Login Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts/login-status/true",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts", "login-status", "true"]
+						}
+					}
+				},
+				{
+					"name": "Create Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"account_email\": \"user@example.com\",\n  \"account_password\": \"securepassword123\",\n  \"account_login_status\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts"]
+						}
+					}
+				},
+				{
+					"name": "Create Multiple Accounts",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"account_email\": \"user1@example.com\",\n    \"account_password\": \"password1\",\n    \"account_login_status\": false\n  },\n  {\n    \"account_email\": \"user2@example.com\",\n    \"account_password\": \"password2\",\n    \"account_login_status\": false\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts/bulk",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts", "bulk"]
+						}
+					}
+				},
+				{
+					"name": "Update Account Email",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"newemail@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts/{{account_id}}/email",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts", "{{account_id}}", "email"]
+						}
+					}
+				},
+				{
+					"name": "Update Account Password",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"password\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts/{{account_id}}/password",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts", "{{account_id}}", "password"]
+						}
+					}
+				},
+				{
+					"name": "Update Account Login Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"loginStatus\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts/{{account_id}}/login-status",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts", "{{account_id}}", "login-status"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Account Emails",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"account_id\": 1,\n    \"account_email\": \"updated1@example.com\"\n  },\n  {\n    \"account_id\": 2,\n    \"account_email\": \"updated2@example.com\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts/batch/email",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts", "batch", "email"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Account Passwords",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"account_id\": 1,\n    \"account_password\": \"newpass1\"\n  },\n  {\n    \"account_id\": 2,\n    \"account_password\": \"newpass2\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts/batch/password",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts", "batch", "password"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Account Login Statuses",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"account_id\": 1,\n    \"account_login_status\": true\n  },\n  {\n    \"account_id\": 2,\n    \"account_login_status\": false\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/accounts/batch/login-status",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "accounts", "batch", "login-status"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "Get All Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles"]
+						}
+					}
+				},
+				{
+					"name": "Get Role by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "{{role_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Role by Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/name/admin",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "name", "admin"]
+						}
+					}
+				},
+				{
+					"name": "Search Roles by Name Pattern",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/name/search?pattern=admin",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "name", "search"],
+							"query": [
+								{
+									"key": "pattern",
+									"value": "admin"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Roles by Active Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/active/true",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "active", "true"]
+						}
+					}
+				},
+				{
+					"name": "Create Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role_name\": \"admin\",\n  \"role_active_status\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles"]
+						}
+					}
+				},
+				{
+					"name": "Create Multiple Roles",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"role_name\": \"admin\",\n    \"role_active_status\": true\n  },\n  {\n    \"role_name\": \"user\",\n    \"role_active_status\": true\n  },\n  {\n    \"role_name\": \"moderator\",\n    \"role_active_status\": true\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/bulk",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "bulk"]
+						}
+					}
+				},
+				{
+					"name": "Update Role Name",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"super-admin\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/{{role_id}}/name",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "{{role_id}}", "name"]
+						}
+					}
+				},
+				{
+					"name": "Update Role Active Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"activeStatus\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/{{role_id}}/active-status",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "{{role_id}}", "active-status"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Role Names",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"role_id\": 1,\n    \"role_name\": \"super-admin\"\n  },\n  {\n    \"role_id\": 2,\n    \"role_name\": \"power-user\"\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/batch/name",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "batch", "name"]
+						}
+					}
+				},
+				{
+					"name": "Batch Update Role Active Statuses",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"role_id\": 1,\n    \"role_active_status\": true\n  },\n  {\n    \"role_id\": 2,\n    \"role_active_status\": false\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/roles/batch/active-status",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "roles", "batch", "active-status"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Account Roles",
+			"item": [
+				{
+					"name": "Get All Account-Role Relationships",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/account-roles",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "account-roles"]
+						}
+					}
+				},
+				{
+					"name": "Get Roles for Account",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/account-roles/account/{{account_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "account-roles", "account", "{{account_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Accounts for Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/account-roles/role/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "account-roles", "role", "{{role_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Specific Account-Role Relationship",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/account-roles/account/{{account_id}}/role/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "account-roles", "account", "{{account_id}}", "role", "{{role_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Assign Role to Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"account_id\": 1,\n  \"role_id\": 2,\n  \"assigned_by\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/account-roles",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "account-roles"]
+						}
+					}
+				},
+				{
+					"name": "Bulk Assign Roles",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"account_id\": 1,\n    \"role_id\": 2\n  },\n  {\n    \"account_id\": 1,\n    \"role_id\": 3\n  },\n  {\n    \"account_id\": 2,\n    \"role_id\": 2\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/account-roles/bulk",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "account-roles", "bulk"]
+						}
+					}
+				},
+				{
+					"name": "Revoke All Roles from Account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/account-roles/account/{{account_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "account-roles", "account", "{{account_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Remove Role from All Accounts",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/account-roles/role/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "account-roles", "role", "{{role_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Revoke Specific Role from Account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/account-roles/account/{{account_id}}/role/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "account-roles", "account", "{{account_id}}", "role", "{{role_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Bulk Revoke Roles from Accounts",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountIds\": [1, 2, 3]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/account-roles/bulk/accounts",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "account-roles", "bulk", "accounts"]
+						}
+					}
+				},
+				{
+					"name": "Bulk Remove Roles from All Accounts",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"roleIds\": [1, 2, 3]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/account-roles/bulk/roles",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "account-roles", "bulk", "roles"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Routes",
+			"item": [
+				{
+					"name": "Get All Routes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/routes",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "routes"]
+						}
+					}
+				},
+				{
+					"name": "Get Route by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/routes/{{route_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "routes", "{{route_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Route by Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/routes/name/Route A",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "routes", "name", "Route A"]
+						}
+					}
+				},
+				{
+					"name": "Search Routes by Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/routes/search?name=Route",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "routes", "search"],
+							"query": [
+								{
+									"key": "name",
+									"value": "Route"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Routes by Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/routes/status/true",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "routes", "status", "true"]
+						}
+					}
+				},
+				{
+					"name": "Create Route",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"route_name\": \"Route A\",\n  \"route_status\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/routes",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "routes"]
+						}
+					}
+				},
+				{
+					"name": "Create Routes (Bulk)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"routes\": [\n    {\n      \"route_name\": \"Route B\",\n      \"route_status\": true\n    },\n    {\n      \"route_name\": \"Route C\",\n      \"route_status\": false\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/routes/bulk",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "routes", "bulk"]
+						}
+					}
+				},
+				{
+					"name": "Update Route Name",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"route_name\": \"Route A Updated\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/routes/{{route_id}}/name",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "routes", "{{route_id}}", "name"]
+						}
+					}
+				},
+				{
+					"name": "Update Route Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/routes/{{route_id}}/status",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "routes", "{{route_id}}", "status"]
+						}
+					}
+				},
+				{
+					"name": "Update Route Names (Batch)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"updates\": [\n    {\n      \"route_id\": 1,\n      \"route_name\": \"Route A Updated\"\n    },\n    {\n      \"route_id\": 2,\n      \"route_name\": \"Route B Updated\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/routes/batch/names",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "routes", "batch", "names"]
+						}
+					}
+				},
+				{
+					"name": "Update Route Statuses (Batch)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"updates\": [\n    {\n      \"route_id\": 1,\n      \"route_status\": true\n    },\n    {\n      \"route_id\": 2,\n      \"route_status\": false\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/routes/batch/statuses",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "routes", "batch", "statuses"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

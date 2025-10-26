@@ -1,4 +1,4 @@
-import { Address } from "../../index.js";
+import Address from "../../models/Address.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise"

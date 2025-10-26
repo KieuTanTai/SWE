@@ -1,4 +1,4 @@
-import { LocationWard } from "../../index.js";
+import LocationWard from "../../models/LocationWard.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise"

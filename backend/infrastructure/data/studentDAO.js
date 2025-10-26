@@ -1,4 +1,4 @@
-import { Student } from "../../index.js";
+import Student from "../../models/Student.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise"

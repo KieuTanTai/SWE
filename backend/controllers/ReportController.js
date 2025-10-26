@@ -1,6 +1,6 @@
 import express from "express";
-import ReportService from "../services/ReportService.js";
-import { Report } from "../index.js";
+import ReportService from "../services/ReportServices.js";
+import Report from "../models/Report.js";
 
 const router = express.Router();
 

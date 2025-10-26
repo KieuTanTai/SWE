@@ -1,6 +1,6 @@
 import express from "express";
-import DetailRouteService from "../services/DetailRouteService.js";
-import { DetailRoute } from "../index.js";
+import DetailRouteService from "../services/DetailRouteServices.js";
+import DetailRoute from "../models/DetailRoute.js";
 
 const router = express.Router();
 

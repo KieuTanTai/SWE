@@ -1,7 +1,6 @@
 import express from "express";
-import AccountService from "../services/AccountService.js";
-import { Account } from "../index.js";
-
+import AccountService from "../services/AccountServices.js";
+import Account from "../models/Account.js";
 const router = express.Router();
 
 // GET /api/accounts - Get all accounts

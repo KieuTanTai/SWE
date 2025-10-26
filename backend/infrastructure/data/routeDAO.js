@@ -1,4 +1,4 @@
-import { Route } from "../../index.js";
+import Route from "../../models/Route.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise"

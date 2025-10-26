@@ -1,6 +1,6 @@
 import express from "express";
-import AccountRoleService from "../services/AccountRoleService.js";
-import { AccountRole } from "../index.js";
+import AccountRoleService from "../services/AccountRoleServices.js";
+import AccountRole from "../models/AccountRole.js";
 
 const router = express.Router();
 

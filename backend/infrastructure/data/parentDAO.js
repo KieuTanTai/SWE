@@ -1,4 +1,4 @@
-import { Parent } from "../../index.js";
+import Parent from "../../models/Parent.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise";

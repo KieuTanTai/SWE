@@ -1,4 +1,4 @@
-import { LocationCity } from "../../index.js";
+import LocationCity from "../../models/LocationCity.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise"

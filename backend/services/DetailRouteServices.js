@@ -1,5 +1,5 @@
 import { default as DetailRouteDAO } from "../infrastructure/data/detailRouteDAO.js";
-import { DetailRoute } from "../index.js";
+import DetailRoute from "../models/DetailRoute.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**

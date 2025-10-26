@@ -1,4 +1,4 @@
-import { Report } from "../../index.js";
+import Report from "../../models/Report.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise";

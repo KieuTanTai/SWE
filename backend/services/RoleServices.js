@@ -1,5 +1,5 @@
 import { default as RoleDAO } from "../infrastructure/data/roleDAO.js";
-import { Role } from "../index.js";
+import Role from "../models/Role.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**

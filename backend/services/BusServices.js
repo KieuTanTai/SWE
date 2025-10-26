@@ -1,5 +1,5 @@
 import { default as BusDAO } from "../infrastructure/data/busDAO.js";
-import { Bus } from "../index.js";
+import Bus from "../models/Bus.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**

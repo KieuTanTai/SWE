@@ -1,5 +1,5 @@
 import { default as AccountDAO } from "../infrastructure/data/accountDAO.js";
-import { Account } from "../index.js";
+import Account from "../models/Account.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**

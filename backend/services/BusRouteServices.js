@@ -1,5 +1,5 @@
 import { default as BusRouteDAO } from "../infrastructure/data/busRouteDAO.js";
-import { BusRoute } from "../index.js";
+import BusRoute from "../models/BusRoute.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**

@@ -1,5 +1,5 @@
-import { DetailRoute } from "../../index.js";
-import BaseDAO from "./baseDAO.js";
+import DetailRoute from "../../models/DetailRoute.js";
+import { default as BaseDAO } from "./baseDAO.js";
 import { default as dbSchema } from "./dbSchema.js";
 import mySql from "mysql2/promise"
 export default class DetailRouteDAO extends BaseDAO {

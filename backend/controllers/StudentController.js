@@ -1,6 +1,6 @@
 import express from 'express';
 import StudentServices from '../services/StudentServices.js';
-import { Student } from '../index.js';
+import Student from '../models/Student.js';
 
 const router = express.Router();
 

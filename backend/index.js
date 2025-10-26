@@ -1,70 +1,99 @@
 /**
- * Models Index
- * Central export file for all models
+ * Backend Server
+ * Main entry point for the Express application
+ * Port: 5000
  */
 
-// Authentication & Authorization Models
-import Account from './models/Account.js';
-import Role from './models/Role.js';
-import AccountRole from './models/AccountRole.js';
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
 
-// Location Models
-import LocationCity from './models/LocationCity.js';
-import LocationDistrict from './models/LocationDistrict.js';
-import LocationWard from './models/LocationWard.js';
-import Address from './models/Address.js';
+// Controllers Import
+import AccountController from './controllers/AccountController.js';
+import RoleController from './controllers/RoleController.js';
+import AccountRoleController from './controllers/AccountRoleController.js';
+import AddressController from './controllers/AddressController.js';
+import LocationCityController from './controllers/LocationCityController.js';
+import LocationDistrictController from './controllers/LocationDistrictController.js';
+import LocationWardController from './controllers/LocationWardController.js';
+import PersonController from './controllers/PersonController.js';
+import ParentController from './controllers/ParentController.js';
+import DriverController from './controllers/DriverController.js';
+import StudentController from './controllers/StudentController.js';
+import RouteController from './controllers/RouteController.js';
+import DetailRouteController from './controllers/DetailRouteController.js';
+import BusController from './controllers/BusController.js';
+import BusRouteController from './controllers/BusRouteController.js';
+import TimeRoleController from './controllers/TimeRoleController.js';
+import ScheduleController from './controllers/ScheduleController.js';
+import DetailScheduleController from './controllers/DetailScheduleController.js';
+import PickupScheduleController from './controllers/PickupScheduleController.js';
+import ReportController from './controllers/ReportController.js';
 
-// Person & Related Models
-import Person from './models/Person.js';
-import Parent from './models/Parent.js';
-import Driver from './models/Driver.js';
-import Student from './models/Student.js';
+// Initialize Express App
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-// Transportation Models
-import Route from './models/Route.js';
-import DetailRoute from './models/DetailRoute.js';
-import Bus from './models/Bus.js';
-import BusRoute from './models/BusRoute.js';
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Scheduling Models
-import TimeRole from './models/TimeRole.js';
-import Schedule from './models/Schedule.js';
-import DetailSchedule from './models/DetailSchedule.js';
-import PickupSchedule from './models/PickupSchedule.js';
+// Health Check Route
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'Student School Bus System API',
+        version: '1.0.0',
+        status: 'running'
+    });
+});
 
-// Reporting Models
-import Report from './models/Report.js';
+// API Routes - Authentication & Authorization
+app.use('/api/accounts', AccountController);
+app.use('/api/roles', RoleController);
+app.use('/api/account-roles', AccountRoleController);
 
-export {
-    // Authentication & Authorization
-    Account,
-    Role,
-    AccountRole,
+// API Routes - Location
+app.use('/api/addresses', AddressController);
+app.use('/api/cities', LocationCityController);
+app.use('/api/districts', LocationDistrictController);
+app.use('/api/wards', LocationWardController);
 
-    // Location
-    LocationCity,
-    LocationDistrict,
-    LocationWard,
-    Address,
+// API Routes - Person & Related
+app.use('/api/persons', PersonController);
+app.use('/api/parents', ParentController);
+app.use('/api/drivers', DriverController);
+app.use('/api/students', StudentController);
 
-    // Person & Related
-    Person,
-    Parent,
-    Driver,
-    Student,
+// API Routes - Transportation
+app.use('/api/routes', RouteController);
+app.use('/api/detail-routes', DetailRouteController);
+app.use('/api/buses', BusController);
+app.use('/api/bus-routes', BusRouteController);
 
-    // Transportation
-    Route,
-    DetailRoute,
-    Bus,
-    BusRoute,
+// API Routes - Scheduling
+app.use('/api/time-roles', TimeRoleController);
+app.use('/api/schedules', ScheduleController);
+app.use('/api/detail-schedules', DetailScheduleController);
+app.use('/api/pickup-schedules', PickupScheduleController);
 
-    // Scheduling
-    TimeRole,
-    Schedule,
-    DetailSchedule,
-    PickupSchedule,
+// API Routes - Reporting
+app.use('/api/reports', ReportController);
 
-    // Reporting
-    Report
-};
+// 404 Handler
+app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+});
+
+// Error Handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Internal server error', message: err.message });
+});
+
+// Start Server
+app.listen(PORT, () => {
+    console.log(`🚀 Server is running on port ${PORT}`);
+    console.log(`📍 API endpoint: http://localhost:${PORT}`);
+    console.log(`✅ All controllers registered successfully`);
+});

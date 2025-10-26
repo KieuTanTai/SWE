@@ -1,5 +1,5 @@
 import { default as StudentDAO } from "../infrastructure/data/studentDAO.js";
-import { Student } from "../index.js";
+import Student from "../models/Student.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**

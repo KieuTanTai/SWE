@@ -1,4 +1,4 @@
-import { TimeRole } from "../../index.js";
+import TimeRole from "../../models/TimeRole.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise"

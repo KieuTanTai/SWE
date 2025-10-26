@@ -1,6 +1,6 @@
 import express from "express";
-import ParentService from "../services/ParentService.js";
-import { Parent } from "../index.js";
+import ParentService from "../services/ParentServices.js";
+import Parent from "../models/Parent.js";
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
-import { Account } from "../../index.js";
-import { AccountRole } from "../../index.js";
+import Account from "../../models/Account.js";
+import AccountRole from "../../models/AccountRole.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise";

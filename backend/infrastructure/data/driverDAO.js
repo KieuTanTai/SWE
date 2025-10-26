@@ -1,4 +1,4 @@
-import { Driver } from "../../index.js";
+import Driver from "../../models/Driver.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise";

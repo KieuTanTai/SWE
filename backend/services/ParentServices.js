@@ -1,5 +1,5 @@
 import { default as ParentDAO } from "../infrastructure/data/parentDAO.js";
-import { Parent } from "../index.js";
+import Parent from "../models/Parent.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**

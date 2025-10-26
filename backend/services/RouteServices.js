@@ -1,5 +1,5 @@
 import { default as RouteDAO } from "../infrastructure/data/routeDAO.js";
-import { Route } from "../index.js";
+import Route from "../models/Route.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**

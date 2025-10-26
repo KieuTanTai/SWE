@@ -1,6 +1,6 @@
 import express from "express";
 import BusRouteServices from "../services/BusRouteServices.js";
-import { BusRoute } from "../index.js";
+import BusRoute from "../models/BusRoute.js";
 
 const router = express.Router();
 

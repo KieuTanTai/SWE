@@ -1,5 +1,5 @@
 import { default as DriverDAO } from "../infrastructure/data/driverDAO.js";
-import { Driver } from "../index.js";
+import Driver from "../models/Driver.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**

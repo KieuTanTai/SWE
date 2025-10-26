@@ -1,5 +1,5 @@
 import { default as AccountRoleDAO } from "../infrastructure/data/accountRoleDAO.js";
-import { AccountRole } from "../index.js";
+import AccountRole from "../models/AccountRole.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**

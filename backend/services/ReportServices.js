@@ -1,5 +1,5 @@
 import { default as ReportDAO } from "../infrastructure/data/reportDAO.js";
-import { Report } from "../index.js";
+import Report from "../models/Report.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**

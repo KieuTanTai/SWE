@@ -1,175 +1,142 @@
 import express from 'express';
+import StudentServices from '../services/StudentServices.js';
+import { Student } from '../index.js';
+
 const router = express.Router();
-import studentService from '../services/StudentService.js';
 
-// ============ BASIC CRUD ============
-
-// GET /api/students - với filters advanced
+// GET /api/students - Get all students
 router.get('/', async (req, res) => {
     try {
-        const filters = {};
-
-        // Parse query parameters từ DAO mới
-        if (req.query.grade) filters.grade = req.query.grade;
-        if (req.query.parentId) filters.parentId = req.query.parentId;
-        if (req.query.activeOnly) filters.activeOnly = req.query.activeOnly;
-
-        const students = await studentService.getStudentsByFilters(filters);
-
-        res.status(200).json({
-            success: true,
-            data: students,
-            count: students.length,
-            filters: filters
-        });
+        const service = new StudentServices();
+        const result = await service.getAllStudents();
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        res.status(500).json({ error: error.message });
     }
 });
 
-// GET /api/students/:id - với person info đầy đủ
-router.get('/:id', async (req, res) => {
+// GET /api/students/:studentId - Get student by ID
+router.get('/:studentId', async (req, res) => {
     try {
-        const student = await studentService.getById(req.params.id);
-        if (!student) {
-            return res.status(404).json({
-                success: false,
-                message: 'Student not found'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: student
-        });
+        const studentId = parseInt(req.params.studentId);
+        const service = new StudentServices();
+        const result = await service.getByStudentId(studentId);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        res.status(500).json({ error: error.message });
     }
 });
-
-// ============ NEW ADVANCED ENDPOINTS ============
-
-// GET /api/students/search/name?q=pattern - SEARCH BY NAME
-router.get('/search/name', async (req, res) => {
+// GET /api/students/batch?ids=1,2,3 - Get students by multiple IDs
+router.get('/batch/ids', async (req, res) => {
     try {
-        const { q: namePattern } = req.query;
-
-        if (!namePattern) {
-            return res.status(400).json({
-                success: false,
-                message: 'Query parameter "q" is required'
-            });
+        const ids = req.query.ids;
+        if (!ids || typeof ids !== 'string') {
+            return res.status(400).json({ error: "Query parameter 'ids' is required" });
         }
-
-        const students = await studentService.searchByName(namePattern);
-
-        res.status(200).json({
-            success: true,
-            data: students,
-            count: students.length,
-            searchPattern: namePattern
-        });
+        
+        const studentIds = ids.split(",").map(id => parseInt(id.trim()));
+        const service = new StudentServices();
+        const result = await service.getByStudentIds(studentIds);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        res.status(500).json({ error: error.message });
     }
 });
 
-// GET /api/students/parent/:parentId - BY PARENT
+// GET /api/students/person/:personId - Get student by person ID
+router.get('/person/:personId', async (req, res) => {
+    try {
+        const personId = parseInt(req.params.personId);
+        const service = new StudentServices();
+        const result = await service.getByPersonId(personId);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /api/students/parent/:parentId - Get students by parent ID
 router.get('/parent/:parentId', async (req, res) => {
     try {
-        const students = await studentService.getByParent(req.params.parentId);
-
-        res.status(200).json({
-            success: true,
-            data: students,
-            count: students.length,
-            parentId: parseInt(req.params.parentId)
-        });
+        const parentId = parseInt(req.params.parentId);
+        const service = new StudentServices();
+        const result = await service.getByParentId(parentId);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        res.status(500).json({ error: error.message });
     }
 });
 
-// GET /api/students/grade/:grade - BY GRADE
+// GET /api/students/grade/:grade - Get students by grade
 router.get('/grade/:grade', async (req, res) => {
     try {
-        const students = await studentService.getByGrade(req.params.grade);
-
-        res.status(200).json({
-            success: true,
-            data: students,
-            count: students.length,
-            grade: parseInt(req.params.grade)
-        });
+        const grade = parseInt(req.params.grade);
+        const service = new StudentServices();
+        const result = await service.getByGrade(grade);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        res.status(500).json({ error: error.message });
     }
 });
 
-// GET /api/students/schedules - WITH SCHEDULES
-// GET /api/students/schedules?studentId=123
-router.get('/schedules', async (req, res) => {
+// POST /api/students - Create single student
+router.post('/', async (req, res) => {
     try {
-        const { studentId } = req.query;
-        const studentsWithSchedules = await studentService.getWithSchedules(studentId || null);
-
-        res.status(200).json({
-            success: true,
-            data: studentsWithSchedules,
-            count: studentsWithSchedules.length,
-            studentId: studentId ? parseInt(studentId) : null
-        });
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message
-        });
-    }
-});
-
-// POST /api/students/bulk - BULK GET BY IDS
-router.post('/bulk', async (req, res) => {
-    try {
-        const { studentIds } = req.body;
-
-        if (!studentIds) {
-            return res.status(400).json({
-                success: false,
-                message: 'studentIds array is required'
-            });
+        const { student_person_id, student_grade, student_parent_id } = req.body;
+        if (!student_person_id || !student_grade) {
+            return res.status(400).json({ error: "student_person_id and student_grade are required" });
         }
 
-        const students = await studentService.getBulk(studentIds);
-
-        res.status(200).json({
-            success: true,
-            data: students,
-            count: students.length,
-            requestedIds: studentIds
-        });
+        const student = new Student({ student_person_id, student_grade, student_parent_id });
+        const service = new StudentServices();
+        const result = await service.createStudent(student);
+        result.success ? res.status(201).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        res.status(500).json({ error: error.message });
     }
 });
 
-// Giữ nguyên POST, PUT, DELETE từ version cũ...
+// PUT /api/students/:studentId - Update student
+router.put('/:studentId', async (req, res) => {
+    try {
+        const studentId = parseInt(req.params.studentId);
+        const { student_grade, student_parent_id } = req.body;
+        
+        const student = new Student({ 
+            student_id: studentId, 
+            student_grade, 
+            student_parent_id 
+        });
+        const service = new StudentServices();
+        const result = await service.updateStudent(studentId, student);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE /api/students/:studentId - Delete student
+router.delete('/:studentId', async (req, res) => {
+    try {
+        const studentId = parseInt(req.params.studentId);
+        const service = new StudentServices();
+        const result = await service.deleteStudent(studentId);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /api/students/check-person/:personId - Check if person is student
+router.get('/check-person/:personId', async (req, res) => {
+    try {
+        const personId = parseInt(req.params.personId);
+        const service = new StudentServices();
+        const result = await service.isPersonStudent(personId);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 export default router;

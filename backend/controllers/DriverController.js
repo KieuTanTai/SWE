@@ -1,13 +1,13 @@
 import express from "express";
-import DriverService from "../services/DriverService.js";
-import Driver from "../models/Driver.js";
+import DriverServices from "../services/DriverServices.js";
+import { Driver } from "../index.js";
 
 const router = express.Router();
 
 // GET /api/drivers - Get all drivers
 router.get("/", async (req, res) => {
     try {
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.getAllDrivers();
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
 router.get("/:driverPersonId", async (req, res) => {
     try {
         const driverPersonId = parseInt(req.params.driverPersonId);
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.getByDriverPersonId(driverPersonId);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -36,7 +36,7 @@ router.get("/batch/ids", async (req, res) => {
         }
         
         const driverPersonIds = ids.split(",").map(id => parseInt(id.trim()));
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.getByDriverPersonIds(driverPersonIds);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -48,7 +48,7 @@ router.get("/batch/ids", async (req, res) => {
 router.get("/experience-type/:type", async (req, res) => {
     try {
         const { type } = req.params;
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.getByExperienceType(type);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -60,7 +60,7 @@ router.get("/experience-type/:type", async (req, res) => {
 router.get("/min-experience/:minExp", async (req, res) => {
     try {
         const minExperience = parseInt(req.params.minExp);
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.getByMinExperience(minExperience);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -72,7 +72,7 @@ router.get("/min-experience/:minExp", async (req, res) => {
 router.get("/max-late-count/:maxCount", async (req, res) => {
     try {
         const maxLateCount = parseInt(req.params.maxCount);
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.getByMaxLateArrivalCount(maxLateCount);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -89,7 +89,7 @@ router.post("/", async (req, res) => {
         }
 
         const driver = new Driver({ driver_person_id, driver_experience, driver_experience_type, driver_late_arrival_count });
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.createDriver(driver);
         result.success ? res.status(201).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -106,7 +106,7 @@ router.post("/bulk", async (req, res) => {
         }
 
         const driverObjects = drivers.map(d => new Driver(d));
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.createDrivers(driverObjects);
         result.success ? res.status(201).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -124,7 +124,7 @@ router.put("/:driverPersonId/experience", async (req, res) => {
             return res.status(400).json({ error: "experience is required" });
         }
 
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.updateExperience(driverPersonId, experience, experience_type);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -142,7 +142,7 @@ router.put("/:driverPersonId/late-count", async (req, res) => {
             return res.status(400).json({ error: "late_count is required" });
         }
 
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.updateLateArrivalCount(driverPersonId, late_count);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -154,7 +154,7 @@ router.put("/:driverPersonId/late-count", async (req, res) => {
 router.put("/:driverPersonId/increment-late", async (req, res) => {
     try {
         const driverPersonId = parseInt(req.params.driverPersonId);
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.incrementLateArrivalCount(driverPersonId);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -170,7 +170,7 @@ router.put("/bulk/experiences", async (req, res) => {
             return res.status(400).json({ error: "drivers array is required and cannot be empty" });
         }
 
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.updateExperiences(drivers);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -186,7 +186,7 @@ router.put("/bulk/late-counts", async (req, res) => {
             return res.status(400).json({ error: "drivers array is required and cannot be empty" });
         }
 
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.updateLateArrivalCounts(drivers);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -198,7 +198,7 @@ router.put("/bulk/late-counts", async (req, res) => {
 router.delete("/:driverPersonId", async (req, res) => {
     try {
         const driverPersonId = parseInt(req.params.driverPersonId);
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.deleteDriver(driverPersonId);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -215,7 +215,7 @@ router.delete("/batch/ids", async (req, res) => {
         }
         
         const driverPersonIds = ids.split(",").map(id => parseInt(id.trim()));
-        const service = new DriverService();
+        const service = new DriverServices();
         const result = await service.deleteDrivers(driverPersonIds);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {

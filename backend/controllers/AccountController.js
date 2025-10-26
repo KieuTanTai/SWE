@@ -1,6 +1,6 @@
 import express from "express";
 import AccountService from "../services/AccountService.js";
-import { Account } from "../models/index.js";
+import { Account } from "../index.js";
 
 const router = express.Router();
 

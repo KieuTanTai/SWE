@@ -2386,6 +2386,663 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "Persons",
+			"item": [
+				{
+					"name": "Get All Persons",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/persons",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "persons"]
+						}
+					}
+				},
+				{
+					"name": "Get Person by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/persons/{{person_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "persons", "{{person_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Person",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person_name\": \"John Doe\",\n  \"person_phone\": \"0123456789\",\n  \"person_email\": \"john@example.com\",\n  \"person_date_of_birth\": \"1990-01-01\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/persons",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "persons"]
+						}
+					}
+				},
+				{
+					"name": "Update Person",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person_name\": \"Jane Doe\",\n  \"person_phone\": \"0987654321\",\n  \"person_email\": \"jane@example.com\",\n  \"person_date_of_birth\": \"1992-05-15\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/persons/{{person_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "persons", "{{person_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Person",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/persons/{{person_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "persons", "{{person_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Addresses",
+			"item": [
+				{
+					"name": "Get All Addresses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/addresses",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "addresses"]
+						}
+					}
+				},
+				{
+					"name": "Get Address by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/addresses/{{address_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "addresses", "{{address_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Address",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"address_number\": \"123\",\n  \"address_street\": \"Main Street\",\n  \"location_ward_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/addresses",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "addresses"]
+						}
+					}
+				},
+				{
+					"name": "Update Address",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"address_number\": \"456\",\n  \"address_street\": \"Second Avenue\",\n  \"location_ward_id\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/addresses/{{address_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "addresses", "{{address_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Address",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/addresses/{{address_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "addresses", "{{address_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cities",
+			"item": [
+				{
+					"name": "Get All Cities",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/cities",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "cities"]
+						}
+					}
+				},
+				{
+					"name": "Get City by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/cities/{{city_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "cities", "{{city_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create City",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"location_city_name\": \"Ho Chi Minh\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/cities",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "cities"]
+						}
+					}
+				},
+				{
+					"name": "Update City",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"location_city_name\": \"Hanoi\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/cities/{{city_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "cities", "{{city_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete City",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/cities/{{city_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "cities", "{{city_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Districts",
+			"item": [
+				{
+					"name": "Get All Districts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/districts",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "districts"]
+						}
+					}
+				},
+				{
+					"name": "Get District by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/districts/{{district_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "districts", "{{district_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create District",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"location_district_name\": \"District 1\",\n  \"location_city_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/districts",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "districts"]
+						}
+					}
+				},
+				{
+					"name": "Update District",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"location_district_name\": \"District 2\",\n  \"location_city_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/districts/{{district_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "districts", "{{district_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete District",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/districts/{{district_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "districts", "{{district_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Wards",
+			"item": [
+				{
+					"name": "Get All Wards",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/wards",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "wards"]
+						}
+					}
+				},
+				{
+					"name": "Get Ward by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/wards/{{ward_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "wards", "{{ward_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Ward",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"location_ward_name\": \"Ward 1\",\n  \"location_district_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/wards",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "wards"]
+						}
+					}
+				},
+				{
+					"name": "Update Ward",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"location_ward_name\": \"Ward 2\",\n  \"location_district_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/wards/{{ward_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "wards", "{{ward_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Ward",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/wards/{{ward_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "wards", "{{ward_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Pickup Schedules",
+			"item": [
+				{
+					"name": "Get All Pickup Schedules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/pickup-schedules",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "pickup-schedules"]
+						}
+					}
+				},
+				{
+					"name": "Get Pickup Schedule by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/pickup-schedules/{{pickup_schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "pickup-schedules", "{{pickup_schedule_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Pickup Schedule",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pickup_schedule_time\": \"07:30:00\",\n  \"pickup_schedule_location\": \"School Gate\",\n  \"pickup_schedule_note\": \"Morning pickup\",\n  \"detail_schedule_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/pickup-schedules",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "pickup-schedules"]
+						}
+					}
+				},
+				{
+					"name": "Update Pickup Schedule",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pickup_schedule_time\": \"08:00:00\",\n  \"pickup_schedule_location\": \"Main Entrance\",\n  \"pickup_schedule_note\": \"Updated pickup time\",\n  \"detail_schedule_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/pickup-schedules/{{pickup_schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "pickup-schedules", "{{pickup_schedule_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Pickup Schedule",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/pickup-schedules/{{pickup_schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "pickup-schedules", "{{pickup_schedule_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Schedules",
+			"item": [
+				{
+					"name": "Get All Schedules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/schedules",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "schedules"]
+						}
+					}
+				},
+				{
+					"name": "Get Schedule by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/schedules/{{schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "schedules", "{{schedule_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Schedule",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"schedule_name\": \"Morning Schedule\",\n  \"schedule_start_date\": \"2024-01-01\",\n  \"schedule_end_date\": \"2024-06-30\",\n  \"schedule_status\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/schedules",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "schedules"]
+						}
+					}
+				},
+				{
+					"name": "Update Schedule",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"schedule_name\": \"Afternoon Schedule\",\n  \"schedule_start_date\": \"2024-01-15\",\n  \"schedule_end_date\": \"2024-07-15\",\n  \"schedule_status\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/schedules/{{schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "schedules", "{{schedule_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Schedule",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/schedules/{{schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "schedules", "{{schedule_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Detail Schedules",
+			"item": [
+				{
+					"name": "Get All Detail Schedules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/detail-schedules",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "detail-schedules"]
+						}
+					}
+				},
+				{
+					"name": "Get Detail Schedule by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/detail-schedules/{{detail_schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "detail-schedules", "{{detail_schedule_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Detail Schedule",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"detail_schedule_date\": \"2024-01-15\",\n  \"schedule_id\": 1,\n  \"bus_route_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/detail-schedules",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "detail-schedules"]
+						}
+					}
+				},
+				{
+					"name": "Update Detail Schedule",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"detail_schedule_date\": \"2024-01-20\",\n  \"schedule_id\": 1,\n  \"bus_route_id\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/detail-schedules/{{detail_schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "detail-schedules", "{{detail_schedule_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Detail Schedule",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/detail-schedules/{{detail_schedule_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "detail-schedules", "{{detail_schedule_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Time Roles",
+			"item": [
+				{
+					"name": "Get All Time Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/time-roles",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "time-roles"]
+						}
+					}
+				},
+				{
+					"name": "Get Time Role by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/time-roles/{{time_role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "time-roles", "{{time_role_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Time Role",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time_role_start_date\": \"2024-01-01\",\n  \"time_role_end_date\": \"2024-12-31\",\n  \"role_id\": 1,\n  \"person_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/time-roles",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "time-roles"]
+						}
+					}
+				},
+				{
+					"name": "Update Time Role",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time_role_start_date\": \"2024-02-01\",\n  \"time_role_end_date\": \"2024-11-30\",\n  \"role_id\": 2,\n  \"person_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/time-roles/{{time_role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "time-roles", "{{time_role_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Time Role",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_prefix}}/time-roles/{{time_role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_prefix}}", "time-roles", "{{time_role_id}}"]
+						}
+					}
+				}
+			]
 		}
 	]
 }

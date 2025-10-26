@@ -1,23 +1,24 @@
-import { default as ReportDAO } from "../infrastructure/data/reportDAO.js";
-import { Report } from "../models/index.js";
+import { default as ParentDAO } from "../infrastructure/data/parentDAO.js";
+import { Parent } from "../index.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
- * ReportService
- * Service layer for managing reports
+ * ParentServices
+ * Service layer for managing parents
+ * Manages its own database connections and transactions
  */
-class ReportService {
+class ParentServices {
     /**
-     * Get all reports
-     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
+     * Get all parents
+     * @return {Promise<{success: boolean, data?: Parent[], error?: string}>}
      */
-    async getAllReports() {
+    async getAllParents() {
         try {
             const results = await withConnection(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.getAllReports();
+                const repo = new ParentDAO(connection);
+                return await repo.getAllParents();
             });
-
+            
             return {
                 success: true,
                 data: results
@@ -31,24 +32,24 @@ class ReportService {
     }
 
     /**
-     * Get report by ID
-     * @param {number} reportId
-     * @return {Promise<{success: boolean, data?: Report, error?: string}>}
+     * Get parent by person ID
+     * @param {number} parentPersonId
+     * @return {Promise<{success: boolean, data?: Parent, error?: string}>}
      */
-    async getByReportId(reportId) {
+    async getByParentPersonId(parentPersonId) {
         try {
-            if (!reportId || !Number.isInteger(reportId)) {
+            if (!parentPersonId || !Number.isInteger(parentPersonId)) {
                 return {
                     success: false,
-                    error: 'Invalid reportId'
+                    error: 'Invalid parentPersonId'
                 };
             }
 
             const result = await withConnection(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.getByReportId(reportId);
+                const repo = new ParentDAO(connection);
+                return await repo.getByParentPersonId(parentPersonId);
             });
-
+            
             return {
                 success: true,
                 data: result
@@ -62,24 +63,24 @@ class ReportService {
     }
 
     /**
-     * Get reports by multiple IDs
-     * @param {number[]} reportIds
-     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
+     * Get parents by multiple person IDs
+     * @param {number[]} parentPersonIds
+     * @return {Promise<{success: boolean, data?: Parent[], error?: string}>}
      */
-    async getByReportIds(reportIds) {
+    async getByParentPersonIds(parentPersonIds) {
         try {
-            if (!Array.isArray(reportIds) || reportIds.length === 0) {
+            if (!Array.isArray(parentPersonIds) || parentPersonIds.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid reportIds array'
+                    error: 'Invalid parentPersonIds array'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.getByReportIds(reportIds);
+                const repo = new ParentDAO(connection);
+                return await repo.getByParentPersonIds(parentPersonIds);
             });
-
+            
             return {
                 success: true,
                 data: results
@@ -93,24 +94,24 @@ class ReportService {
     }
 
     /**
-     * Get reports by driver ID
-     * @param {number} driverId
-     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
+     * Get parents by address ID
+     * @param {number} addressId
+     * @return {Promise<{success: boolean, data?: Parent[], error?: string}>}
      */
-    async getByDriverId(driverId) {
+    async getByAddressId(addressId) {
         try {
-            if (!driverId || !Number.isInteger(driverId)) {
+            if (!addressId || !Number.isInteger(addressId)) {
                 return {
                     success: false,
-                    error: 'Invalid driverId'
+                    error: 'Invalid addressId'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.getByDriverId(driverId);
+                const repo = new ParentDAO(connection);
+                return await repo.getByAddressId(addressId);
             });
-
+            
             return {
                 success: true,
                 data: results
@@ -124,24 +125,24 @@ class ReportService {
     }
 
     /**
-     * Get reports by report type
-     * @param {string} reportType - 'start_pickup', 'picked_up', 'late', 'dropped_off', 'warning'
-     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
+     * Get parents by parent type
+     * @param {string} parentType
+     * @return {Promise<{success: boolean, data?: Parent[], error?: string}>}
      */
-    async getByReportType(reportType) {
+    async getByParentType(parentType) {
         try {
-            if (!reportType || typeof reportType !== 'string') {
+            if (!parentType || typeof parentType !== 'string') {
                 return {
                     success: false,
-                    error: 'Invalid reportType'
+                    error: 'Invalid parentType'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.getByReportType(reportType);
+                const repo = new ParentDAO(connection);
+                return await repo.getByParentType(parentType);
             });
-
+            
             return {
                 success: true,
                 data: results
@@ -155,25 +156,24 @@ class ReportService {
     }
 
     /**
-     * Get reports by time range
-     * @param {Date} startTime
-     * @param {Date} endTime
-     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
+     * Get parents by job
+     * @param {string} job
+     * @return {Promise<{success: boolean, data?: Parent[], error?: string}>}
      */
-    async getByTimeRange(startTime, endTime) {
+    async getByJob(job) {
         try {
-            if (!(startTime instanceof Date) || !(endTime instanceof Date)) {
+            if (!job || typeof job !== 'string') {
                 return {
                     success: false,
-                    error: 'Invalid startTime or endTime'
+                    error: 'Invalid job'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.getByTimeRange(startTime, endTime);
+                const repo = new ParentDAO(connection);
+                return await repo.getByJob(job);
             });
-
+            
             return {
                 success: true,
                 data: results
@@ -187,32 +187,24 @@ class ReportService {
     }
 
     /**
-     * Get reports by driver and type
-     * @param {number} driverId
-     * @param {string} reportType
-     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
+     * Get parents with job like pattern
+     * @param {string} jobPattern
+     * @return {Promise<{success: boolean, data?: Parent[], error?: string}>}
      */
-    async getByDriverIdAndType(driverId, reportType) {
+    async getLikeJob(jobPattern) {
         try {
-            if (!driverId || !Number.isInteger(driverId)) {
+            if (!jobPattern || typeof jobPattern !== 'string') {
                 return {
                     success: false,
-                    error: 'Invalid driverId'
-                };
-            }
-
-            if (!reportType || typeof reportType !== 'string') {
-                return {
-                    success: false,
-                    error: 'Invalid reportType'
+                    error: 'Invalid jobPattern'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.getByDriverIdAndType(driverId, reportType);
+                const repo = new ParentDAO(connection);
+                return await repo.getLikeJob(jobPattern);
             });
-
+            
             return {
                 success: true,
                 data: results
@@ -226,28 +218,28 @@ class ReportService {
     }
 
     /**
-     * Create a new report
-     * @param {Report} report
+     * Create a new parent
+     * @param {Parent} parent
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async createReport(report) {
+    async createParent(parent) {
         try {
-            if (!(report instanceof Report)) {
+            if (!(parent instanceof Parent)) {
                 return {
                     success: false,
-                    error: 'Invalid report object'
+                    error: 'Invalid parent object'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.createReport(report);
+                const repo = new ParentDAO(connection);
+                return await repo.createParent(parent);
             });
 
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to create report'
+                    error: 'Failed to create parent'
                 };
             }
 
@@ -264,28 +256,28 @@ class ReportService {
     }
 
     /**
-     * Create multiple reports
-     * @param {Report[]} reports
+     * Create multiple parents
+     * @param {Parent[]} parents
      * @return {Promise<{success: boolean, data?: number|number[], error?: string}>}
      */
-    async createReports(reports) {
+    async createParents(parents) {
         try {
-            if (!Array.isArray(reports) || reports.length === 0) {
+            if (!Array.isArray(parents) || parents.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid reports array'
+                    error: 'Invalid parents array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.createReports(reports);
+                const repo = new ParentDAO(connection);
+                return await repo.createParents(parents);
             });
 
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to create reports'
+                    error: 'Failed to create parents'
                 };
             }
 
@@ -302,29 +294,107 @@ class ReportService {
     }
 
     /**
-     * Update report type
-     * @param {number} reportId
+     * Update parent address ID
+     * @param {number} parentPersonId
+     * @param {number} newAddressId
+     * @return {Promise<{success: boolean, data?: number, error?: string}>}
+     */
+    async updateAddressId(parentPersonId, newAddressId) {
+        try {
+            if (!parentPersonId || !Number.isInteger(parentPersonId)) {
+                return {
+                    success: false,
+                    error: 'Invalid parentPersonId'
+                };
+            }
+
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.updateAddressId(parentPersonId, newAddressId);
+            });
+
+            if (result === -1) {
+                return {
+                    success: false,
+                    error: 'Failed to update address ID'
+                };
+            }
+
+            return {
+                success: true,
+                data: result
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Update parent job
+     * @param {number} parentPersonId
+     * @param {string} newJob
+     * @return {Promise<{success: boolean, data?: number, error?: string}>}
+     */
+    async updateJob(parentPersonId, newJob) {
+        try {
+            if (!parentPersonId || !Number.isInteger(parentPersonId)) {
+                return {
+                    success: false,
+                    error: 'Invalid parentPersonId'
+                };
+            }
+
+            const result = await withTransaction(async (connection) => {
+                const repo = new ParentDAO(connection);
+                return await repo.updateJob(parentPersonId, newJob);
+            });
+
+            if (result === -1) {
+                return {
+                    success: false,
+                    error: 'Failed to update job'
+                };
+            }
+
+            return {
+                success: true,
+                data: result
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Update parent type
+     * @param {number} parentPersonId
      * @param {string} newType
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateReportType(reportId, newType) {
+    async updateParentType(parentPersonId, newType) {
         try {
-            if (!reportId || !Number.isInteger(reportId)) {
+            if (!parentPersonId || !Number.isInteger(parentPersonId)) {
                 return {
                     success: false,
-                    error: 'Invalid reportId'
+                    error: 'Invalid parentPersonId'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.updateReportType(reportId, newType);
+                const repo = new ParentDAO(connection);
+                return await repo.updateParentType(parentPersonId, newType);
             });
 
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update report type'
+                    error: 'Failed to update parent type'
                 };
             }
 
@@ -341,29 +411,28 @@ class ReportService {
     }
 
     /**
-     * Update report content
-     * @param {number} reportId
-     * @param {string} newContent
+     * Update address IDs of multiple parents
+     * @param {Array<{parent_person_id: number, parent_address_id: number}>} parents
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateReportContent(reportId, newContent) {
+    async updateAddressIds(parents) {
         try {
-            if (!reportId || !Number.isInteger(reportId)) {
+            if (!Array.isArray(parents) || parents.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid reportId'
+                    error: 'Invalid parents array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.updateReportContent(reportId, newContent);
+                const repo = new ParentDAO(connection);
+                return await repo.updateAddressIds(parents);
             });
 
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update report content'
+                    error: 'Failed to update address IDs'
                 };
             }
 
@@ -380,28 +449,28 @@ class ReportService {
     }
 
     /**
-     * Update report types of multiple reports
-     * @param {Array<{report_id: number, report_type: string}>} reports
+     * Update jobs of multiple parents
+     * @param {Array<{parent_person_id: number, parent_job: string}>} parents
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateReportTypes(reports) {
+    async updateJobs(parents) {
         try {
-            if (!Array.isArray(reports) || reports.length === 0) {
+            if (!Array.isArray(parents) || parents.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid reports array'
+                    error: 'Invalid parents array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.updateReportTypes(reports);
+                const repo = new ParentDAO(connection);
+                return await repo.updateJobs(parents);
             });
 
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update report types'
+                    error: 'Failed to update jobs'
                 };
             }
 
@@ -418,28 +487,28 @@ class ReportService {
     }
 
     /**
-     * Update report contents of multiple reports
-     * @param {Array<{report_id: number, report_content: string}>} reports
+     * Update parent types of multiple parents
+     * @param {Array<{parent_person_id: number, parent_type: string}>} parents
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateReportContents(reports) {
+    async updateParentTypes(parents) {
         try {
-            if (!Array.isArray(reports) || reports.length === 0) {
+            if (!Array.isArray(parents) || parents.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid reports array'
+                    error: 'Invalid parents array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.updateReportContents(reports);
+                const repo = new ParentDAO(connection);
+                return await repo.updateParentTypes(parents);
             });
 
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update report contents'
+                    error: 'Failed to update parent types'
                 };
             }
 
@@ -456,28 +525,28 @@ class ReportService {
     }
 
     /**
-     * Delete report by ID
-     * @param {number} reportId
+     * Delete parent by person ID
+     * @param {number} parentPersonId
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async deleteReport(reportId) {
+    async deleteParent(parentPersonId) {
         try {
-            if (!reportId || !Number.isInteger(reportId)) {
+            if (!parentPersonId || !Number.isInteger(parentPersonId)) {
                 return {
                     success: false,
-                    error: 'Invalid reportId'
+                    error: 'Invalid parentPersonId'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.deleteReport(reportId);
+                const repo = new ParentDAO(connection);
+                return await repo.deleteParent(parentPersonId);
             });
 
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to delete report'
+                    error: 'Failed to delete parent'
                 };
             }
 
@@ -494,65 +563,28 @@ class ReportService {
     }
 
     /**
-     * Delete multiple reports by IDs
-     * @param {number[]} reportIds
+     * Delete multiple parents by person IDs
+     * @param {number[]} parentPersonIds
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async deleteReports(reportIds) {
+    async deleteParents(parentPersonIds) {
         try {
-            if (!Array.isArray(reportIds) || reportIds.length === 0) {
+            if (!Array.isArray(parentPersonIds) || parentPersonIds.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid reportIds array'
+                    error: 'Invalid parentPersonIds array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.deleteReports(reportIds);
+                const repo = new ParentDAO(connection);
+                return await repo.deleteParents(parentPersonIds);
             });
 
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to delete reports'
-                };
-            }
-
-            return {
-                success: true,
-                data: result
-            };
-        } catch (error) {
-            return {
-                success: false,
-                error: error.message
-            };
-        }
-    }
-
-    /**
-     * Delete all reports by driver ID
-     * @param {number} driverId
-     * @return {Promise<{success: boolean, data?: number, error?: string}>}
-     */
-    async deleteByDriverId(driverId) {
-        try {
-            if (!driverId || !Number.isInteger(driverId)) {
-                return {
-                    success: false,
-                    error: 'Invalid driverId'
-                };
-            }
-
-            const result = await withTransaction(async (connection) => {
-                const repo = new ReportDAO(connection);
-                return await repo.deleteByDriverId(driverId);
-            });
-            if (result === -1) {
-                return {
-                    success: false,
-                    error: 'Failed to delete reports by driverId'
+                    error: 'Failed to delete parents'
                 };
             }
 
@@ -569,4 +601,4 @@ class ReportService {
     }
 }
 
-export default ReportService;
+export default ParentServices;

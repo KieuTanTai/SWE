@@ -4,15 +4,15 @@
  */
 class Person {
     constructor({
-        person_id = null,
-        person_account_id = null,
-        person_phone = null,
-        person_name,
-        person_gender = null,
-        person_birthday = null,
-        person_type,
+        person_id = 0,
+        person_account_id = 0,
+        person_phone = '',
+        person_name = '',
+        person_gender = '',
+        person_birthday = new Date(),
+        person_type = '',
         person_life_cycle_status = true
-    }) {
+    } = {}) {
         this.person_id = person_id;
         this.person_account_id = person_account_id;
         this.person_phone = person_phone;

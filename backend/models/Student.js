@@ -4,11 +4,11 @@
  */
 class Student {
     constructor({
-        student_id = null,
-        student_parent_id,
-        student_person_id,
-        student_grade = null
-    }) {
+        student_id = 0,
+        student_parent_id = 0,
+        student_person_id = 0,
+        student_grade = 0
+    } = {}) {
         this.student_id = student_id;
         this.student_parent_id = student_parent_id;
         this.student_person_id = student_person_id;

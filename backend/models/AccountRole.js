@@ -4,11 +4,11 @@
  */
 class AccountRole {
     constructor({
-        role_id,
-        account_id,
+        role_id = 0,
+        account_id = 0,
         assigned_date = new Date(),
-        assigned_by = null
-    }) {
+        assigned_by = 0
+    } = {}) {
         this.role_id = role_id;
         this.account_id = account_id;
         this.assigned_date = assigned_date;

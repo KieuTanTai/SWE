@@ -1,4 +1,4 @@
-import { Driver } from "../../models/index.js";
+import { Driver } from "../../index.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise";
@@ -46,32 +46,24 @@ export default class DriverDAO extends BaseDAO {
     async getByDriverPersonId(driverPersonId) {
         if (driverPersonId === null || driverPersonId === undefined || !Number.isInteger(driverPersonId)) {
             console.warn(`Warning: driverPersonId is invalid : ${driverPersonId}`);
-            const emptyDriver = {};
-            emptyDriver[dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID] = 0;
-            return new Driver(emptyDriver);
+            return new Driver();
         }
 
         try {
-            if (Number.parseInt(driverPersonId.toString()) <= 0) {
+            if (driverPersonId <= 0) {
                 console.warn(`Warning: driverPersonId must be greater than zero : ${driverPersonId}`);
-                const emptyDriver = {};
-                emptyDriver[dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID] = 0;
-                return new Driver(emptyDriver);
+                return new Driver();
             }
 
             const result = await this._protectedGetById(driverPersonId);
             if (!result) {
                 console.warn(`Warning: No data found for driverPersonId ${driverPersonId}`);
-                const emptyDriver = {};
-                emptyDriver[dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID] = 0;
-                return new Driver(emptyDriver);
+                return new Driver();
             }
             return Driver.fromDatabase(result);
         } catch (error) {
             console.error(`Error: ${error.message}`);
-            const emptyDriver = {};
-            emptyDriver[dbSchema.DRIVER_COLUMNS.DRIVER_PERSON_ID] = 0;
-            return new Driver(emptyDriver);
+            return new Driver();
         }
     }
 

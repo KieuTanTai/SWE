@@ -5,9 +5,9 @@
 class Parent {
     constructor({
         parent_person_id = 0,
-        parent_address_id = null,
-        parent_job = null,
-        parent_type = null
+        parent_address_id = 0,
+        parent_job = '',
+        parent_type = ''
     } = {}) {
         this.parent_person_id = parent_person_id;
         this.parent_address_id = parent_address_id;

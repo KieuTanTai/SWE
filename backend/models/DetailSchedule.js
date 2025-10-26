@@ -4,11 +4,11 @@
  */
 class DetailSchedule {
     constructor({
-        detail_schedule_id = null,
-        schedule_id,
-        detail_schedule_bus_route_id,
-        detail_schedule_time_role_id
-    }) {
+        detail_schedule_id = 0,
+        schedule_id = 0,
+        detail_schedule_bus_route_id = 0,
+        detail_schedule_time_role_id = 0
+    } = {}) {
         this.detail_schedule_id = detail_schedule_id;
         this.schedule_id = schedule_id;
         this.detail_schedule_bus_route_id = detail_schedule_bus_route_id;

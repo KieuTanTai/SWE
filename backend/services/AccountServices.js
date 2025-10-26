@@ -1,24 +1,23 @@
-import { default as DriverDAO } from "../infrastructure/data/driverDAO.js";
-import Driver from "../models/Driver.js";
+import { default as AccountDAO } from "../infrastructure/data/accountDAO.js";
+import { Account } from "../index.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
- * DriverService
- * Service layer for managing drivers
+ * AccountServices
+ * Service layer for managing accounts
  * Manages its own database connections and transactions
  */
-class DriverService {
+class AccountServices {
     /**
-     * Get all drivers
-     * @return {Promise<{success: boolean, data?: Driver[], error?: string}>}
+     * Get all accounts
+     * @return {Promise<{success: boolean, data?: Account[], error?: string}>}
      */
-    async getAllDrivers() {
+    async getAllAccounts() {
         try {
             const results = await withConnection(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.getAllDrivers();
+                const repo = new AccountDAO(connection);
+                return await repo.getAllAccounts();
             });
-            
             return {
                 success: true,
                 data: results
@@ -32,22 +31,22 @@ class DriverService {
     }
 
     /**
-     * Get driver by person ID
-     * @param {number} driverPersonId
-     * @return {Promise<{success: boolean, data?: Driver, error?: string}>}
+     * Get account by ID
+     * @param {number} accountId
+     * @return {Promise<{success: boolean, data?: Account, error?: string}>}
      */
-    async getByDriverPersonId(driverPersonId) {
+    async getByAccountId(accountId) {
         try {
-            if (!driverPersonId || !Number.isInteger(driverPersonId)) {
+            if (!accountId || !Number.isInteger(accountId)) {
                 return {
                     success: false,
-                    error: 'Invalid driverPersonId'
+                    error: 'Invalid accountId'
                 };
             }
 
             const result = await withConnection(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.getByDriverPersonId(driverPersonId);
+                const repo = new AccountDAO(connection);
+                return await repo.getByAccountId(accountId);
             });
             
             return {
@@ -63,22 +62,22 @@ class DriverService {
     }
 
     /**
-     * Get drivers by multiple person IDs
-     * @param {number[]} driverPersonIds
-     * @return {Promise<{success: boolean, data?: Driver[], error?: string}>}
+     * Get accounts by multiple IDs
+     * @param {number[]} accountIds
+     * @return {Promise<{success: boolean, data?: Account[], error?: string}>}
      */
-    async getByDriverPersonIds(driverPersonIds) {
+    async getByAccountIds(accountIds) {
         try {
-            if (!Array.isArray(driverPersonIds) || driverPersonIds.length === 0) {
+            if (!Array.isArray(accountIds) || accountIds.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid driverPersonIds array'
+                    error: 'Invalid accountIds array'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.getByDriverPersonIds(driverPersonIds);
+                const repo = new AccountDAO(connection);
+                return await repo.getByAccountIds(accountIds);
             });
             
             return {
@@ -94,22 +93,53 @@ class DriverService {
     }
 
     /**
-     * Get drivers by experience type
-     * @param {string} experienceType - 'year' or 'month'
-     * @return {Promise<{success: boolean, data?: Driver[], error?: string}>}
+     * Get account by email
+     * @param {string} email
+     * @return {Promise<{success: boolean, data?: Account, error?: string}>}
      */
-    async getByExperienceType(experienceType) {
+    async getByEmail(email) {
         try {
-            if (!experienceType || typeof experienceType !== 'string') {
+            if (!email || typeof email !== 'string') {
                 return {
                     success: false,
-                    error: 'Invalid experienceType'
+                    error: 'Invalid email'
+                };
+            }
+
+            const result = await withConnection(async (connection) => {
+                const repo = new AccountDAO(connection);
+                return await repo.getByEmail(email);
+            });
+            
+            return {
+                success: true,
+                data: result
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Get accounts by multiple emails
+     * @param {string[]} emails
+     * @return {Promise<{success: boolean, data?: Account[], error?: string}>}
+     */
+    async getByEmails(emails) {
+        try {
+            if (!Array.isArray(emails) || emails.length === 0) {
+                return {
+                    success: false,
+                    error: 'Invalid emails array'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.getByExperienceType(experienceType);
+                const repo = new AccountDAO(connection);
+                return await repo.getByEmails(emails);
             });
             
             return {
@@ -125,22 +155,22 @@ class DriverService {
     }
 
     /**
-     * Get drivers with minimum experience
-     * @param {number} minExperience
-     * @return {Promise<{success: boolean, data?: Driver[], error?: string}>}
+     * Get accounts by login status
+     * @param {boolean} loginStatus
+     * @return {Promise<{success: boolean, data?: Account[], error?: string}>}
      */
-    async getByMinExperience(minExperience) {
+    async getByLoginStatus(loginStatus) {
         try {
-            if (!Number.isInteger(minExperience)) {
+            if (typeof loginStatus !== 'boolean') {
                 return {
                     success: false,
-                    error: 'Invalid minExperience'
+                    error: 'Invalid loginStatus'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.getByMinExperience(minExperience);
+                const repo = new AccountDAO(connection);
+                return await repo.getByLoginStatus(loginStatus);
             });
             
             return {
@@ -156,59 +186,28 @@ class DriverService {
     }
 
     /**
-     * Get drivers with maximum late arrival count
-     * @param {number} maxLateCount
-     * @return {Promise<{success: boolean, data?: Driver[], error?: string}>}
-     */
-    async getByMaxLateArrivalCount(maxLateCount) {
-        try {
-            if (!Number.isInteger(maxLateCount)) {
-                return {
-                    success: false,
-                    error: 'Invalid maxLateCount'
-                };
-            }
-
-            const results = await withConnection(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.getByMaxLateArrivalCount(maxLateCount);
-            });
-            
-            return {
-                success: true,
-                data: results
-            };
-        } catch (error) {
-            return {
-                success: false,
-                error: error.message
-            };
-        }
-    }
-
-    /**
-     * Create a new driver
-     * @param {Driver} driver
+     * Create a new account
+     * @param {Account} account
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async createDriver(driver) {
+    async createAccount(account) {
         try {
-            if (!(driver instanceof Driver)) {
+            if (!(account instanceof Account)) {
                 return {
                     success: false,
-                    error: 'Invalid driver object'
+                    error: 'Invalid account object'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.createDriver(driver);
+                const repo = new AccountDAO(connection);
+                return await repo.createAccount(account);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to create driver'
+                    error: 'Failed to create account'
                 };
             }
 
@@ -225,28 +224,28 @@ class DriverService {
     }
 
     /**
-     * Create multiple drivers
-     * @param {Driver[]} drivers
+     * Create multiple accounts
+     * @param {Account[]} accounts
      * @return {Promise<{success: boolean, data?: number|number[], error?: string}>}
      */
-    async createDrivers(drivers) {
+    async createAccounts(accounts) {
         try {
-            if (!Array.isArray(drivers) || drivers.length === 0) {
+            if (!Array.isArray(accounts) || accounts.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid drivers array'
+                    error: 'accounts must be a non-empty array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.createDrivers(drivers);
+                const repo = new AccountDAO(connection);
+                return await repo.createAccounts(accounts);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to create drivers'
+                    error: 'Failed to create accounts'
                 };
             }
 
@@ -263,30 +262,36 @@ class DriverService {
     }
 
     /**
-     * Update driver experience
-     * @param {number} driverPersonId
-     * @param {number} newExperience
-     * @param {string} experienceType - 'year' or 'month'
+     * Update account email
+     * @param {number} accountId
+     * @param {string} newEmail
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateExperience(driverPersonId, newExperience, experienceType) {
+    async updateEmail(accountId, newEmail) {
         try {
-            if (!driverPersonId || !Number.isInteger(driverPersonId)) {
+            if (!accountId || !Number.isInteger(accountId)) {
                 return {
                     success: false,
-                    error: 'Invalid driverPersonId'
+                    error: 'Invalid accountId'
+                };
+            }
+
+            if (!newEmail || typeof newEmail !== 'string') {
+                return {
+                    success: false,
+                    error: 'Invalid newEmail'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.updateExperience(driverPersonId, newExperience, experienceType);
+                const repo = new AccountDAO(connection);
+                return await repo.updateEmail(accountId, newEmail);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update experience'
+                    error: 'Failed to update email'
                 };
             }
 
@@ -303,29 +308,36 @@ class DriverService {
     }
 
     /**
-     * Update driver late arrival count
-     * @param {number} driverPersonId
-     * @param {number} newCount
+     * Update account password
+     * @param {number} accountId
+     * @param {string} newPassword
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateLateArrivalCount(driverPersonId, newCount) {
+    async updatePassword(accountId, newPassword) {
         try {
-            if (!driverPersonId || !Number.isInteger(driverPersonId)) {
+            if (!accountId || !Number.isInteger(accountId)) {
                 return {
                     success: false,
-                    error: 'Invalid driverPersonId'
+                    error: 'Invalid accountId'
+                };
+            }
+
+            if (!newPassword || typeof newPassword !== 'string') {
+                return {
+                    success: false,
+                    error: 'Invalid newPassword'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.updateLateArrivalCount(driverPersonId, newCount);
+                const repo = new AccountDAO(connection);
+                return await repo.updatePassword(accountId, newPassword);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update late arrival count'
+                    error: 'Failed to update password'
                 };
             }
 
@@ -342,28 +354,36 @@ class DriverService {
     }
 
     /**
-     * Increment driver late arrival count by 1
-     * @param {number} driverPersonId
+     * Update account login status
+     * @param {number} accountId
+     * @param {boolean} loginStatus
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async incrementLateArrivalCount(driverPersonId) {
+    async updateLoginStatus(accountId, loginStatus) {
         try {
-            if (!driverPersonId || !Number.isInteger(driverPersonId)) {
+            if (!accountId || !Number.isInteger(accountId)) {
                 return {
                     success: false,
-                    error: 'Invalid driverPersonId'
+                    error: 'Invalid accountId'
+                };
+            }
+
+            if (typeof loginStatus !== 'boolean') {
+                return {
+                    success: false,
+                    error: 'Invalid loginStatus'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.incrementLateArrivalCount(driverPersonId);
+                const repo = new AccountDAO(connection);
+                return await repo.updateLoginStatus(accountId, loginStatus);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to increment late arrival count'
+                    error: 'Failed to update login status'
                 };
             }
 
@@ -380,28 +400,28 @@ class DriverService {
     }
 
     /**
-     * Update experiences of multiple drivers
-     * @param {Array<{driver_person_id: number, driver_experience: number, driver_experience_type: string}>} drivers
+     * Update emails of multiple accounts
+     * @param {Array<{account_id: number, account_email: string}>} accounts - Plain objects with snake_case properties
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateExperiences(drivers) {
+    async updateEmails(accounts) {
         try {
-            if (!Array.isArray(drivers) || drivers.length === 0) {
+            if (!Array.isArray(accounts) || accounts.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid drivers array'
+                    error: 'accounts must be a non-empty array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.updateExperiences(drivers);
+                const repo = new AccountDAO(connection);
+                return await repo.updateEmails(accounts);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update experiences'
+                    error: 'Failed to update emails'
                 };
             }
 
@@ -418,28 +438,28 @@ class DriverService {
     }
 
     /**
-     * Update late arrival counts of multiple drivers
-     * @param {Array<{driver_person_id: number, driver_late_arrival_count: number}>} drivers
+     * Update passwords of multiple accounts
+     * @param {Array<{account_id: number, account_password: string}>} accounts - Plain objects with snake_case properties
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateLateArrivalCounts(drivers) {
+    async updatePasswords(accounts) {
         try {
-            if (!Array.isArray(drivers) || drivers.length === 0) {
+            if (!Array.isArray(accounts) || accounts.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid drivers array'
+                    error: 'accounts must be a non-empty array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.updateLateArrivalCounts(drivers);
+                const repo = new AccountDAO(connection);
+                return await repo.updatePasswords(accounts);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update late arrival counts'
+                    error: 'Failed to update passwords'
                 };
             }
 
@@ -456,28 +476,28 @@ class DriverService {
     }
 
     /**
-     * Delete driver by person ID
-     * @param {number} driverPersonId
+     * Update login statuses of multiple accounts
+     * @param {Array<{account_id: number, account_login_status: boolean}>} accounts - Plain objects with snake_case properties
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async deleteDriver(driverPersonId) {
+    async updateLoginStatuses(accounts) {
         try {
-            if (!driverPersonId || !Number.isInteger(driverPersonId)) {
+            if (!Array.isArray(accounts) || accounts.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid driverPersonId'
+                    error: 'accounts must be a non-empty array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.deleteDriver(driverPersonId);
+                const repo = new AccountDAO(connection);
+                return await repo.updateLoginStatuses(accounts);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to delete driver'
+                    error: 'Failed to update login statuses'
                 };
             }
 
@@ -493,43 +513,6 @@ class DriverService {
         }
     }
 
-    /**
-     * Delete multiple drivers by person IDs
-     * @param {number[]} driverPersonIds
-     * @return {Promise<{success: boolean, data?: number, error?: string}>}
-     */
-    async deleteDrivers(driverPersonIds) {
-        try {
-            if (!Array.isArray(driverPersonIds) || driverPersonIds.length === 0) {
-                return {
-                    success: false,
-                    error: 'Invalid driverPersonIds array'
-                };
-            }
-
-            const result = await withTransaction(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.deleteDrivers(driverPersonIds);
-            });
-            
-            if (result === -1) {
-                return {
-                    success: false,
-                    error: 'Failed to delete drivers'
-                };
-            }
-
-            return {
-                success: true,
-                data: result
-            };
-        } catch (error) {
-            return {
-                success: false,
-                error: error.message
-            };
-        }
-    }
 }
 
-export default DriverService;
+export default AccountServices;

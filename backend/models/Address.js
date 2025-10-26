@@ -4,12 +4,12 @@
  */
 class Address {
     constructor({
-        address_id = null,
-        address_city_id,
-        address_district_id,
-        address_ward_id,
-        address_number = null
-    }) {
+        address_id = 0,
+        address_city_id = 0,
+        address_district_id = 0,
+        address_ward_id = 0,
+        address_number = ''
+    } = {}) {
         this.address_id = address_id;
         this.address_city_id = address_city_id;
         this.address_district_id = address_district_id;

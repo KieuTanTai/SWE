@@ -1,4 +1,4 @@
-import { Report } from "../../models/index.js";
+import { Report } from "../../index.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise";
@@ -54,7 +54,7 @@ export default class ReportDAO extends BaseDAO {
         }
 
         try {
-            if (Number.parseInt(reportId.toString()) <= 0) {
+            if (reportId <= 0) {
                 console.warn(`Warning: reportId must be greater than zero : ${reportId}`);
                 const emptyReport = {};
                 emptyReport[dbSchema.REPORT_COLUMNS.REPORT_ID] = 0;

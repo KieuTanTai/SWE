@@ -4,11 +4,11 @@
  */
 class Report {
     constructor({
-        report_id = null,
+        report_id = 0,
         report_driver_id = 0,
         report_time = new Date(),
         report_type = '',
-        report_content = null
+        report_content = ''
     } = {}) {
         this.report_id = report_id;
         this.report_driver_id = report_driver_id;

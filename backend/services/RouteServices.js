@@ -1,23 +1,22 @@
-import { default as RoleDAO } from "../infrastructure/data/roleDAO.js";
-import { Role } from "../models/index.js";
+import { default as RouteDAO } from "../infrastructure/data/routeDAO.js";
+import { Route } from "../index.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
- * RoleService
- * Service layer for managing roles
+ * RouteServices
+ * Service layer for managing routes
  * Manages its own database connections and transactions
  */
-class RoleService {
-
+class RouteServices {
     /**
-     * Get all roles
-     * @return {Promise<{success: boolean, data?: Role[], error?: string}>}
+     * Get all routes
+     * @return {Promise<{success: boolean, data?: Route[], error?: string}>}
      */
-    async getAllRoles() {
+    async getAllRoutes() {
         try {
             const results = await withConnection(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.getAllRoles();
+                const repo = new RouteDAO(connection);
+                return await repo.getAllRoutes();
             });
             
             return {
@@ -33,22 +32,22 @@ class RoleService {
     }
 
     /**
-     * Get role by ID
-     * @param {number} roleId
-     * @return {Promise<{success: boolean, data?: Role, error?: string}>}
+     * Get route by ID
+     * @param {number} routeId
+     * @return {Promise<{success: boolean, data?: Route, error?: string}>}
      */
-    async getByRoleId(roleId) {
+    async getByRouteId(routeId) {
         try {
-            if (!roleId || !Number.isInteger(roleId)) {
+            if (!routeId || !Number.isInteger(routeId)) {
                 return {
                     success: false,
-                    error: 'Invalid roleId'
+                    error: 'Invalid routeId'
                 };
             }
 
             const result = await withConnection(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.getByRoleId(roleId);
+                const repo = new RouteDAO(connection);
+                return await repo.getByRouteId(routeId);
             });
             
             return {
@@ -64,22 +63,22 @@ class RoleService {
     }
 
     /**
-     * Get roles by multiple IDs
-     * @param {number[]} roleIds
-     * @return {Promise<{success: boolean, data?: Role[], error?: string}>}
+     * Get routes by multiple IDs
+     * @param {number[]} routeIds
+     * @return {Promise<{success: boolean, data?: Route[], error?: string}>}
      */
-    async getByIds(roleIds) {
+    async getByRouteIds(routeIds) {
         try {
-            if (!Array.isArray(roleIds) || roleIds.length === 0) {
+            if (!Array.isArray(routeIds) || routeIds.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid roleIds array'
+                    error: 'Invalid routeIds array'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.getByIds(roleIds);
+                const repo = new RouteDAO(connection);
+                return await repo.getByRouteIds(routeIds);
             });
             
             return {
@@ -95,22 +94,22 @@ class RoleService {
     }
 
     /**
-     * Get role by name
-     * @param {string} roleName
-     * @return {Promise<{success: boolean, data?: Role, error?: string}>}
+     * Get route by name
+     * @param {string} routeName
+     * @return {Promise<{success: boolean, data?: Route, error?: string}>}
      */
-    async getByRoleName(roleName) {
+    async getByRouteName(routeName) {
         try {
-            if (!roleName || typeof roleName !== 'string') {
+            if (!routeName || typeof routeName !== 'string') {
                 return {
                     success: false,
-                    error: 'Invalid roleName'
+                    error: 'Invalid routeName'
                 };
             }
 
             const result = await withConnection(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.getByRoleName(roleName);
+                const repo = new RouteDAO(connection);
+                return await repo.getByRouteName(routeName);
             });
             
             return {
@@ -126,22 +125,22 @@ class RoleService {
     }
 
     /**
-     * Get roles with name like pattern
-     * @param {string} roleNamePattern
-     * @return {Promise<{success: boolean, data?: Role[], error?: string}>}
+     * Get routes with name like pattern
+     * @param {string} routeNamePattern
+     * @return {Promise<{success: boolean, data?: Route[], error?: string}>}
      */
-    async getLikeRoleName(roleNamePattern) {
+    async getLikeRouteName(routeNamePattern) {
         try {
-            if (!roleNamePattern || typeof roleNamePattern !== 'string') {
+            if (!routeNamePattern || typeof routeNamePattern !== 'string') {
                 return {
                     success: false,
-                    error: 'Invalid roleNamePattern'
+                    error: 'Invalid routeNamePattern'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.getLikeRoleName(roleNamePattern);
+                const repo = new RouteDAO(connection);
+                return await repo.getLikeRouteName(routeNamePattern);
             });
             
             return {
@@ -157,22 +156,22 @@ class RoleService {
     }
 
     /**
-     * Get roles by active status
-     * @param {boolean} activeStatus
-     * @return {Promise<{success: boolean, data?: Role[], error?: string}>}
+     * Get routes by status
+     * @param {boolean} routeStatus
+     * @return {Promise<{success: boolean, data?: Route[], error?: string}>}
      */
-    async getByActiveStatus(activeStatus) {
+    async getByRouteStatus(routeStatus) {
         try {
-            if (typeof activeStatus !== 'boolean') {
+            if (typeof routeStatus !== 'boolean') {
                 return {
                     success: false,
-                    error: 'Invalid activeStatus'
+                    error: 'Invalid routeStatus'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.getByActiveStatus(activeStatus);
+                const repo = new RouteDAO(connection);
+                return await repo.getByRouteStatus(routeStatus);
             });
             
             return {
@@ -188,28 +187,28 @@ class RoleService {
     }
 
     /**
-     * Create a new role
-     * @param {Role} role
+     * Create a new route
+     * @param {Route} route
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async createRole(role) {
+    async createRoute(route) {
         try {
-            if (!(role instanceof Role)) {
+            if (!(route instanceof Route)) {
                 return {
                     success: false,
-                    error: 'Invalid role object'
+                    error: 'Invalid route object'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.createRole(role);
+                const repo = new RouteDAO(connection);
+                return await repo.createRoute(route);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to create role'
+                    error: 'Failed to create route'
                 };
             }
 
@@ -226,28 +225,28 @@ class RoleService {
     }
 
     /**
-     * Create multiple roles
-     * @param {Role[]} roles
+     * Create multiple routes
+     * @param {Route[]} routes
      * @return {Promise<{success: boolean, data?: number|number[], error?: string}>}
      */
-    async createRoles(roles) {
+    async createRoutes(routes) {
         try {
-            if (!Array.isArray(roles) || roles.length === 0) {
+            if (!Array.isArray(routes) || routes.length === 0) {
                 return {
                     success: false,
-                    error: 'roles must be a non-empty array'
+                    error: 'routes must be a non-empty array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.createRoles(roles);
+                const repo = new RouteDAO(connection);
+                return await repo.createRoutes(routes);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to create roles'
+                    error: 'Failed to create routes'
                 };
             }
 
@@ -264,36 +263,36 @@ class RoleService {
     }
 
     /**
-     * Update role name
-     * @param {number} roleId
-     * @param {string} newRoleName
+     * Update route name
+     * @param {number} routeId
+     * @param {string} newRouteName
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateRoleName(roleId, newRoleName) {
+    async updateRouteName(routeId, newRouteName) {
         try {
-            if (!roleId || !Number.isInteger(roleId)) {
+            if (!routeId || !Number.isInteger(routeId)) {
                 return {
                     success: false,
-                    error: 'Invalid roleId'
+                    error: 'Invalid routeId'
                 };
             }
 
-            if (!newRoleName || typeof newRoleName !== 'string') {
+            if (!newRouteName || typeof newRouteName !== 'string') {
                 return {
                     success: false,
-                    error: 'Invalid newRoleName'
+                    error: 'Invalid newRouteName'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.updateRoleName(roleId, newRoleName);
+                const repo = new RouteDAO(connection);
+                return await repo.updateRouteName(routeId, newRouteName);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update role name'
+                    error: 'Failed to update route name'
                 };
             }
 
@@ -310,36 +309,36 @@ class RoleService {
     }
 
     /**
-     * Update role active status
-     * @param {number} roleId
-     * @param {boolean} activeStatus
+     * Update route status
+     * @param {number} routeId
+     * @param {boolean} routeStatus
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateActiveStatus(roleId, activeStatus) {
+    async updateRouteStatus(routeId, routeStatus) {
         try {
-            if (!roleId || !Number.isInteger(roleId)) {
+            if (!routeId || !Number.isInteger(routeId)) {
                 return {
                     success: false,
-                    error: 'Invalid roleId'
+                    error: 'Invalid routeId'
                 };
             }
 
-            if (typeof activeStatus !== 'boolean') {
+            if (typeof routeStatus !== 'boolean') {
                 return {
                     success: false,
-                    error: 'Invalid activeStatus'
+                    error: 'Invalid routeStatus'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.updateActiveStatus(roleId, activeStatus);
+                const repo = new RouteDAO(connection);
+                return await repo.updateRouteStatus(routeId, routeStatus);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update active status'
+                    error: 'Failed to update route status'
                 };
             }
 
@@ -356,28 +355,28 @@ class RoleService {
     }
 
     /**
-     * Update role names of multiple roles
-     * @param {Array<{role_id: number, role_name: string}>} roles - Plain objects with snake_case properties
+     * Update route names of multiple routes
+     * @param {Array<{route_id: number, route_name: string}>} routes - Plain objects with snake_case properties
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateRoleNames(roles) {
+    async updateRouteNames(routes) {
         try {
-            if (!Array.isArray(roles) || roles.length === 0) {
+            if (!Array.isArray(routes) || routes.length === 0) {
                 return {
                     success: false,
-                    error: 'roles must be a non-empty array'
+                    error: 'routes must be a non-empty array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.updateRoleNames(roles);
+                const repo = new RouteDAO(connection);
+                return await repo.updateRouteNames(routes);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update role names'
+                    error: 'Failed to update route names'
                 };
             }
 
@@ -394,28 +393,28 @@ class RoleService {
     }
 
     /**
-     * Update active statuses of multiple roles
-     * @param {Array<{role_id: number, role_active_status: boolean}>} roles - Plain objects with snake_case properties
+     * Update route statuses of multiple routes
+     * @param {Array<{route_id: number, route_status: boolean}>} routes - Plain objects with snake_case properties
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateActiveStatuses(roles) {
+    async updateRouteStatuses(routes) {
         try {
-            if (!Array.isArray(roles) || roles.length === 0) {
+            if (!Array.isArray(routes) || routes.length === 0) {
                 return {
                     success: false,
-                    error: 'roles must be a non-empty array'
+                    error: 'routes must be a non-empty array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new RoleDAO(connection);
-                return await repo.updateActiveStatuses(roles);
+                const repo = new RouteDAO(connection);
+                return await repo.updateRouteStatuses(routes);
             });
             
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update active statuses'
+                    error: 'Failed to update route statuses'
                 };
             }
 
@@ -432,4 +431,4 @@ class RoleService {
     }
 }
 
-export default RoleService;
+export default RouteServices;

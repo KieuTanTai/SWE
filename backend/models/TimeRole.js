@@ -4,11 +4,11 @@
  */
 class TimeRole {
     constructor({
-        time_role_id = null,
-        time_role_start_pickup_time = null,
-        time_role_start_drop_off_time = null,
+        time_role_id = 0,
+        time_role_start_pickup_time = '',
+        time_role_start_drop_off_time = '',
         time_role_status = true
-    }) {
+    } = {}) {
         this.time_role_id = time_role_id;
         this.time_role_start_pickup_time = time_role_start_pickup_time;
         this.time_role_start_drop_off_time = time_role_start_drop_off_time;

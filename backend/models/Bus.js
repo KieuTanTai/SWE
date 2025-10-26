@@ -4,17 +4,17 @@
  */
 class Bus {
     constructor({
-        bus_id = null,
-        bus_license_plate,
-        bus_brand = null,
-        bus_model = null,
-        bus_capacity,
-        bus_year_manufactured = null,
+        bus_id = 0,
+        bus_license_plate = '',
+        bus_brand = '',
+        bus_model = '',
+        bus_capacity = 0,
+        bus_year_manufactured = 0,
         bus_has_wifi = false,
         bus_has_camera = false,
-        bus_color = null,
+        bus_color = '',
         bus_status = true
-    }) {
+    } = {}) {
         this.bus_id = bus_id;
         this.bus_license_plate = bus_license_plate;
         this.bus_brand = bus_brand;

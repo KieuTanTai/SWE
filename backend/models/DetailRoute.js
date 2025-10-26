@@ -9,7 +9,7 @@ class DetailRoute {
         detail_route_start_point_id = 0,
         detail_route_end_point_id = 0,
         detail_route_distance = 0
-    }) {
+    } = {}) {
         this.detail_route_id = detail_route_id;
         this.route_id = route_id;
         this.detail_route_start_point_id = detail_route_start_point_id;

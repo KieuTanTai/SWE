@@ -1,4 +1,4 @@
-import { Parent } from "../../models/index.js";
+import { Parent } from "../../index.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise";
@@ -53,7 +53,7 @@ export default class ParentDAO extends BaseDAO {
         }
 
         try {
-            if (Number.parseInt(parentPersonId.toString()) <= 0) {
+            if (parentPersonId <= 0) {
                 console.warn(`Warning: parentPersonId must be greater than zero : ${parentPersonId}`);
                 const emptyParent = {};
                 emptyParent[dbSchema.PARENT_COLUMNS.PARENT_PERSON_ID] = 0;

@@ -1,4 +1,4 @@
-import { Route } from "../../models/index.js";
+import { Route } from "../../index.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise"
@@ -42,7 +42,7 @@ export default class RouteDAO extends BaseDAO {
         }
 
         try {
-            if (Number.parseInt(routeId.toString()) <= 0) {
+            if (routeId <= 0) {
                 console.warn(`Warning: routeId must be greater than zero : ${routeId}`);
                 return new Route();
             }

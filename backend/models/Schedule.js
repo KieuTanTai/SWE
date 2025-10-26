@@ -4,13 +4,13 @@
  */
 class Schedule {
     constructor({
-        schedule_id = null,
-        schedule_by_manager_id,
-        schedule_driver_id,
-        schedule_start_date = null,
-        schedule_end_date = null,
+        schedule_id = 0,
+        schedule_by_manager_id = 0,
+        schedule_driver_id = 0,
+        schedule_start_date = new Date(),
+        schedule_end_date = new Date(),
         schedule_status = true
-    }) {
+    } = {}) {
         this.schedule_id = schedule_id;
         this.schedule_by_manager_id = schedule_by_manager_id;
         this.schedule_driver_id = schedule_driver_id;

@@ -4,11 +4,11 @@
  */
 class BusRoute {
     constructor({
-        bus_route_id = null,
-        route_id,
-        bus_id,
+        bus_route_id = 0,
+        route_id = 0,
+        bus_id = 0,
         bus_route_status = true
-    }) {
+    } = {}) {
         this.bus_route_id = bus_route_id;
         this.route_id = route_id;
         this.bus_id = bus_id;

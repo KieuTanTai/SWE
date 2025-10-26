@@ -1,4 +1,4 @@
-import { DetailRoute } from "../../models/index.js";
+import { DetailRoute } from "../../index.js";
 import BaseDAO from "./baseDAO.js";
 import { default as dbSchema } from "./dbSchema.js";
 import mySql from "mysql2/promise"
@@ -24,10 +24,6 @@ export default class DetailRouteDAO extends BaseDAO {
         }
 
         try {
-            if (Number.parseInt(detailRouteId.toString()) <= 0) {
-                console.warn(`Warning: detailRouteId must be greater than zero : ${detailRouteId}`);
-                return new DetailRoute({});
-            }
             const result = await this._protectedGetById(detailRouteId);
             if (!result) {
                 console.warn(`Warning: No data found for detailRouteId ${detailRouteId}`);

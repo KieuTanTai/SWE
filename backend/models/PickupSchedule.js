@@ -4,10 +4,10 @@
  */
 class PickupSchedule {
     constructor({
-        pickup_schedule_id = null,
-        pickup_schedule_detail_id,
-        pickup_schedule_student_id
-    }) {
+        pickup_schedule_id = 0,
+        pickup_schedule_detail_id = 0,
+        pickup_schedule_student_id = 0
+    } = {}) {
         this.pickup_schedule_id = pickup_schedule_id;
         this.pickup_schedule_detail_id = pickup_schedule_detail_id;
         this.pickup_schedule_student_id = pickup_schedule_student_id;

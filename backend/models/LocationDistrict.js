@@ -4,11 +4,11 @@
  */
 class LocationDistrict {
     constructor({
-        location_district_id = null,
-        location_district_name,
-        location_city_id,
+        location_district_id = 0,
+        location_district_name = '',
+        location_city_id = 0,
         location_district_status = true
-    }) {
+    } = {}) {
         this.location_district_id = location_district_id;
         this.location_district_name = location_district_name;
         this.location_city_id = location_city_id;

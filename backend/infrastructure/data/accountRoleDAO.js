@@ -1,6 +1,6 @@
-import Account from "../../models/Account.js";
-import AccountRole from "../../models/AccountRole.js";
-import BaseDAO from "./baseDAO.js";
+import { Account } from "../../index.js";
+import { AccountRole } from "../../index.js";
+import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise";
 
@@ -46,7 +46,7 @@ class AccountRoleDAO extends BaseDAO {
         }
 
         try {
-            if (Number.parseInt(accountId.toString()) <= 0) {
+            if (accountId <= 0) {
                 console.warn(`Warning: accountId must be greater than zero : ${accountId}`);
                 return [];
             }
@@ -107,7 +107,7 @@ class AccountRoleDAO extends BaseDAO {
         }
 
         try {
-            if (Number.parseInt(roleId.toString()) <= 0) {
+            if (roleId <= 0) {
                 console.warn(`Warning: roleId must be greater than zero : ${roleId}`);
                 return [];
             }

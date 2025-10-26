@@ -1,12 +1,16 @@
-import BusRoute from "../../models/BusRoute.js";
-import BaseDAO from "./baseDAO";
-import dbSchema from "./dbSchema";
+import { BusRoute } from "../../index.js";
+import { default as BaseDAO } from "./baseDAO.js";
+import dbSchema from "./dbSchema.js";
 import mysql from "mysql2/promise";
 
-class BusRouteDAO extends BaseDAO {
+/**
+ * BusRouteDAO
+ * Data Access Object for BusRoute table operations
+ */
+export default class BusRouteDAO extends BaseDAO {
     /**
      * Create an instance of BusRouteDAO
-     * @param {Connection} connection
+     * @param {mysql.PoolConnection} connection
      * @memberof BusRouteDAO
      */
     constructor(connection) {
@@ -18,107 +22,123 @@ class BusRouteDAO extends BaseDAO {
      * @return {Promise<BusRoute[]>}
      * @memberof BusRouteDAO
      */
+    /**
+     * Get all bus routes
+     * @return {Promise<BusRoute[]>}
+     * @memberof BusRouteDAO
+     */
     async getAllBusRoutes() {
         try {
-            const result = await this._protectedGetAll();
-            if (!result || result.length === 0) {
+            const results = await this._protectedGetAll();
+            if (!results || results.length === 0) {
                 console.warn(`Warning: No bus routes found`);
                 return [];
             }
-            return result.map(item => BusRoute.fromDatabase(item));
+            return results.map(row => BusRoute.fromDatabase(row));
         } catch (error) {
-            console.error(`Error: ${error.message}`)
+            console.error(`Error: ${error.message}`);
             return [];
         }
     }
 
     /**
-     * get one bus route by id
-     * @param {Number} busRouteId
+     * Get one bus route by id
+     * @param {number} busRouteId
      * @return {Promise<BusRoute>}
+     * @memberof BusRouteDAO
      */
     async getByBusRouteId(busRouteId) {
         if (busRouteId === null || busRouteId === undefined || !Number.isInteger(busRouteId)) {
-            console.warn(`Warning: Invalid busRouteId`);
-            return -1;
+            console.warn(`Warning: Invalid busRouteId : ${busRouteId}`);
+            return new BusRoute();
         }
+        
         try {
-            if (Number.parseInt(busRouteId.toString()) <= 0) {
-                console.warn(`Warning: busRouteId must be greater than zero: ${busRouteId}`);
-                return -1;
+            if (busRouteId <= 0) {
+                console.warn(`Warning: busRouteId must be greater than zero : ${busRouteId}`);
+                return new BusRoute();
             }
 
             const result = await this._protectedGetById(busRouteId);
             if (!result) {
-                console.warn(`Warning: No data found for busRouteId:${busRouteId}`);
-                return -1;
+                console.warn(`Warning: No data found for busRouteId ${busRouteId}`);
+                return new BusRoute();
             }
             return BusRoute.fromDatabase(result);
         } catch (error) {
-            console.error(`Error:${error.message}`);
-            return -1;
+            console.error(`Error: ${error.message}`);
+            return new BusRoute();
         }
     }
 
     /**
-     * get multiple buses routes by ids
-     * @param {Number} busRouteIds
+     * Get multiple bus routes by ids
+     * @param {number[]} busRouteIds
      * @return {Promise<BusRoute[]>}
+     * @memberof BusRouteDAO
      */
     async getByBusRouteIds(busRouteIds) {
-        if (busRouteIds === null || busRouteIds === undefined || !Number.isInteger(busRoubusRouteIdsteId)) {
-            console.warn(`Warning: Invalid busRouteIds`);
+        if (!Array.isArray(busRouteIds) || busRouteIds.length === 0) {
+            console.warn(`Warning: Invalid busRouteIds array`);
             return [];
         }
+        
         try {
-            if (Number.parseInt(busRouteIds.toString()) <= 0) {
-                console.warn(`Warning: busRouteIds must be greater than zero: ${busRouteIds}`);
-                return [];
-            }
-
-            const result = await this._protectedGetBySelection(
+            const results = await this._protectedGetBySelection(
                 ['*'],
-                [busRouteIds.join(',')],
-                `WHERE ${dbSchema.BUS_ROUTE_COLUMNS.BUS_ROUTE_ID} IN ${busRouteIds.map(() => '?').join(',')}`
-            );;
-            if (!result) {
-                console.warn(`Warning: No data found for busRouteId:${busRouteIds}`);
+                busRouteIds,
+                `WHERE ${dbSchema.BUS_ROUTE_COLUMNS.BUS_ROUTE_ID} IN (${busRouteIds.map(() => '?').join(',')})`
+            );
+            if (!results || results.length === 0) {
+                console.warn(`Warning: No data found for busRouteIds : ${busRouteIds}`);
                 return [];
             }
-            return result.map(item => BusRoute.fromDatabase(item));
+            return results.map(row => BusRoute.fromDatabase(row));
         } catch (error) {
-            console.error(`Error:${error.message}`);
+            console.error(`Error: ${error.message}`);
             return [];
         }
     }
 
+    /**
+     * Get bus routes by bus ID
+     * @param {number} busId
+     * @return {Promise<BusRoute[]>}
+     * @memberof BusRouteDAO
+     */
     async getByBusId(busId) {
-        if(!busId || !Number.isInteger(busId) || busId <= 0){
-            console.warn(`Warning: Invalid busID ${busId}`)
-            return new BusRoute();
+        if (!busId || !Number.isInteger(busId) || busId <= 0) {
+            console.warn(`Warning: Invalid busId : ${busId}`);
+            return [];
         }
 
         try {
-            const result = await this._protectedGetBySelection(
+            const results = await this._protectedGetBySelection(
                 ['*'],
                 [busId],
                 `WHERE ${dbSchema.BUS_ROUTE_COLUMNS.BUS_ID} = ?`
             );
 
-            if(!result || result.length === 0) {
+            if (!results || results.length === 0) {
                 console.warn(`Warning: No data found for busId ${busId}`);
-                return new BusRoute();
+                return [];
             }
-            return BusRoute.fromDatabase(result);
+            return results.map(row => BusRoute.fromDatabase(row));
         } catch (error) {
-            console.error(`Error:${error.message}`);
-            return new BusRoute();
+            console.error(`Error: ${error.message}`);
+            return [];
         }
     }
 
+    /**
+     * Get bus routes by multiple bus IDs
+     * @param {number[]} busIds
+     * @return {Promise<BusRoute[]>}
+     * @memberof BusRouteDAO
+     */
     async getByBusIds(busIds) {
-        if(!busIds || !Array.isArray(busIds) || busIds.length === 0){
-            console.warn(`Warning: Invalid busIds ${busIds}`)
+        if (!busIds || !Array.isArray(busIds) || busIds.length === 0) {
+            console.warn(`Warning: Invalid busIds : ${busIds}`);
             return [];
         }
 
@@ -191,7 +211,7 @@ class BusRouteDAO extends BaseDAO {
     /**
      * Get bus routes by status
      * @param {Boolean} busRouteStatus 
-     * @returns {Promise<Bus[]>}
+     * @returns {Promise<BusRoute[]>}
      * @memberof BusRouteDAO
      */
     async getByBusRouteStatus(busRouteStatus) {
@@ -259,12 +279,12 @@ class BusRouteDAO extends BaseDAO {
 
     /**
      * Update multiple buses routes information
-     * @param {BusRoute} busesRoutes 
+     * @param {BusRoute[]} busesRoutes 
      * @returns {Promise<Number>}
      * @memberof BusRouteDAO
      */
     async #updateBusesRoutes(busesRoutes) {
-        if (!busesRoutes || !(busesRoutes instanceof BusRoute)) {
+        if (!busesRoutes || !Array.isArray(busesRoutes) || busesRoutes.length === 0) {
             console.warn(`Warning: Invalid busesRoutes ${busesRoutes}`);
             return -1;
         }
@@ -279,29 +299,29 @@ class BusRouteDAO extends BaseDAO {
     }
 
     /**
-      * Update bus for one bus route 
-      * @param {number | string} busRouteId
-      * @param {number | string} busId
-      * @return {Promise<number>}
-      * @memberof BusRouteDAO
-      */
-    async updateBus(busRouteId, busId) {
-        if(!busId || !Number.isInteger(busId) || busId <= 0) {
-            console.warn(`Warning: Invalid busId ${busId}`);
+     * Update multiple buses routes information
+     * @param {number} busRouteId 
+     * @param {boolean} status
+     * @returns {Promise<Number>}
+     * @memberof BusRouteDAO
+     */
+    async updateBusRouteStatus(busRouteId, status) {
+        if (!busRouteId || !Number.isInteger(busRouteId)) {
+            console.warn(`Warning: Invalid busRouteId: ${busRouteId}`);
             return -1;
         }
-        if(!busRouteId || !Number.isInteger(busRouteId) || busRouteId <= 0) {
-            console.warn(`Warning: Invalid busRouteId ${busRouteId}`);
+
+        if (status === null || status === undefined || typeof status !== 'boolean') {
+            console.warn(`Warning: Invalid status: ${status}`);
             return -1;
         }
 
         try {
-            const result = await this.getByBusRouteId(busRouteId);
-            if(!result || result.bus_route_id === 0){
-                return -1;
-            }
-            result.bus_id = busId;
-            return await this.#updateBusRoute(result);
+            const result = await this._protectedUpdateById(
+                busRouteId,
+                { [dbSchema.BUS_ROUTE_COLUMNS.BUS_ROUTE_STATUS]: status }
+            );
+            return result;
         } catch (error) {
             console.error(`Error: ${error.message}`);
             return -1;
@@ -309,35 +329,30 @@ class BusRouteDAO extends BaseDAO {
     }
 
     /**
-      * Update route for one bus route 
-      * @param {number | string} busRouteId
-      * @param {number | string} routeId
-      * @return {Promise<number>}
-      * @memberof BusRouteDAO
-      */
-    async updateRoute(busRouteId, routeId) {
-        if(!routeId || !Number.isInteger(routeId)|| routeId <= 0) {
-            console.warn(`Warning: Invalid routeId ${routeId}`);
-            return -1;
-        }
-        if(!busRouteId || !Number.isInteger(busRouteId) || busRouteId <= 0) {
-            console.warn(`Warning: Invalid busRouteId ${busRouteId}`);
+     * Update multiple buses routes information
+     * @param {BusRoute[]} busRoutes} 
+     * @returns {Promise<Number>}
+     * @memberof BusRouteDAO
+     */
+    async updateBusRoutesStatus(busRoutes) {
+        if (!busRoutes || !Array.isArray(busRoutes) || busRoutes.length === 0) {
+            console.warn(`Warning: Invalid busRoutes: ${busRoutes}`);
             return -1;
         }
 
         try {
-            const result = await this.getByBusRouteId(busRouteId);
-            if(!result || result.bus_route_id === 0){
-                return -1;
-            }
-            result.route_id = routeId;
-            return await this.#updateBusRoute(result);
+            const updateData = busRoutes.map(busRoute => ({
+                [dbSchema.BUS_ROUTE_COLUMNS.BUS_ROUTE_ID]: busRoute.bus_route_id,
+                [dbSchema.BUS_ROUTE_COLUMNS.BUS_ROUTE_STATUS]: busRoute.bus_route_status
+            }));
+            const result = await this._protectedMultiUpdateById(updateData);
+            return result;
         } catch (error) {
             console.error(`Error: ${error.message}`);
             return -1;
         }
     }
-
+    
     /**
      * delete a bus route
      * @param {number} busRouteId 
@@ -358,5 +373,3 @@ class BusRouteDAO extends BaseDAO {
         }
     }
 }
-
-export default BusRouteDAO;

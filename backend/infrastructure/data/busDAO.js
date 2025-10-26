@@ -1,31 +1,36 @@
-import Bus from '../../models/Bus.js';
-import BaseDAO from './baseDAO';
-import dbSchema from './dbSchema';
-import mySql from 'mysql2/promise';
+import { Bus } from "../../index.js";
+import { default as BaseDAO } from "./baseDAO.js";
+import dbSchema from "./dbSchema.js";
+import mySql from "mysql2/promise";
 
-class BusDAO extends BaseDAO {
+/**
+ * BusDAO
+ * Data Access Object for Bus table operations
+ */
+export default class BusDAO extends BaseDAO {
+    
     /**
      * Creates an instance of BusDAO.
      * @param {mySql.PoolConnection} connection
      * @memberof BusDAO
      */
     constructor(connection) {
-        super(connection, 'Bus', dbSchema.BUS_COLUMNS.BUS_ID);
+        super(connection, "Bus", dbSchema.BUS_COLUMNS.BUS_ID);
     }
 
     /**
      * Get all buses
-     * @return {Promise<Bus[]>}
+     * @return {Promise<Bus[]>} 
      * @memberof BusDAO
      */
     async getAllBuses() {
         try {
-            const result = await this._protectedGetAll();
-            if (!result || result.length === 0) {
-                console.warn(`Warnings: no buses found`);
+            const results = await this._protectedGetAll();
+            if (!results || results.length === 0) {
+                console.warn(`Warning: No buses found`);
                 return [];
             }
-            return result.map(item => Bus.fromDatabase(item));
+            return results.map(row => Bus.fromDatabase(row));
         } catch (error) {
             console.error(`Error: ${error.message}`);
             return [];
@@ -35,18 +40,18 @@ class BusDAO extends BaseDAO {
     /**
      * Get bus by ID
      * @param {number} busId
-     * @return {Promise<Bus>}
+     * @return {Promise<Bus>} 
      * @memberof BusDAO
      */
     async getByBusId(busId) {
-        if (busId === undefined || busId === null || !Number.isInteger(busId)) {
-            console.warn(`Warning: busId is invalid: ${busId}`);
+        if (busId === null || busId === undefined || !Number.isInteger(busId)) {
+            console.warn(`Warning: busId is invalid : ${busId}`);
             return new Bus();
         }
 
         try {
-            if (Number.parseInt(busId.toString()) <= 0) {
-                console.warn(`Warning: busId must be greater than zero: ${busId}`);
+            if (busId <= 0) {
+                console.warn(`Warning: busId must be greater than zero : ${busId}`);
                 return new Bus();
             }
 
@@ -64,9 +69,9 @@ class BusDAO extends BaseDAO {
 
 
     /**
-     * get multiple buses by ids
-     * @param {Number[]} busIds 
-     * @returns {Promise<Bus[]>}
+     * Get multiple buses by IDs
+     * @param {number[]} busIds 
+     * @returns {Promise<Bus[]>} 
      * @memberof BusDAO
      */
     async getByBusIds(busIds) {
@@ -77,15 +82,15 @@ class BusDAO extends BaseDAO {
 
         try {
             const result = await this._protectedGetBySelection(
-                ["*"], [busIds.join(",")],
-                `WHERE ${dbSchema.BUS_ROUTE_COLUMNS.BUS_ROUTE_ID} IN (${busIds.map(() => "?").join(",")})`
+                ["*"], busIds,
+                `WHERE ${dbSchema.BUS_COLUMNS.BUS_ID} IN (${busIds.map(() => "?").join(",")})`
             );
             if (!result || result.length === 0) {
                 console.warn(`Warning: No buses found for busIds ${busIds}`);
                 return [];
             }
 
-            return result.map(item => Bus.fromDatabase(item));
+            return result.map(row => Bus.fromDatabase(row));
         } catch (error) {
             console.error(`Error: ${error.message}`);
             return [];
@@ -94,13 +99,13 @@ class BusDAO extends BaseDAO {
 
     /**
      * Get buses by bus status
-     * @param {Boolean} busStatus 
-     * @returns {Promise<Bus[]}
+     * @param {boolean} busStatus 
+     * @returns {Promise<Bus[]>} 
      * @memberof BusDAO
      */
     async getByBusStatus(busStatus) {
         if (busStatus === null || busStatus === undefined || typeof busStatus !== 'boolean') {
-            console.warn(`Warning: Invalid busStatus: ${busStatus}`);
+            console.warn(`Warning: Invalid busStatus : ${busStatus}`);
             return [];
         }
 
@@ -111,11 +116,11 @@ class BusDAO extends BaseDAO {
             );
 
             if (!result || result.length === 0) {
-                console.warn(`Warning: No buses found for busStatus: ${busStatus}`);
+                console.warn(`Warning: No buses found for busStatus : ${busStatus}`);
                 return [];
             }
 
-            return result.map(item => Bus.fromDatabase(item));
+            return result.map(row => Bus.fromDatabase(row));
         } catch (error) {
             console.error(`Error: ${error.message}`);
             return [];
@@ -123,25 +128,27 @@ class BusDAO extends BaseDAO {
     }
 
     /**
-     * Get buses of bus brand
-     * @param {String} busBrand 
-     * @returns {Promise<Bus[]>}
+     * Get buses by bus brand
+     * @param {string} busBrand 
+     * @returns {Promise<Bus[]>} 
+     * @memberof BusDAO
      */
     async getByBusBrand(busBrand) {
         if (!busBrand || typeof busBrand !== 'string' || busBrand.trim() === '') {
-            console.warn(`Warning: Invalid busBrand: ${busBrand}`);
+            console.warn(`Warning: Invalid busBrand : ${busBrand}`);
             return [];
         }
 
         try {
             const result = await this._protectedGetBySelection(
                 ["*"], [busBrand],
-                `WHERE ${dbSchema.BUS_COLUMNS.BUS_BRAND} = ?`);
+                `WHERE ${dbSchema.BUS_COLUMNS.BUS_BRAND} = ?`
+            );
             if (!result || result.length === 0) {
-                console.warn(`Warning: No account found for busBrand ${busBrand}`);
+                console.warn(`Warning: No buses found for busBrand ${busBrand}`);
                 return [];
             }
-            return result.map(item => Bus.fromDatabase(item));
+            return result.map(row => Bus.fromDatabase(row));
         } catch (error) {
             console.error(`Error: ${error.message}`);
             return [];
@@ -149,25 +156,27 @@ class BusDAO extends BaseDAO {
     }
 
     /**
-     * Get buses of bus model
-     * @param {String} busModel 
-     * @returns {Promise<Bus[]>}
+     * Get buses by bus model
+     * @param {string} busModel 
+     * @returns {Promise<Bus[]>} 
+     * @memberof BusDAO
      */
     async getByBusModel(busModel) {
         if (!busModel || typeof busModel !== 'string' || busModel.trim() === '') {
-            console.warn(`Warning: Invalid busBrand: ${busModel}`);
+            console.warn(`Warning: Invalid busModel : ${busModel}`);
             return [];
         }
 
         try {
             const result = await this._protectedGetBySelection(
                 ["*"], [busModel],
-                `WHERE ${dbSchema.BUS_COLUMNS.BUS_MODEL} = ?`);
+                `WHERE ${dbSchema.BUS_COLUMNS.BUS_MODEL} = ?`
+            );
             if (!result || result.length === 0) {
-                console.warn(`Warning: No account found for busModel ${busModel}`);
+                console.warn(`Warning: No buses found for busModel ${busModel}`);
                 return [];
             }
-            return result.map(item => Bus.fromDatabase(item));
+            return result.map(row => Bus.fromDatabase(row));
         } catch (error) {
             console.error(`Error: ${error.message}`);
             return [];
@@ -177,12 +186,12 @@ class BusDAO extends BaseDAO {
     /**
      * Get bus by license plate
      * @param {string} busLicensePlate
-     * @return {Promise<Bus>}
+     * @return {Promise<Bus>} 
      * @memberof BusDAO
      */
     async getByLicensePlate(busLicensePlate) {
         if (!busLicensePlate || typeof busLicensePlate !== 'string' || busLicensePlate.trim() === '') {
-            console.warn(`Warning: Invalid license plate: ${busLicensePlate}`);
+            console.warn(`Warning: Invalid license plate : ${busLicensePlate}`);
             return new Bus();
         }
 
@@ -192,11 +201,11 @@ class BusDAO extends BaseDAO {
                 [busLicensePlate],
                 `WHERE ${dbSchema.BUS_COLUMNS.BUS_LICENSE_PLATE} = ?`
             );
-            if (!result) {
-                console.warn(`Warning: No data found for busId ${busLicensePlate}`);
+            if (!result || result.length === 0) {
+                console.warn(`Warning: No data found for license plate ${busLicensePlate}`);
                 return new Bus();
             }
-            return Bus.fromDatabase(result);
+            return Bus.fromDatabase(result[0]);
         } catch (error) {
             console.error(`Error: ${error.message}`);
             return new Bus();
@@ -206,7 +215,7 @@ class BusDAO extends BaseDAO {
     /**
      * Create a new bus
      * @param {Bus} bus 
-     * @return {Promise<number|string>}
+     * @return {Promise<number>} 
      * @memberof BusDAO
      */
     async createBus(bus) {
@@ -225,15 +234,14 @@ class BusDAO extends BaseDAO {
     }
 
     /**
-     * Private method to update one bus information
+     * Update bus information
      * @param {Bus} bus
-     * @return {Promise<number>}
+     * @return {Promise<number>} 
      * @memberof BusDAO
      */
-
     async updateBus(bus) {
         if (!bus || !(bus instanceof Bus)) {
-            console.warn(`Warning: Invalid bus:${bus}`);
+            console.warn(`Warning: Invalid bus : ${bus}`);
             return -1;
         }
 
@@ -247,9 +255,9 @@ class BusDAO extends BaseDAO {
     }
 
     /**
-     * Private method to update multiple buses 
+     * Update multiple buses
      * @param {Bus[]} buses
-     * @return {Promise<number>}
+     * @return {Promise<number>} 
      * @memberof BusDAO
      */
     async updateBuses(buses) {
@@ -269,13 +277,13 @@ class BusDAO extends BaseDAO {
 
     /**
      * Delete bus by ID
-     * @param {Number} busId
-     * @return {Promise<number>}
+     * @param {number} busId
+     * @return {Promise<number>} 
      * @memberof BusDAO
      */
     async deleteBus(busId) {
-        if (busId === undefined || busId === null || !Number.isInteger(busId)) {
-            console.warn(`Warning: Invalid Bus Id: ${busId}`)
+        if (busId === null || busId === undefined || !Number.isInteger(busId)) {
+            console.warn(`Warning: Invalid Bus Id : ${busId}`);
             return -1;
         }
 
@@ -283,10 +291,8 @@ class BusDAO extends BaseDAO {
             const result = await this._protectedDeleteById(busId);
             return result;
         } catch (error) {
-            console.warn(`Error: ${error.message}`);
+            console.error(`Error: ${error.message}`);
             return -1;
         }
     }
 }
-
-export default BusDAO;

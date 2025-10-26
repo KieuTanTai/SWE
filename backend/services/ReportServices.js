@@ -1,21 +1,21 @@
-import { default as DetailRouteDAO } from "../infrastructure/data/detailRouteDAO.js";
-import { DetailRoute } from "../models/index.js";
+import { default as ReportDAO } from "../infrastructure/data/reportDAO.js";
+import { Report } from "../index.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
- * DetailRouteService
- * Service layer for managing detail routes
+ * ReportServices
+ * Service layer for managing reports
  */
-class DetailRouteService {
+class ReportServices {
     /**
-     * Get all detail routes
-     * @return {Promise<{success: boolean, data?: DetailRoute[], error?: string}>}
+     * Get all reports
+     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
      */
-    async getAllDetailRoutes() {
+    async getAllReports() {
         try {
             const results = await withConnection(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.getAllDetailRoutes();
+                const repo = new ReportDAO(connection);
+                return await repo.getAllReports();
             });
 
             return {
@@ -31,22 +31,22 @@ class DetailRouteService {
     }
 
     /**
-     * Get detail route by ID
-     * @param {number} detailRouteId
-     * @return {Promise<{success: boolean, data?: DetailRoute, error?: string}>}
+     * Get report by ID
+     * @param {number} reportId
+     * @return {Promise<{success: boolean, data?: Report, error?: string}>}
      */
-    async getByDetailRouteId(detailRouteId) {
+    async getByReportId(reportId) {
         try {
-            if (!detailRouteId || !Number.isInteger(detailRouteId)) {
+            if (!reportId || !Number.isInteger(reportId)) {
                 return {
                     success: false,
-                    error: 'Invalid detailRouteId'
+                    error: 'Invalid reportId'
                 };
             }
 
             const result = await withConnection(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.getByDetailRouteId(detailRouteId);
+                const repo = new ReportDAO(connection);
+                return await repo.getByReportId(reportId);
             });
 
             return {
@@ -62,22 +62,22 @@ class DetailRouteService {
     }
 
     /**
-     * Get detail routes by route ID
-     * @param {number} routeId
-     * @return {Promise<{success: boolean, data?: DetailRoute[], error?: string}>}
+     * Get reports by multiple IDs
+     * @param {number[]} reportIds
+     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
      */
-    async getByRouteId(routeId) {
+    async getByReportIds(reportIds) {
         try {
-            if (!routeId || !Number.isInteger(routeId)) {
+            if (!Array.isArray(reportIds) || reportIds.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid routeId'
+                    error: 'Invalid reportIds array'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.getByRouteId(routeId);
+                const repo = new ReportDAO(connection);
+                return await repo.getByReportIds(reportIds);
             });
 
             return {
@@ -93,22 +93,22 @@ class DetailRouteService {
     }
 
     /**
-     * Get detail routes by start point ID
-     * @param {number} startPointId
-     * @return {Promise<{success: boolean, data?: DetailRoute[], error?: string}>}
+     * Get reports by driver ID
+     * @param {number} driverId
+     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
      */
-    async getByRouteStartPointId(startPointId) {
+    async getByDriverId(driverId) {
         try {
-            if (!startPointId || !Number.isInteger(startPointId)) {
+            if (!driverId || !Number.isInteger(driverId)) {
                 return {
                     success: false,
-                    error: 'Invalid startPointId'
+                    error: 'Invalid driverId'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.getByRouteStartPointId(startPointId);
+                const repo = new ReportDAO(connection);
+                return await repo.getByDriverId(driverId);
             });
 
             return {
@@ -124,22 +124,22 @@ class DetailRouteService {
     }
 
     /**
-     * Get detail routes by end point ID
-     * @param {number} endPointId
-     * @return {Promise<{success: boolean, data?: DetailRoute[], error?: string}>}
+     * Get reports by report type
+     * @param {string} reportType - 'start_pickup', 'picked_up', 'late', 'dropped_off', 'warning'
+     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
      */
-    async getByRouteEndPointId(endPointId) {
+    async getByReportType(reportType) {
         try {
-            if (!endPointId || !Number.isInteger(endPointId)) {
+            if (!reportType || typeof reportType !== 'string') {
                 return {
                     success: false,
-                    error: 'Invalid endPointId'
+                    error: 'Invalid reportType'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.getByRouteEndPointId(endPointId);
+                const repo = new ReportDAO(connection);
+                return await repo.getByReportType(reportType);
             });
 
             return {
@@ -155,22 +155,23 @@ class DetailRouteService {
     }
 
     /**
-     * Get detail routes by distance
-     * @param {number} distance
-     * @return {Promise<{success: boolean, data?: DetailRoute[], error?: string}>}
+     * Get reports by time range
+     * @param {Date} startTime
+     * @param {Date} endTime
+     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
      */
-    async getByDetailRouteDistance(distance) {
+    async getByTimeRange(startTime, endTime) {
         try {
-            if (typeof distance !== 'number') {
+            if (!(startTime instanceof Date) || !(endTime instanceof Date)) {
                 return {
                     success: false,
-                    error: 'Invalid distance'
+                    error: 'Invalid startTime or endTime'
                 };
             }
 
             const results = await withConnection(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.getByDetailRouteDistance(distance);
+                const repo = new ReportDAO(connection);
+                return await repo.getByTimeRange(startTime, endTime);
             });
 
             return {
@@ -186,28 +187,67 @@ class DetailRouteService {
     }
 
     /**
-     * Create a new detail route
-     * @param {DetailRoute} detailRoute
+     * Get reports by driver and type
+     * @param {number} driverId
+     * @param {string} reportType
+     * @return {Promise<{success: boolean, data?: Report[], error?: string}>}
+     */
+    async getByDriverIdAndType(driverId, reportType) {
+        try {
+            if (!driverId || !Number.isInteger(driverId)) {
+                return {
+                    success: false,
+                    error: 'Invalid driverId'
+                };
+            }
+
+            if (!reportType || typeof reportType !== 'string') {
+                return {
+                    success: false,
+                    error: 'Invalid reportType'
+                };
+            }
+
+            const results = await withConnection(async (connection) => {
+                const repo = new ReportDAO(connection);
+                return await repo.getByDriverIdAndType(driverId, reportType);
+            });
+
+            return {
+                success: true,
+                data: results
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Create a new report
+     * @param {Report} report
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async createDetailRoute(detailRoute) {
+    async createReport(report) {
         try {
-            if (!(detailRoute instanceof DetailRoute)) {
+            if (!(report instanceof Report)) {
                 return {
                     success: false,
-                    error: 'Invalid detailRoute object'
+                    error: 'Invalid report object'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.createDetailRoute(detailRoute);
+                const repo = new ReportDAO(connection);
+                return await repo.createReport(report);
             });
-            
+
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to create detail route'
+                    error: 'Failed to create report'
                 };
             }
 
@@ -224,28 +264,28 @@ class DetailRouteService {
     }
 
     /**
-     * Create multiple detail routes
-     * @param {DetailRoute[]} detailRoutes
+     * Create multiple reports
+     * @param {Report[]} reports
      * @return {Promise<{success: boolean, data?: number|number[], error?: string}>}
      */
-    async createDetailRoutes(detailRoutes) {
+    async createReports(reports) {
         try {
-            if (!Array.isArray(detailRoutes) || detailRoutes.length === 0) {
+            if (!Array.isArray(reports) || reports.length === 0) {
                 return {
                     success: false,
-                    error: 'detailRoutes must be a non-empty array'
+                    error: 'Invalid reports array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.createDetailRoutes(detailRoutes);
+                const repo = new ReportDAO(connection);
+                return await repo.createReports(reports);
             });
-            
+
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to create detail routes'
+                    error: 'Failed to create reports'
                 };
             }
 
@@ -262,36 +302,29 @@ class DetailRouteService {
     }
 
     /**
-     * Update detail route distance
-     * @param {number} detailId
-     * @param {number} newDistance
+     * Update report type
+     * @param {number} reportId
+     * @param {string} newType
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateDistance(detailId, newDistance) {
+    async updateReportType(reportId, newType) {
         try {
-            if (!detailId || !Number.isInteger(detailId)) {
+            if (!reportId || !Number.isInteger(reportId)) {
                 return {
                     success: false,
-                    error: 'Invalid detailId'
-                };
-            }
-
-            if (typeof newDistance !== 'number') {
-                return {
-                    success: false,
-                    error: 'Invalid newDistance'
+                    error: 'Invalid reportId'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.updateDistance(detailId, newDistance);
+                const repo = new ReportDAO(connection);
+                return await repo.updateReportType(reportId, newType);
             });
-            
+
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update distance'
+                    error: 'Failed to update report type'
                 };
             }
 
@@ -308,28 +341,29 @@ class DetailRouteService {
     }
 
     /**
-     * Update distances of multiple detail routes
-     * @param {Array<{detail_route_id: number, detail_route_distance: number}>} newDetailRoutes - Plain objects with snake_case properties
+     * Update report content
+     * @param {number} reportId
+     * @param {string} newContent
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateDistances(newDetailRoutes) {
+    async updateReportContent(reportId, newContent) {
         try {
-            if (!Array.isArray(newDetailRoutes) || newDetailRoutes.length === 0) {
+            if (!reportId || !Number.isInteger(reportId)) {
                 return {
                     success: false,
-                    error: 'newDetailRoutes must be a non-empty array'
+                    error: 'Invalid reportId'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.updateDistances(newDetailRoutes);
+                const repo = new ReportDAO(connection);
+                return await repo.updateReportContent(reportId, newContent);
             });
-            
+
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update distances'
+                    error: 'Failed to update report content'
                 };
             }
 
@@ -346,36 +380,28 @@ class DetailRouteService {
     }
 
     /**
-     * Update detail route start point ID
-     * @param {number} detailRouteId
-     * @param {number} newStartPointId
+     * Update report types of multiple reports
+     * @param {Array<{report_id: number, report_type: string}>} reports
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateStartPointId(detailRouteId, newStartPointId) {
+    async updateReportTypes(reports) {
         try {
-            if (!detailRouteId || !Number.isInteger(detailRouteId)) {
+            if (!Array.isArray(reports) || reports.length === 0) {
                 return {
                     success: false,
-                    error: 'Invalid detailRouteId'
-                };
-            }
-
-            if (!newStartPointId || !Number.isInteger(newStartPointId)) {
-                return {
-                    success: false,
-                    error: 'Invalid newStartPointId'
+                    error: 'Invalid reports array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.updateStartPointId(detailRouteId, newStartPointId);
+                const repo = new ReportDAO(connection);
+                return await repo.updateReportTypes(reports);
             });
-            
+
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update start point ID'
+                    error: 'Failed to update report types'
                 };
             }
 
@@ -392,28 +418,28 @@ class DetailRouteService {
     }
 
     /**
-     * Update start point IDs of multiple detail routes
-     * @param {Array<{detail_route_id: number, detail_route_start_point_id: number}>} detailRoutes - Plain objects with snake_case properties
+     * Update report contents of multiple reports
+     * @param {Array<{report_id: number, report_content: string}>} reports
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateStartPointIds(detailRoutes) {
+    async updateReportContents(reports) {
         try {
-            if (!Array.isArray(detailRoutes) || detailRoutes.length === 0) {
+            if (!Array.isArray(reports) || reports.length === 0) {
                 return {
                     success: false,
-                    error: 'detailRoutes must be a non-empty array'
+                    error: 'Invalid reports array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.updateStartPointIds(detailRoutes);
+                const repo = new ReportDAO(connection);
+                return await repo.updateReportContents(reports);
             });
-            
+
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update start point IDs'
+                    error: 'Failed to update report contents'
                 };
             }
 
@@ -430,36 +456,28 @@ class DetailRouteService {
     }
 
     /**
-     * Update detail route end point ID
-     * @param {number} detailRouteId
-     * @param {number} newEndPointId
+     * Delete report by ID
+     * @param {number} reportId
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateEndPointId(detailRouteId, newEndPointId) {
+    async deleteReport(reportId) {
         try {
-            if (!detailRouteId || !Number.isInteger(detailRouteId)) {
+            if (!reportId || !Number.isInteger(reportId)) {
                 return {
                     success: false,
-                    error: 'Invalid detailRouteId'
-                };
-            }
-
-            if (!newEndPointId || !Number.isInteger(newEndPointId)) {
-                return {
-                    success: false,
-                    error: 'Invalid newEndPointId'
+                    error: 'Invalid reportId'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.updateEndPointId(detailRouteId, newEndPointId);
+                const repo = new ReportDAO(connection);
+                return await repo.deleteReport(reportId);
             });
-            
+
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update end point ID'
+                    error: 'Failed to delete report'
                 };
             }
 
@@ -476,28 +494,28 @@ class DetailRouteService {
     }
 
     /**
-     * Update end point IDs of multiple detail routes
-     * @param {Array<{detail_route_id: number, detail_route_end_point_id: number}>} detailRoutes - Plain objects with snake_case properties
+     * Delete multiple reports by IDs
+     * @param {number[]} reportIds
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async updateEndPointIds(detailRoutes) {
+    async deleteReports(reportIds) {
         try {
-            if (!Array.isArray(detailRoutes) || detailRoutes.length === 0) {
+            if (!Array.isArray(reportIds) || reportIds.length === 0) {
                 return {
                     success: false,
-                    error: 'detailRoutes must be a non-empty array'
+                    error: 'Invalid reportIds array'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.updateEndPointIds(detailRoutes);
+                const repo = new ReportDAO(connection);
+                return await repo.deleteReports(reportIds);
             });
-            
+
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to update end point IDs'
+                    error: 'Failed to delete reports'
                 };
             }
 
@@ -514,66 +532,27 @@ class DetailRouteService {
     }
 
     /**
-     * Delete detail route by ID
-     * @param {number} detailRouteId
+     * Delete all reports by driver ID
+     * @param {number} driverId
      * @return {Promise<{success: boolean, data?: number, error?: string}>}
      */
-    async deleteDetailRoute(detailRouteId) {
+    async deleteByDriverId(driverId) {
         try {
-            if (!detailRouteId || !Number.isInteger(detailRouteId)) {
+            if (!driverId || !Number.isInteger(driverId)) {
                 return {
                     success: false,
-                    error: 'Invalid detailRouteId'
+                    error: 'Invalid driverId'
                 };
             }
 
             const result = await withTransaction(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.deleteDetailRoute(detailRouteId);
+                const repo = new ReportDAO(connection);
+                return await repo.deleteByDriverId(driverId);
             });
-            
             if (result === -1) {
                 return {
                     success: false,
-                    error: 'Failed to delete detail route'
-                };
-            }
-
-            return {
-                success: true,
-                data: result
-            };
-        } catch (error) {
-            return {
-                success: false,
-                error: error.message
-            };
-        }
-    }
-
-    /**
-     * Delete multiple detail routes by IDs
-     * @param {number[]} detailRouteIds
-     * @return {Promise<{success: boolean, data?: number, error?: string}>}
-     */
-    async deleteDetailRoutes(detailRouteIds) {
-        try {
-            if (!Array.isArray(detailRouteIds) || detailRouteIds.length === 0) {
-                return {
-                    success: false,
-                    error: 'detailRouteIds must be a non-empty array'
-                };
-            }
-
-            const result = await withTransaction(async (connection) => {
-                const repo = new DetailRouteDAO(connection);
-                return await repo.deleteDetailRoutes(detailRouteIds);
-            });
-            
-            if (result === -1) {
-                return {
-                    success: false,
-                    error: 'Failed to delete detail routes'
+                    error: 'Failed to delete reports by driverId'
                 };
             }
 
@@ -590,4 +569,4 @@ class DetailRouteService {
     }
 }
 
-export default DetailRouteService;
+export default ReportServices;

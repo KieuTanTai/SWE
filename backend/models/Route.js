@@ -5,9 +5,9 @@
 class Route {
     constructor({
         route_id = 0,
-        route_name = "",
+        route_name = '',
         route_status = true
-    }) {
+    } = {}) {
         this.route_id = route_id;
         this.route_name = route_name;
         this.route_status = route_status;

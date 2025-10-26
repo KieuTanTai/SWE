@@ -1,13 +1,13 @@
 import { default as AccountRoleDAO } from "../infrastructure/data/accountRoleDAO.js";
-import { AccountRole } from "../models/index.js";
+import { AccountRole } from "../index.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
 /**
- * AccountRoleService
+ * AccountRoleServices
  * Service layer for managing account-role relationships
  * Manages its own database connections and transactions
  */
-class AccountRoleService {
+class AccountRoleServices {
     /**
      * Get all account-role relationships
      * @return {Promise<{success: boolean, data?: AccountRole[], error?: string}>}
@@ -632,4 +632,4 @@ class AccountRoleService {
     }
 }
 
-export default AccountRoleService;
+export default AccountRoleServices;

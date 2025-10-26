@@ -1,5 +1,5 @@
-import Role from "../../models/Role.js";
-import BaseDAO from "./baseDAO.js";
+import { Role } from "../../index.js";
+import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise";
 
@@ -45,7 +45,7 @@ class RoleDAO extends BaseDAO {
         }
 
         try {
-            if (Number.parseInt(roleId.toString()) <= 0) {
+            if (roleId <= 0) {
                 console.warn(`Warning: roleId must be greater than zero : ${roleId}`);
                 return new Role();
             }

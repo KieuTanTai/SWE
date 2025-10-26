@@ -4,10 +4,10 @@
  */
 class LocationCity {
     constructor({
-        location_city_id = null,
-        location_city_name,
+        location_city_id = 0,
+        location_city_name = '',
         location_city_status = true
-    }) {
+    } = {}) {
         this.location_city_id = location_city_id;
         this.location_city_name = location_city_name;
         this.location_city_status = location_city_status;

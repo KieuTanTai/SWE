@@ -1,109 +1,352 @@
-import withConnection from "../database/connection.js";
-import BusDAO from "../dao/BusDAO.js";
-import Bus from "../models/Bus.js";
+import { default as BusDAO } from "../infrastructure/data/busDAO.js";
+import { Bus } from "../index.js";
+import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
-class BusService {
-    /** Get all buses */
+/**
+ * BusServices
+ * Service layer for managing buses
+ * Manages its own database connections and transactions
+ */
+class BusServices {
+    /**
+     * Get all buses
+     * @return {Promise<{success: boolean, data?: Bus[], error?: string}>}
+     */
     async getAllBuses() {
         try {
-            const result = await withConnection(conn => new BusDAO(conn).getAllBuses());
-            return { success: true, data: result };
-        } catch (err) {
-            return { success: false, error: err.message };
+            const results = await withConnection(async (connection) => {
+                const repo = new BusDAO(connection);
+                return await repo.getAllBuses();
+            });
+            
+            return {
+                success: true,
+                data: results
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
-    /** Get bus by ID */
-    async getBusById(busId) {
-        if (!Number.isInteger(busId) || busId <= 0)
-            return { success: false, error: "Invalid busId" };
-
+    /**
+     * Get bus by ID
+     * @param {number} busId
+     * @return {Promise<{success: boolean, data?: Bus, error?: string}>}
+     */
+    async getByBusId(busId) {
         try {
-            const result = await withConnection(conn => new BusDAO(conn).getByBusId(busId));
-            if (!result || result.bus_id === 0) return { success: false, error: "Bus not found" };
-            return { success: true, data: result };
-        } catch (err) {
-            return { success: false, error: err.message };
+            if (!busId || !Number.isInteger(busId)) {
+                return {
+                    success: false,
+                    error: 'Invalid busId'
+                };
+            }
+
+            const result = await withConnection(async (connection) => {
+                const repo = new BusDAO(connection);
+                return await repo.getByBusId(busId);
+            });
+            
+            return {
+                success: true,
+                data: result
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
-    /** Get multiple buses by IDs */
-    async getBusesByIds(busIds) {
-        if (!Array.isArray(busIds) || busIds.length === 0)
-            return { success: false, error: "Invalid busIds array" };
-
+    /**
+     * Get buses by multiple IDs
+     * @param {number[]} busIds
+     * @return {Promise<{success: boolean, data?: Bus[], error?: string}>}
+     */
+    async getByBusIds(busIds) {
         try {
-            const result = await withConnection(conn => new BusDAO(conn).getByBusIds(busIds));
-            return { success: true, data: result };
-        } catch (err) {
-            return { success: false, error: err.message };
+            if (!Array.isArray(busIds) || busIds.length === 0) {
+                return {
+                    success: false,
+                    error: 'Invalid busIds array'
+                };
+            }
+
+            const results = await withConnection(async (connection) => {
+                const repo = new BusDAO(connection);
+                return await repo.getByBusIds(busIds);
+            });
+            
+            return {
+                success: true,
+                data: results
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
-    /** Get buses by status */
-    async getBusesByStatus(busStatus) {
-        if (typeof busStatus !== "boolean")
-            return { success: false, error: "Invalid busStatus" };
-
+    /**
+     * Get buses by status
+     * @param {boolean} busStatus
+     * @return {Promise<{success: boolean, data?: Bus[], error?: string}>}
+     */
+    async getByBusStatus(busStatus) {
         try {
-            const result = await withConnection(conn => new BusDAO(conn).getByBusStatus(busStatus));
-            return { success: true, data: result };
-        } catch (err) {
-            return { success: false, error: err.message };
+            if (!busStatus || typeof busStatus !== 'string') {
+                return {
+                    success: false,
+                    error: 'Invalid busStatus'
+                };
+            }
+
+            const results = await withConnection(async (connection) => {
+                const repo = new BusDAO(connection);
+                return await repo.getByBusStatus(busStatus);
+            });
+            
+            return {
+                success: true,
+                data: results
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
-    /** Get buses by brand */
-    async getBusesByBrand(busBrand) {
-        if (!busBrand || typeof busBrand !== "string" || busBrand.trim() === "")
-            return { success: false, error: "Invalid busBrand" };
-
+    /**
+     * Get buses by brand
+     * @param {string} busBrand
+     * @return {Promise<{success: boolean, data?: Bus[], error?: string}>}
+     */
+    async getByBusBrand(busBrand) {
         try {
-            const result = await withConnection(conn => new BusDAO(conn).getByBusBrand(busBrand));
-            return { success: true, data: result };
-        } catch (err) {
-            return { success: false, error: err.message };
+            if (!busBrand || typeof busBrand !== 'string') {
+                return {
+                    success: false,
+                    error: 'Invalid busBrand'
+                };
+            }
+
+            const results = await withConnection(async (connection) => {
+                const repo = new BusDAO(connection);
+                return await repo.getByBusBrand(busBrand);
+            });
+            
+            return {
+                success: true,
+                data: results
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
-    /** Create bus */
-    async createBus(busData) {
-        if (!(busData instanceof Bus))
-            return { success: false, error: "Invalid Bus object" };
-
+    /**
+     * Get buses by model
+     * @param {string} busModel
+     * @return {Promise<{success: boolean, data?: Bus[], error?: string}>}
+     */
+    async getByBusModel(busModel) {
         try {
-            const result = await withConnection(conn => new BusDAO(conn).createBus(busData));
-            return { success: true, id: result };
-        } catch (err) {
-            return { success: false, error: err.message };
+            if (!busModel || typeof busModel !== 'string') {
+                return {
+                    success: false,
+                    error: 'Invalid busModel'
+                };
+            }
+
+            const results = await withConnection(async (connection) => {
+                const repo = new BusDAO(connection);
+                return await repo.getByBusModel(busModel);
+            });
+            
+            return {
+                success: true,
+                data: results
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
-    /** Update bus */
-    async updateBus(busData) {
-        if (!(busData instanceof Bus))
-            return { success: false, error: "Invalid Bus object" };
-
+    /**
+     * Get bus by license plate
+     * @param {string} busLicensePlate
+     * @return {Promise<{success: boolean, data?: Bus, error?: string}>}
+     */
+    async getByLicensePlate(busLicensePlate) {
         try {
-            const result = await withConnection(conn => new BusDAO(conn).updateBus(busData));
-            return { success: true, affectedRows: result };
-        } catch (err) {
-            return { success: false, error: err.message };
+            if (!busLicensePlate || typeof busLicensePlate !== 'string') {
+                return {
+                    success: false,
+                    error: 'Invalid busLicensePlate'
+                };
+            }
+
+            const result = await withConnection(async (connection) => {
+                const repo = new BusDAO(connection);
+                return await repo.getByLicensePlate(busLicensePlate);
+            });
+            
+            return {
+                success: true,
+                data: result
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
-    /** Delete bus */
+    /**
+     * Create a new bus
+     * @param {Bus} bus
+     * @return {Promise<{success: boolean, data?: number, error?: string}>}
+     */
+    async createBus(bus) {
+        try {
+            if (!bus || !(bus instanceof Bus)) {
+                return {
+                    success: false,
+                    error: 'Invalid bus object'
+                };
+            }
+
+            const busId = await withTransaction(async (connection) => {
+                const repo = new BusDAO(connection);
+                return await repo.createBus(bus);
+            });
+            
+            return {
+                success: true,
+                data: busId
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Update a bus
+     * @param {Bus} bus
+     * @return {Promise<{success: boolean, data?: boolean, error?: string}>}
+     */
+    async updateBus(bus) {
+        try {
+            if (!bus || !(bus instanceof Bus)) {
+                return {
+                    success: false,
+                    error: 'Invalid bus object'
+                };
+            }
+
+            const result = await withTransaction(async (connection) => {
+                const repo = new BusDAO(connection);
+                return await repo.updateBus(bus);
+            });
+            
+            return {
+                success: true,
+                data: result
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Update multiple buses
+     * @param {Bus[]} buses
+     * @return {Promise<{success: boolean, data?: boolean, error?: string}>}
+     */
+    async updateBuses(buses) {
+        try {
+            if (!Array.isArray(buses) || buses.length === 0) {
+                return {
+                    success: false,
+                    error: 'Invalid buses array'
+                };
+            }
+
+            if (!buses.every(b => b instanceof Bus)) {
+                return {
+                    success: false,
+                    error: 'All items must be Bus instances'
+                };
+            }
+
+            const result = await withTransaction(async (connection) => {
+                const repo = new BusDAO(connection);
+                return await repo.updateBuses(buses);
+            });
+            
+            return {
+                success: true,
+                data: result
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Delete a bus
+     * @param {number} busId
+     * @return {Promise<{success: boolean, data?: boolean, error?: string}>}
+     */
     async deleteBus(busId) {
-        if (!Number.isInteger(busId) || busId <= 0)
-            return { success: false, error: "Invalid busId" };
-
         try {
-            const result = await withConnection(conn => new BusDAO(conn).deleteBus(busId));
-            return { success: true, affectedRows: result };
-        } catch (err) {
-            return { success: false, error: err.message };
+            if (!busId || !Number.isInteger(busId)) {
+                return {
+                    success: false,
+                    error: 'Invalid busId'
+                };
+            }
+
+            const result = await withTransaction(async (connection) => {
+                const repo = new BusDAO(connection);
+                return await repo.deleteBus(busId);
+            });
+            
+            return {
+                success: true,
+                data: result
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 }
 
-export default BusService;
+export default BusServices;

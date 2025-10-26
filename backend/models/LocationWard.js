@@ -4,11 +4,11 @@
  */
 class LocationWard {
     constructor({
-        location_ward_id = null,
-        location_ward_name,
-        location_district_id,
+        location_ward_id = 0,
+        location_ward_name = '',
+        location_district_id = 0,
         location_ward_status = true
-    }) {
+    } = {}) {
         this.location_ward_id = location_ward_id;
         this.location_ward_name = location_ward_name;
         this.location_district_id = location_district_id;

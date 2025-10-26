@@ -1,5 +1,5 @@
-import Account from "../../models/Account.js";
-import BaseDAO from "./baseDAO.js";
+import { Account } from "../../index.js";
+import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise";
 
@@ -45,7 +45,7 @@ class AccountDAO extends BaseDAO {
         }
 
         try {
-            if (Number.parseInt(accountId.toString()) <= 0) {
+            if (accountId <= 0) {
                 console.warn(`Warning: accountId must be greater than zero : ${accountId}`);
                 return new Account();
             }

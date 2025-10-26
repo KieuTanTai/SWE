@@ -5,10 +5,10 @@
 class Role {
     constructor({
         role_id = 0,
-        role_name = "",
+        role_name = '',
         role_created_date = new Date(),
         role_active_status = true
-    }) {
+    } = {}) {
         this.role_id = role_id;
         this.role_name = role_name;
         this.role_created_date = role_created_date;

@@ -1,0 +1,22 @@
+/* Đây là file CSS global (ví dụ: src/styles/index.css)
+Bạn cần import file này vào file entry point của dự án (main.tsx hoặc index.tsx)
+*/
+
+/* 1. Thêm 3 chỉ thị của Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 2. (Tùy chọn) Thêm font Inter và set body default */
+@import url('https://www.google.com/search?q=https://fonts.googleapis.com/css2%3Ffamily%3DInter:wght%40400%3B500%3B600%3B700%3B900%26display%3Dswap');
+
+@layer base {
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #1f2937;
+        /* bg-gray-800 /
+color: #f9fafb; / text-gray-100 */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}

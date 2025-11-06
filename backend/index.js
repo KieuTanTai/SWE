@@ -16,7 +16,7 @@ app.use((req, res, next) => {
 
 // --- Route test ---
 app.get('/', (req, res) => {
-    res.send(' Hello from Express on port 5000!');
+    res.send(' Backend is ready for frontend!');
 });
 
 // --- Khởi động server ---

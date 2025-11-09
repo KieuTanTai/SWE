@@ -41,11 +41,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Health Check Route
 app.get('/', (req, res) => {
-    res.json({ 
-        message: 'Student School Bus System API',
-        version: '1.0.0',
-        status: 'running'
-    });
+    res.send(' Backend is ready for frontend!');
 });
 
 // API Routes - Authentication & Authorization

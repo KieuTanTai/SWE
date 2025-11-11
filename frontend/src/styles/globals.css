@@ -1,5 +1,5 @@
+@import url('https://www.google.com/search?q=https://fonts.googleapis.com/css2%3Ffamily%3DInter:wght%40400%3B500%3B600%3B700%3B900%26display%3Dswap');
 @import "tailwindcss";
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -18,11 +18,3 @@
     --foreground: #ededed;
   }
 }
-
-/* XÓA BỎ PHẦN NÀY
-  body {
-    background: var(--background);
-    color: var(--foreground);
-    font-family: Arial, Helvetica, sans-serif;
-  } 
-*/

@@ -4,6 +4,7 @@ import {
     Bus,
     Clock,
     MapPin,
+    Navigation,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -13,6 +14,7 @@ interface SidebarProps {
 
 const navItems = [
     { id: 'dashboard', text: 'Dashboard', icon: LayoutDashboard },
+    { id: 'tracking', text: 'Live Tracking', icon: Navigation },
     { id: 'student', text: 'Student Management', icon: Users },
     { id: 'driver', text: 'Driver Management', icon: Bus },
     { id: 'schedule', text: 'Schedule Management', icon: Clock },

@@ -34,9 +34,18 @@ class AccountServices {
                 return await repo.getByEmail(email);
             });
             
-            if (!result || await comparePassword(password, result.account_password) === false)
+            // Check if account exists (DAO returns empty Account object if not found)
+            if (!result || !result.account_id || !result.account_password) {
                 return ServiceResponse.failure('Authentication failed');
+            }
 
+            // Verify password
+            const isPasswordValid = await comparePassword(password, result.account_password);
+            if (!isPasswordValid) {
+                return ServiceResponse.failure('Authentication failed');
+            }
+
+            // Get account roles
             result.roles = await withConnection(async (connection) => {
                 const repo = new AccountRoleDAO(connection);
                 return await repo.getByAccountId(result.account_id);

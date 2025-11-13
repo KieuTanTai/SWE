@@ -127,7 +127,12 @@ router.post("/login", async (req, res) => {
 
         const service = new AccountServices();
         const result = await service.login(account_email, account_password);
-        result.success ? res.status(200).json(result.data) : res.status(401).json({ error: result.error });
+        
+        if (result.isSuccess()) {
+            res.status(200).json(result.getData());
+        } else {
+            res.status(401).json({ error: result.getError() });
+        }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

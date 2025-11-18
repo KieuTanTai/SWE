@@ -87,12 +87,12 @@ router.get("/login-status/:status", async (req, res) => {
 // POST /api/accounts - Create single account
 router.post("/", async (req, res) => {
     try {
-        const { account_email, account_password, account_login_status } = req.body;
-        if (!account_email || !account_password) {
-            return res.status(400).json({ error: "account_email and account_password are required" });
+        const { username, password, account_login_status } = req.body;
+        if (!username || !password) {
+            return res.status(400).json({ error: "username and password are required" });
         }
 
-        const account = new Account({ account_email, account_password, account_login_status });
+        const account = new Account({ account_email: username, account_password: password, account_login_status });
         const service = new AccountServices();
         const result = await service.createAccount(account);
         result.success ? res.status(201).json(result.data) : res.status(500).json({ error: result.error });
@@ -120,13 +120,13 @@ router.post("/bulk", async (req, res) => {
 
 router.post("/login", async (req, res) => { 
     try {
-        const { account_email, account_password } = req.body;
-        if (!account_email || !account_password) {
-            return res.status(400).json({ error: "account_email and account_password are required" });
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(400).json({ error: "username and password are required" });
         }
 
         const service = new AccountServices();
-        const result = await service.login(account_email, account_password);
+        const result = await service.login(username, password);
         
         if (result.isSuccess()) {
             res.status(200).json(result.getData());

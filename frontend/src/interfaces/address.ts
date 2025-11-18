@@ -3,11 +3,11 @@
  * Represents complete addresses using location hierarchy
  */
 
-import { LocationCity } from './location-city';
-import { LocationDistrict } from './location-district';
-import { LocationWard } from './location-ward';
-import { Parent } from './parent';
-import { DetailRoute } from './detail-route';
+import { LocationCity } from "./location-city";
+import { LocationDistrict } from "./location-district";
+import { LocationWard } from "./location-ward";
+import { Parent } from "./parent";
+import { DetailRoute } from "./detail-route";
 
 export interface Address {
   address_id: number;
@@ -40,6 +40,23 @@ export interface UpdateAddressDTO {
   address_district_id?: number;
   address_ward_id?: number;
   address_number?: string;
+}
+
+export function createDefaultAddress(overrides?: Partial<Address>): Address {
+  return {
+    address_id: 0,
+    address_city_id: 0,
+    address_district_id: 0,
+    address_ward_id: 0,
+    address_number: "",
+    city: null,
+    district: null,
+    ward: null,
+    parents: [],
+    routeStartPoints: [],
+    routeEndPoints: [],
+    ...overrides,
+  };
 }
 
 export default Address;

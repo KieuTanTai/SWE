@@ -3,10 +3,10 @@
  * Represents detailed schedule information with bus routes and time roles
  */
 
-import { Schedule } from './schedule';
-import { BusRoute } from './bus-route';
-import { TimeRole } from './time-role';
-import { PickupSchedule } from './pickup-schedule';
+import { Schedule } from "./schedule";
+import { BusRoute } from "./bus-route";
+import { TimeRole } from "./time-role";
+import { PickupSchedule } from "./pickup-schedule";
 
 export interface DetailSchedule {
   detail_schedule_id: number;
@@ -31,6 +31,22 @@ export interface UpdateDetailScheduleDTO {
   schedule_id?: number;
   detail_schedule_bus_route_id?: number;
   detail_schedule_time_role_id?: number;
+}
+
+export function createDefaultDetailSchedule(
+  overrides?: Partial<DetailSchedule>
+): DetailSchedule {
+  return {
+    detail_schedule_id: 0,
+    schedule_id: 0,
+    detail_schedule_bus_route_id: 0,
+    detail_schedule_time_role_id: 0,
+    schedule: null,
+    busRoute: null,
+    timeRole: null,
+    pickupSchedules: [],
+    ...overrides,
+  };
 }
 
 export default DetailSchedule;

@@ -3,8 +3,8 @@
  * Represents cities in the location hierarchy
  */
 
-import { LocationDistrict } from './location-district';
-import { Address } from './address';
+import { LocationDistrict } from "./location-district";
+import { Address } from "./address";
 
 export interface LocationCity {
   location_city_id: number;
@@ -23,6 +23,19 @@ export interface CreateLocationCityDTO {
 export interface UpdateLocationCityDTO {
   location_city_name?: string;
   location_city_status?: boolean;
+}
+
+export function createDefaultLocationCity(
+  overrides?: Partial<LocationCity>
+): LocationCity {
+  return {
+    location_city_id: 0,
+    location_city_name: "",
+    location_city_status: true,
+    districts: [],
+    addresses: [],
+    ...overrides,
+  };
 }
 
 export default LocationCity;

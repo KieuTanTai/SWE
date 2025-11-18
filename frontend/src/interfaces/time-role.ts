@@ -3,7 +3,7 @@
  * Represents time configurations for pickup and drop-off schedules
  */
 
-import { DetailSchedule } from './detail-schedule';
+import { DetailSchedule } from "./detail-schedule";
 
 export interface TimeRole {
   time_role_id: number;
@@ -24,6 +24,17 @@ export interface UpdateTimeRoleDTO {
   time_role_start_pickup_time?: string;
   time_role_start_drop_off_time?: string;
   time_role_status?: boolean;
+}
+
+export function createDefaultTimeRole(overrides?: Partial<TimeRole>): TimeRole {
+  return {
+    time_role_id: 0,
+    time_role_start_pickup_time: "00:00:00",
+    time_role_start_drop_off_time: "00:00:00",
+    time_role_status: true,
+    detailSchedules: [],
+    ...overrides,
+  };
 }
 
 export default TimeRole;

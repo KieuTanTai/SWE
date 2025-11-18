@@ -3,10 +3,10 @@
  * Represents user accounts in the system
  */
 
-import { Role } from './role';
-import { Person } from './person';
-import { Parent } from './parent';
-import { Driver } from './driver';
+import { Role } from "./role";
+import { Person } from "./person";
+import { Parent } from "./parent";
+import { Driver } from "./driver";
 
 export interface Account {
   account_id: number;
@@ -21,6 +21,26 @@ export interface Account {
   person?: Person | null; // Person object if account has person profile
   parent?: Parent | null; // Parent object if account belongs to parent
   driver?: Driver | null; // Driver object if account belongs to driver
+}
+
+/**
+ * Create a default empty Account object
+ * @param overrides - Optional partial Account to override default values
+ * @returns Account with default values
+ */
+export function createDefaultAccount(overrides?: Partial<Account>): Account {
+  return {
+    account_id: 0,
+    account_email: "",
+    account_create_date: new Date().toISOString(),
+    account_last_updated_date: new Date().toISOString(),
+    account_login_status: false,
+    roles: [],
+    person: null,
+    parent: null,
+    driver: null,
+    ...overrides,
+  };
 }
 
 export interface CreateAccountDTO {

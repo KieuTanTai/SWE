@@ -3,9 +3,9 @@
  * Represents bus schedules managed by managers and assigned to drivers
  */
 
-import { Person } from './person';
-import { Driver } from './driver';
-import { DetailSchedule } from './detail-schedule';
+import { Person } from "./person";
+import { Driver } from "./driver";
+import { DetailSchedule } from "./detail-schedule";
 
 export interface Schedule {
   schedule_id: number;
@@ -37,6 +37,21 @@ export interface UpdateScheduleDTO {
   schedule_start_date?: Date | string;
   schedule_end_date?: Date | string;
   schedule_status?: boolean;
+}
+
+export function createDefaultSchedule(overrides?: Partial<Schedule>): Schedule {
+  return {
+    schedule_id: 0,
+    schedule_by_manager_id: 0,
+    schedule_driver_id: 0,
+    schedule_start_date: new Date().toISOString(),
+    schedule_end_date: new Date().toISOString(),
+    schedule_status: true,
+    manager: null,
+    driver: null,
+    detailSchedules: [],
+    ...overrides,
+  };
 }
 
 export default Schedule;

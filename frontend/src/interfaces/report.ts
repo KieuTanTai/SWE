@@ -3,9 +3,14 @@
  * Represents driver reports for various activities
  */
 
-import { Driver } from './driver';
+import { Driver } from "./driver";
 
-export type ReportType = 'start_pickup' | 'picked_up' | 'late' | 'dropped_off' | 'warning';
+export type ReportType =
+  | "start_pickup"
+  | "picked_up"
+  | "late"
+  | "dropped_off"
+  | "warning";
 
 export interface Report {
   report_id: number;
@@ -30,6 +35,18 @@ export interface CreateReportDTO {
 export interface UpdateReportDTO {
   report_type?: ReportType;
   report_content?: string;
+}
+
+export function createDefaultReport(overrides?: Partial<Report>): Report {
+  return {
+    report_id: 0,
+    report_driver_id: 0,
+    report_time: new Date().toISOString(),
+    report_type: "start_pickup",
+    report_content: "",
+    driver: null,
+    ...overrides,
+  };
 }
 
 export default Report;

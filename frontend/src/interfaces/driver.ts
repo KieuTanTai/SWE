@@ -3,11 +3,11 @@
  * Represents drivers in the system
  */
 
-import { Person } from './person';
-import { Schedule } from './schedule';
-import { Report } from './report';
+import { Person } from "./person";
+import { Schedule } from "./schedule";
+import { Report } from "./report";
 
-export type DriverExperienceType = 'day' | 'month' | 'year';
+export type DriverExperienceType = "day" | "month" | "year";
 
 export interface Driver {
   driver_person_id: number;
@@ -34,6 +34,19 @@ export interface UpdateDriverDTO {
   driver_experience?: number;
   driver_experience_type?: DriverExperienceType;
   driver_late_arrival_count?: number;
+}
+
+export function createDefaultDriver(overrides?: Partial<Driver>): Driver {
+  return {
+    driver_person_id: 0,
+    driver_experience: 0,
+    driver_experience_type: "year",
+    driver_late_arrival_count: 0,
+    person: null,
+    schedules: [],
+    reports: [],
+    ...overrides,
+  };
 }
 
 export default Driver;

@@ -3,11 +3,11 @@
  * Represents parents in the system
  */
 
-import { Person } from './person';
-import { Address } from './address';
-import { Student } from './student';
+import { Person } from "./person";
+import { Address } from "./address";
+import { Student } from "./student";
 
-export type ParentType = 'father' | 'mother' | 'grandpa' | 'grandma' | 'other';
+export type ParentType = "father" | "mother" | "grandpa" | "grandma" | "other";
 
 export interface Parent {
   parent_person_id: number;
@@ -32,6 +32,19 @@ export interface UpdateParentDTO {
   parent_address_id?: number | null;
   parent_job?: string;
   parent_type?: ParentType;
+}
+
+export function createDefaultParent(overrides?: Partial<Parent>): Parent {
+  return {
+    parent_person_id: 0,
+    parent_address_id: null,
+    parent_job: "",
+    parent_type: "other",
+    person: null,
+    address: null,
+    students: [],
+    ...overrides,
+  };
 }
 
 export default Parent;

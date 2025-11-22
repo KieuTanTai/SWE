@@ -82,7 +82,7 @@ export const getHereRouteViaApi = async (
                     console.log(`Section ${idx}:`, section);
                     if (typeof section.polyline === "string") {
                         const decoded = decode(section.polyline);
-                        const polyline = decoded.map((point: [number, number]) => [point[0], point[1]]);
+                        const polyline = decoded.polyline.map((point: [number, number]) => [point[0], point[1]]);
                         allPaths.push(polyline);
                         console.log(`Đã decode polyline cho đoạn ${idx}:`, polyline.length, polyline);
                     } else {

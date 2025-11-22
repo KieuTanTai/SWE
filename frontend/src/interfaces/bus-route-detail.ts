@@ -5,7 +5,8 @@
 
 export interface DetailRouteInfo {
   detail_route_id: number;
-  detail_route_name: string;
+  start_name: string;
+  end_name: string;
 }
 
 export interface BusRouteDetailInfo {
@@ -18,7 +19,8 @@ export interface BusRouteDetailInfo {
 export function createDefaultDetailRouteInfo(): DetailRouteInfo {
   return {
     detail_route_id: 0,
-    detail_route_name: ""
+    start_name: "",
+    end_name: "",
   };
 }
 
@@ -27,6 +29,6 @@ export function createDefaultBusRouteDetailInfo(): BusRouteDetailInfo {
     bus_route_id: 0,
     route_id: 0,
     route_name: "",
-    detail_routes: []
+    detail_routes: [],
   };
 }

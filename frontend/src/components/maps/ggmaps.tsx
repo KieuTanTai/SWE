@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import type { LatLngExpression } from "leaflet";
 import { Play, Square, MapPin, Bus } from "lucide-react";
+import getRouteDetails, { getDetailRouteNames } from "@/api/detail-routes-api";
 
 // Dynamic imports as default functions
 const MapContainer = dynamic(
@@ -34,6 +35,16 @@ const Circle = dynamic(
     () => import("react-leaflet").then((mod) => mod.Circle),
     { ssr: false }
 );
+
+interface RouteData {
+    routeId: number;
+    routeName: string;
+    stopPoints: string[];
+}
+
+interface MapsProps {
+    routes: RouteData[]; // Mỗi route có danh sách điểm dừng riêng
+}
 
 interface LocationData {
     lat: number;
@@ -74,6 +85,24 @@ const geocodeAddress = async (address: string): Promise<LocationData | null> => 
     }
 };
 
+const manyGeocodeAddresses = async (addresses: string[]): Promise<LocationData[]> => {
+    console.log('manyGeocodeAddresses input:', addresses);
+    const locations: LocationData[] = [];
+    if (!Array.isArray(addresses)) {
+        console.error('manyGeocodeAddresses: addresses is not an array', addresses);
+        return locations;
+    }
+    for (const address of addresses) {
+        console.log('Geocoding address:', address);
+        const loc = await geocodeAddress(address);
+        console.log('Geocode result:', loc);
+        if (loc) {
+            locations.push(loc);
+        }
+    }
+    return locations;
+};
+
 // Helper function - Get route using OSRM
 const getRoute = async (start: LocationData, end: LocationData): Promise<LatLngExpression[]> => {
     try {
@@ -92,11 +121,10 @@ const getRoute = async (start: LocationData, end: LocationData): Promise<LatLngE
     }
 };
 
-export default function Maps() {
+export default function Maps({ routes }: MapsProps) {
     const [isClient, setIsClient] = useState(false);
-    const [startPoint, setStartPoint] = useState<LocationData | null>(null);
-    const [endPoint, setEndPoint] = useState<LocationData | null>(null);
-    const [route, setRoute] = useState<LatLngExpression[]>([]);
+    const [routeStops, setRouteStops] = useState<LocationData[][]>([]); // Điểm dừng cho từng route
+    const [routePaths, setRoutePaths] = useState<LatLngExpression[][][]>([]); // Paths cho từng route
     const [loading, setLoading] = useState(true);
     const [currentPosition, setCurrentPosition] = useState<CurrentPosition | null>(null);
     const [tracking, setTracking] = useState(false);
@@ -118,21 +146,58 @@ export default function Maps() {
         });
 
         // Geocode addresses and get route
-        const initRoute = async () => {
-            const start = await geocodeAddress("273 An Dương Vương, Quận 5, TP.HCM");
-            const end = await geocodeAddress("Đại Học Bách Khoa TP.HCM");
+        //     const initRoute = async () => {
+        //         const start = await geocodeAddress("273 An Dương Vương, Quận 5, TP.HCM");
+        //         const end = await geocodeAddress("Đại Học Bách Khoa TP.HCM");
 
-            if (start && end) {
-                setStartPoint(start);
-                setEndPoint(end);
-                const routeCoords = await getRoute(start, end);
-                setRoute(routeCoords);
+        //         if (start && end) {
+        //             setStartPoint(start);
+        //             setEndPoint(end);
+        //             const routeCoords = await getRoute(start, end);
+        //             setRoute(routeCoords);
+        //         }
+        //         setLoading(false);
+        //     };
+
+        //     initRoute();
+        // }, []);
+
+        const initRoute = async () => {
+            setLoading(true);
+            const allRouteStops: LocationData[][] = [];
+            const allRoutePaths: LatLngExpression[][][] = [];
+
+            // Xử lý từng route riêng biệt
+            for (const route of routes) {
+                console.log(`Processing route ${route.routeId}: ${route.routeName}`);
+                const geocodedStops = await manyGeocodeAddresses(route.stopPoints);
+                console.log(`Geocoded stops for route ${route.routeId}:`, geocodedStops);
+
+                if (geocodedStops.length > 0) {
+                    allRouteStops.push(geocodedStops);
+
+                    // Tính paths giữa các điểm dừng liên tiếp trong route này
+                    const paths: LatLngExpression[][] = [];
+                    for (let i = 0; i < geocodedStops.length - 1; i++) {
+                        if (geocodedStops[i] && geocodedStops[i + 1]) {
+                            const path = await getRoute(geocodedStops[i], geocodedStops[i + 1]);
+                            if (path.length > 0) {
+                                paths.push(path);
+                            }
+                        }
+                    }
+                    allRoutePaths.push(paths);
+                }
             }
+
+            console.log('All route stops:', allRouteStops);
+            console.log('All route paths:', allRoutePaths);
+            setRouteStops(allRouteStops);
+            setRoutePaths(allRoutePaths);
             setLoading(false);
         };
-
         initRoute();
-    }, []);
+    }, [routes]);
 
     // Start/Stop tracking
     const toggleTracking = () => {
@@ -195,9 +260,13 @@ export default function Maps() {
         );
     }
 
+    // Màu cho từng route
+    const routeColors = ['#FF5733', '#33FF57', '#3357FF', '#FF33F5', '#F5FF33', '#33FFF5'];
+
     const center: LatLngExpression = currentPosition
         ? [currentPosition.lat, currentPosition.lng]
-        : startPoint ? [startPoint.lat, startPoint.lng]
+        : routeStops.length > 0 && routeStops[0].length > 0
+            ? [routeStops[0][0].lat, routeStops[0][0].lng]
             : [10.762622, 106.660172];
 
     return (
@@ -262,35 +331,40 @@ export default function Maps() {
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
 
-                    {/* Start Point Marker */}
-                    {startPoint && (
-                        <Marker position={[startPoint.lat, startPoint.lng]}>
-                            <Popup>
-                                <strong>Điểm đón:</strong><br />
-                                273 An Dương Vương, Quận 5
-                            </Popup>
-                        </Marker>
-                    )}
+                    {/* Render markers và paths cho từng route */}
+                    {routeStops.map((stops, routeIdx) => (
+                        <div key={`route-${routeIdx}`}>
+                            {/* Stop Points Markers cho route này */}
+                            {stops.map((stop, stopIdx) => (
+                                <Marker key={`route-${routeIdx}-stop-${stopIdx}`} position={[stop.lat, stop.lng]}>
+                                    <Popup>
+                                        <div className="flex items-start gap-2">
+                                            <MapPin size={20} style={{ color: routeColors[routeIdx % routeColors.length] }} className="mt-0.5" />
+                                            <div>
+                                                <strong>Route {routes[routeIdx]?.routeName} - Điểm {stopIdx + 1}</strong><br />
+                                                {stop.display_name}
+                                            </div>
+                                        </div>
+                                    </Popup>
+                                </Marker>
+                            ))}
+                        </div>
+                    ))}
 
-                    {/* End Point Marker */}
-                    {endPoint && (
-                        <Marker position={[endPoint.lat, endPoint.lng]}>
-                            <Popup>
-                                <strong>Điểm đến:</strong><br />
-                                Đại Học Bách Khoa TP.HCM
-                            </Popup>
-                        </Marker>
-                    )}
-
-                    {/* Route Polyline */}
-                    {route.length > 0 && (
-                        <Polyline
-                            positions={route}
-                            color="blue"
-                            weight={4}
-                            opacity={0.7}
-                        />
-                    )}
+                    {/* Draw paths cho từng route với màu khác nhau */}
+                    {routePaths.map((paths, routeIdx) => (
+                        <div key={`route-path-${routeIdx}`}>
+                            {paths.map((path, pathIdx) => (
+                                <Polyline
+                                    key={`route-${routeIdx}-path-${pathIdx}`}
+                                    positions={path}
+                                    color={routeColors[routeIdx % routeColors.length]}
+                                    weight={4}
+                                    opacity={0.7}
+                                />
+                            ))}
+                        </div>
+                    ))}
 
                     {/* Current Position - Live Tracking */}
                     {currentPosition && (

@@ -112,14 +112,14 @@ router.get('/geocode-here', async (req, res) => {
 });
 
 // Hàm lấy route từ HERE Routing API
-async function getHereRoute(stops) {
+async function getHereRoute(stops, key) {
     if (!Array.isArray(stops) || stops.length < 2) {
         throw new Error("Cần ít nhất 2 điểm để lấy route.");
     }
 
     const origin = `${stops[0].lat},${stops[0].lng}`;
     const destination = `${stops[stops.length - 1].lat},${stops[stops.length - 1].lng}`;
-    let url = `https://router.hereapi.com/v8/routes?origin=${origin}&destination=${destination}&transportMode=car&return=polyline,summary&apikey=${process.env.NEXT_PUBLIC_HERE_KEY}`;
+    let url = `https://router.hereapi.com/v8/routes?origin=${origin}&destination=${destination}&transportMode=car&return=polyline,summary&apikey=${key}`;
 
     if (stops.length > 2) {
         for (let i = 1; i < stops.length - 1; i++) {

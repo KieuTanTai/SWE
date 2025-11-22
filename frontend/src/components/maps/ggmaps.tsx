@@ -78,12 +78,18 @@ export const getHereRouteViaApi = async (
         if (Array.isArray(data.routes) && data.routes.length > 0) {
             const route = data.routes[0];
             if (Array.isArray(route.sections) && route.sections.length > 0) {
-                route.sections.forEach((section, idx) => {
+                interface Section {
+                    polyline?: string;
+                    [key: string]: string | undefined;
+                }
+
+                (route.sections as Section[]).forEach((section: Section, idx: number) => {
                     console.log(`Section ${idx}:`, section);
                     if (typeof section.polyline === "string") {
-                        const decoded = decode(section.polyline);
-                        const polyline = decoded.polyline.map((point: [number, number]) => [point[0], point[1]]);
-                        allPaths.push(polyline);
+                        const decoded: { polyline: number[][] } = decode(section.polyline);
+                        const polyline: [number, number][] = decoded.polyline
+                            .map((point: number[]) => [point[0] ?? 0, point[1] ?? 0] as [number, number]);
+                        allPaths.push(polyline as LatLngExpression[]);
                         console.log(`Đã decode polyline cho đoạn ${idx}:`, polyline.length, polyline);
                     } else {
                         if (stops[idx] && stops[idx + 1]) {
@@ -142,7 +148,7 @@ export default function Maps({ routes }: MapsProps) {
         setIsClient(true);
 
         import("leaflet").then((L) => {
-            delete L.Icon.Default.prototype._getIconUrl;
+            delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
             L.Icon.Default.mergeOptions({
                 iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
                 iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",

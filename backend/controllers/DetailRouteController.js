@@ -68,6 +68,98 @@ router.get('/details', async (req, res) => {
     }
 });
 
+async function hereGeocode(address, hereKey) {
+    const url = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(address)}&apiKey=${hereKey}`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (Array.isArray(data.items) && data.items.length > 0) {
+        return data.items[0].position; // {lat, lng}
+    }
+    return null;
+}
+
+router.get('/geocode-here', async (req, res) => {
+    const hereKey = process.env.NEXT_PUBLIC_HERE_KEY;
+    if (!hereKey) {
+        return res.status(500).json({ error: 'Thiếu NEXT_PUBLIC_HERE_KEY ở backend.' });
+    }
+
+    const address = req.query.address;
+    if (!address || typeof address !== 'string') {
+        return res.status(400).json({ error: 'Thiếu hoặc sai kiểu tham số address.' });
+    }
+
+    const position = await hereGeocode(address, hereKey);
+    if (!position) {
+        return res.status(404).json({ error: 'Không thể geocode địa chỉ.' });
+    }
+
+    // Lấy route cho cùng địa chỉ (có thể truyền thêm các điểm qua query nếu muốn đi qua nhiều điểm)
+    let routeUrl = `https://router.hereapi.com/v8/routes?origin=${position.lat},${position.lng}&destination=${position.lat},${position.lng}&transportMode=car&return=polyline,summary&apikey=${hereKey}`;
+    const routeResp = await fetch(routeUrl);
+    const routeData = await routeResp.json();
+
+    let polyline = null;
+    if (Array.isArray(routeData.routes) && routeData.routes.length > 0) {
+        const secs = routeData.routes[0].sections;
+        if (secs && secs[0].polyline) polyline = secs[0].polyline;
+    }
+
+    return res.status(200).json({
+        position,
+        polyline
+    });
+});
+
+// Hàm lấy route từ HERE Routing API
+async function getHereRoute(stops) {
+    if (!Array.isArray(stops) || stops.length < 2) {
+        throw new Error("Cần ít nhất 2 điểm để lấy route.");
+    }
+
+    const origin = `${stops[0].lat},${stops[0].lng}`;
+    const destination = `${stops[stops.length - 1].lat},${stops[stops.length - 1].lng}`;
+    let url = `https://router.hereapi.com/v8/routes?origin=${origin}&destination=${destination}&transportMode=car&return=polyline,summary&apikey=${process.env.NEXT_PUBLIC_HERE_KEY}`;
+
+    if (stops.length > 2) {
+        for (let i = 1; i < stops.length - 1; i++) {
+            url += `&via=${stops[i].lat},${stops[i].lng}`;
+        }
+    }
+
+    console.log("Gọi trực tiếp HERE Routing API với url:", url);
+
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Không gọi được HERE: ${resp.statusText}`);
+    const data = await resp.json();
+
+    console.log("Response từ HERE Routing API:", data);
+
+    return data;
+}
+
+router.post('/route-here', async (req, res) => {
+    const hereKey = process.env.NEXT_PUBLIC_HERE_KEY;
+    if (!hereKey) {
+        console.log('Thiếu NEXT_PUBLIC_HERE_KEY ở backend!');
+        return res.status(500).json({ error: 'Thiếu NEXT_PUBLIC_HERE_KEY ở backend.' });
+    }
+
+    const stops = req.body.stops;
+    if (!Array.isArray(stops) || stops.length < 2) {
+        console.log('Dữ liệu stops truyền lên không hợp lệ:', stops);
+        return res.status(400).json({ error: 'Phải truyền mảng ít nhất 2 điểm stops.' });
+    }
+
+    try {
+        const data = await getHereRoute(stops, hereKey);
+        return res.status(200).json(data);
+    } catch (err) {
+        console.log("Lỗi khi gọi HERE Routing API:", err);
+        return res.status(500).json({ error: err.message || 'Lỗi không xác định.' });
+    }
+});
+
 async function optimizeDetailRouteInfoVOs(result) { 
     try {
         const addressService = new AddressServices();

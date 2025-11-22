@@ -166,16 +166,16 @@ export default function Maps({ routes }: MapsProps) {
             setLoading(true);
             const allRouteStops: LocationData[][] = [];
             const allRoutePaths: LatLngExpression[][][] = [];
-
+            
             // Xử lý từng route riêng biệt
             for (const route of routes) {
                 console.log(`Processing route ${route.routeId}: ${route.routeName}`);
                 const geocodedStops = await manyGeocodeAddresses(route.stopPoints);
                 console.log(`Geocoded stops for route ${route.routeId}:`, geocodedStops);
-
+                
                 if (geocodedStops.length > 0) {
                     allRouteStops.push(geocodedStops);
-
+                    
                     // Tính paths giữa các điểm dừng liên tiếp trong route này
                     const paths: LatLngExpression[][] = [];
                     for (let i = 0; i < geocodedStops.length - 1; i++) {
@@ -189,7 +189,7 @@ export default function Maps({ routes }: MapsProps) {
                     allRoutePaths.push(paths);
                 }
             }
-
+            
             console.log('All route stops:', allRouteStops);
             console.log('All route paths:', allRoutePaths);
             setRouteStops(allRouteStops);
@@ -262,10 +262,10 @@ export default function Maps({ routes }: MapsProps) {
 
     // Màu cho từng route
     const routeColors = ['#FF5733', '#33FF57', '#3357FF', '#FF33F5', '#F5FF33', '#33FFF5'];
-
+    
     const center: LatLngExpression = currentPosition
         ? [currentPosition.lat, currentPosition.lng]
-        : routeStops.length > 0 && routeStops[0].length > 0
+        : routeStops.length > 0 && routeStops[0].length > 0 
             ? [routeStops[0][0].lat, routeStops[0][0].lng]
             : [10.762622, 106.660172];
 
@@ -355,9 +355,9 @@ export default function Maps({ routes }: MapsProps) {
                     {routePaths.map((paths, routeIdx) => (
                         <div key={`route-path-${routeIdx}`}>
                             {paths.map((path, pathIdx) => (
-                                <Polyline
-                                    key={`route-${routeIdx}-path-${pathIdx}`}
-                                    positions={path}
+                                <Polyline 
+                                    key={`route-${routeIdx}-path-${pathIdx}`} 
+                                    positions={path} 
                                     color={routeColors[routeIdx % routeColors.length]}
                                     weight={4}
                                     opacity={0.7}

@@ -85,7 +85,8 @@ async function optimizeDetailRouteInfoVOs(result) {
                 // Compose array of detail route info objects
                 const detailRouteInfos = detailRoutes.map((dr, idx) => ({
                     detail_route_id: dr.detail_route_id,
-                    detail_route_name: `${startNames[idx] || ""} -> ${endNames[idx] || ""}`
+                    start_name: startNames[idx] || "",
+                    end_name: endNames[idx] || ""
                 }));
                 return {
                     bus_route_id: busRoute.bus_route_id,

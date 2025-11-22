@@ -105,7 +105,7 @@ async getStringNameAddressByIds(addressIds) {
                         
                         city_name: city.location_city_name,
                         district_name: district.location_district_name,
-                        ward_name: ward.location_ward_name
+                        ward_name: ""
                     };
                 }
                 return null;

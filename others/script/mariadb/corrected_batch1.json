@@ -1,0 +1,164 @@
+{
+  "batch1": [
+    {
+      "address_id": 1,
+      "location_city_name": "Hà Nội",
+      "location_district_name": "Quận Ba Đình",
+      "location_ward_name": "Phường Phúc Xá",
+      "old_address_number": "1 Nguyễn Huệ",
+      "new_address_number": "50 Văn Cao"
+    },
+    {
+      "address_id": 2,
+      "location_city_name": "Hà Nội",
+      "location_district_name": "Quận Ba Đình",
+      "location_ward_name": "Phường Trúc Bạch",
+      "old_address_number": "23 Lê Lợi",
+      "new_address_number": "13 Phạm Hồng Thái"
+    },
+    {
+      "address_id": 3,
+      "location_city_name": "Hà Nội",
+      "location_district_name": "Quận Hoàn Kiếm",
+      "location_ward_name": "Phường Vĩnh Phúc",
+      "old_address_number": "45 Trần Hưng Đạo",
+      "new_address_number": "459 Đội Cấn"
+    },
+    {
+      "address_id": 4,
+      "location_city_name": "Hà Nội",
+      "location_district_name": "Quận Hoàn Kiếm",
+      "location_ward_name": "Phường Cống Vị",
+      "old_address_number": "67 Hai Bà Trưng",
+      "new_address_number": "116 Linh Lang"
+    },
+    {
+      "address_id": 5,
+      "location_city_name": "Hà Nội",
+      "location_district_name": "Quận Hai Bà Trưng",
+      "location_ward_name": "Phường Liễu Giai",
+      "old_address_number": "100 Điện Biên Phủ",
+      "new_address_number": "19/104"
+    },
+    {
+      "address_id": 6,
+      "location_city_name": "Hà Nội",
+      "location_district_name": "Quận Hai Bà Trưng",
+      "location_ward_name": "Phường Nguyễn Trung Trực",
+      "old_address_number": "34 Nam Kỳ Khởi Nghĩa",
+      "new_address_number": "9 Liễu Giai"
+    },
+    {
+      "address_id": 7,
+      "location_city_name": "Hà Nội",
+      "location_district_name": "Quận Đống Đa",
+      "location_ward_name": "Phường Quán Thánh",
+      "old_address_number": "56 Lý Thường Kiệt",
+      "new_address_number": "2 Hoàng Diệu"
+    },
+    {
+      "address_id": 8,
+      "location_city_name": "Hà Nội",
+      "location_district_name": "Quận Đống Đa",
+      "location_ward_name": "Phường Ngọc Hà",
+      "old_address_number": "78 Phan Đăng Lưu",
+      "new_address_number": "47 Hoàng Hoa Thám"
+    },
+    {
+      "address_id": 9,
+      "location_city_name": "Hà Nội",
+      "location_district_name": "Quận Tây Hồ",
+      "location_ward_name": "Phường Điện Biên",
+      "old_address_number": "90 Cách Mạng Tháng Tám",
+      "new_address_number": "7 Nguyễn Tri Phương"
+    },
+    {
+      "address_id": 10,
+      "location_city_name": "Hà Nội",
+      "location_district_name": "Quận Tây Hồ",
+      "location_ward_name": "Phường Đội Cấn",
+      "old_address_number": "111 Võ Văn Tần",
+      "new_address_number": "45/210/41"
+    },
+    {
+      "address_id": 11,
+      "location_city_name": "TP. Hồ Chí Minh",
+      "location_district_name": "Quận Cầu Giấy",
+      "location_ward_name": "Phường Ngọc Khánh",
+      "old_address_number": "123 Xô Viết Nghệ Tĩnh",
+      "new_address_number": ""
+    },
+    {
+      "address_id": 12,
+      "location_city_name": "TP. Hồ Chí Minh",
+      "location_district_name": "Quận Cầu Giấy",
+      "location_ward_name": "Phường Kim Mã",
+      "old_address_number": "456 Điện Biên Phủ",
+      "new_address_number": ""
+    },
+    {
+      "address_id": 13,
+      "location_city_name": "TP. Hồ Chí Minh",
+      "location_district_name": "Quận Thanh Xuân",
+      "location_ward_name": "Phường Giảng Võ",
+      "old_address_number": "789 Hoàng Diệu",
+      "new_address_number": ""
+    },
+    {
+      "address_id": 14,
+      "location_city_name": "TP. Hồ Chí Minh",
+      "location_district_name": "Quận Thanh Xuân",
+      "location_ward_name": "Phường Thành Công",
+      "old_address_number": "268 Lý Thường Kiệt",
+      "new_address_number": "268 Lý Thường Kiệt Đường Nguyễn Siêu"
+    },
+    {
+      "address_id": 15,
+      "location_city_name": "TP. Hồ Chí Minh",
+      "location_district_name": "Quận Hoàng Mai",
+      "location_ward_name": "Phường Phúc Tân",
+      "old_address_number": "1 Võ Văn Ngân",
+      "new_address_number": ""
+    },
+    {
+      "address_id": 16,
+      "location_city_name": "TP. Hồ Chí Minh",
+      "location_district_name": "Quận Hoàng Mai",
+      "location_ward_name": "Phường Đồng Xuân",
+      "old_address_number": "100 Kha Vạn Cân",
+      "new_address_number": ""
+    },
+    {
+      "address_id": 17,
+      "location_city_name": "TP. Hồ Chí Minh",
+      "location_district_name": "Quận Long Biên",
+      "location_ward_name": "Phường Hàng Mã",
+      "old_address_number": "50 Tô Vĩnh Diện",
+      "new_address_number": ""
+    },
+    {
+      "address_id": 18,
+      "location_city_name": "TP. Hồ Chí Minh",
+      "location_district_name": "Quận Long Biên",
+      "location_ward_name": "Phường Hàng Buồm",
+      "old_address_number": "200 Hoàng Diệu 2",
+      "new_address_number": ""
+    },
+    {
+      "address_id": 19,
+      "location_city_name": "TP. Hồ Chí Minh",
+      "location_district_name": "Quận Nam Từ Liêm",
+      "location_ward_name": "Phường Hàng Đào",
+      "old_address_number": "30 Trường Chinh",
+      "new_address_number": ""
+    },
+    {
+      "address_id": 20,
+      "location_city_name": "TP. Hồ Chí Minh",
+      "location_district_name": "Quận Nam Từ Liêm",
+      "location_ward_name": "Phường Hàng Bồ",
+      "old_address_number": "80 Lý Chính Thắng",
+      "new_address_number": ""
+    }
+  ]
+}

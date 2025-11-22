@@ -14,7 +14,7 @@ export default class BusRouteDAO extends BaseDAO {
      * @memberof BusRouteDAO
      */
     constructor(connection) {
-        super(connection, "BusRoute", dbSchema.BUS_ROUTE_COLUMNS.BUS_ROUTE_ID);
+        super(connection, "Bus_Route", dbSchema.BUS_ROUTE_COLUMNS.BUS_ROUTE_ID);
     }
 
     /**

@@ -9,7 +9,8 @@ const router = express.Router();
  */
 router.get('/', async (req, res) => {
     try {
-        const result = await AddressServices.getAllAddresses();
+        const addressService = new AddressServices();
+        const result = await addressService.getAllAddresses();
         if (result.success) {
             res.json(result.data);
         } else {
@@ -26,8 +27,9 @@ router.get('/', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
     try {
+        const addressService = new AddressServices();
         const addressId = parseInt(req.params.id);
-        const result = await AddressServices.getByAddressId(addressId);
+        const result = await addressService.getByAddressId(addressId);
         
         if (result.success) {
             res.json(result.data);
@@ -45,7 +47,8 @@ router.get('/:id', async (req, res) => {
  */
 router.post('/', async (req, res) => {
     try {
-        const result = await AddressServices.createAddress(req.body);
+        const addressService = new AddressServices();
+        const result = await addressService.createAddress(req.body);
         
         if (result.success) {
             res.status(201).json(result.data);
@@ -63,8 +66,9 @@ router.post('/', async (req, res) => {
  */
 router.put('/:id', async (req, res) => {
     try {
+        const addressService = new AddressServices();
         const addressId = parseInt(req.params.id);
-        const result = await AddressServices.updateAddress(addressId, req.body);
+        const result = await addressService.updateAddress(addressId, req.body);
         
         if (result.success) {
             res.json(result.data);
@@ -82,8 +86,9 @@ router.put('/:id', async (req, res) => {
  */
 router.delete('/:id', async (req, res) => {
     try {
+        const addressService = new AddressServices();
         const addressId = parseInt(req.params.id);
-        const result = await AddressServices.deleteAddress(addressId);
+        const result = await addressService.deleteAddress(addressId);
         
         if (result.success) {
             res.status(204).send();

@@ -1,6 +1,7 @@
 import express from "express";
 import DetailRouteService from "../services/DetailRouteServices.js";
 import DetailRoute from "../models/DetailRoute.js";
+import AddressServices from "../services/AddressServices.js";
 
 const router = express.Router();
 
@@ -25,7 +26,84 @@ router.get('/', async (req, res) => {
 });
 
 /**
+ * GET /api/detail-routes/details
+ * Get detail routes by multiple route IDs
+ * @param {number[]} routeIds - Query parameter: ?routeIds=1,2,3
+ * @return {Promise<BusRouteDetailInfoVO[]>}
+ */
+router.get('/details', async (req, res) => {
+    try {
+        const service = new DetailRouteService();
+        let routeIds = req.query.routeIds;
+        if (!routeIds) {
+            return res.status(400).json({ error: "Query parameter 'routeIds' is required" });
+        }
+        // this already array before use this endpoint
+        if (typeof routeIds === 'string') {
+            routeIds = routeIds.split(",").map(id => id.trim());
+        }
+        if (!Array.isArray(routeIds) || routeIds.length === 0) {
+            return res.status(400).json({ error: "Query parameter 'routeIds' must be a non-empty array or comma-separated string" });
+        }
+        // Convert to number array for service usage
+        const routeIdsNum = Array.isArray(routeIds) ? routeIds : [routeIds];
+        const routeIdsNumParsed = routeIdsNum
+            .map(id => parseInt(typeof id === 'string' ? id : String(id)))
+            .filter(id => !isNaN(id));
+        if (routeIdsNumParsed.length === 0) {
+            return res.status(400).json({ error: "No valid route IDs provided" });
+        }
+        const result = await service.getBusRouteDetails(routeIdsNumParsed);
+        if (result.success) {
+            const valueObjects = await optimizeDetailRouteInfoVOs(result);
+            // Log value objects
+            console.log('Optimized result:', JSON.stringify(valueObjects, null, 2));
+            res.status(200).json(valueObjects);
+        } else {
+            res.status(500).json({ error: result.error });
+        }
+    } catch (error) {
+        console.error('Error in GET /detail-routes/details:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+async function optimizeDetailRouteInfoVOs(result) { 
+    try {
+        const addressService = new AddressServices();
+            // For each busRoute, get the names of all detail routes (start -> end)
+            return await Promise.all(result.data.map(async (busRoute) => {
+                const detailRoutes = busRoute.route?.detailRoutes || [];
+                // Get all start and end point ids for this route
+                const startIds = detailRoutes.map(dr => dr.detail_route_start_point_id);
+                const endIds = detailRoutes.map(dr => dr.detail_route_end_point_id);
+                // Get address names in bulk
+                const startNamesRes = await addressService.getStringNameAddressByIds(startIds);
+                const endNamesRes = await addressService.getStringNameAddressByIds(endIds);
+                const startNames = startNamesRes.data || [];
+                const endNames = endNamesRes.data || [];
+                // Compose array of detail route info objects
+                const detailRouteInfos = detailRoutes.map((dr, idx) => ({
+                    detail_route_id: dr.detail_route_id,
+                    detail_route_name: `${startNames[idx] || ""} -> ${endNames[idx] || ""}`
+                }));
+                return {
+                    bus_route_id: busRoute.bus_route_id,
+                    route_id: busRoute.route?.route_id,
+                    route_name: busRoute.route?.route_name,
+                    detail_routes: detailRouteInfos
+                };
+            }));
+    } catch (ex) {
+        if (ex instanceof Error)
+            console.error('Error optimizing DetailRouteInfoVOs:', ex.message);
+    }
+}
+
+
+/**
  * GET /api/detail-routes/:id
+ * @returns {Promise<BusRoute>}
  * Get detail route by ID
  */
 router.get('/:id', async (req, res) => {

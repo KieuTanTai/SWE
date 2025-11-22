@@ -7,7 +7,7 @@ export default class DetailRouteDAO extends BaseDAO {
      * @param {mySql.PoolConnection} connection
      */
     constructor(connection) {
-        super(connection, "DetailRoute", dbSchema.DETAIL_ROUTE_COLUMNS.DETAIL_ROUTE_ID);
+        super(connection, "Detail_Route", dbSchema.DETAIL_ROUTE_COLUMNS.DETAIL_ROUTE_ID);
     }
 
     /**
@@ -41,6 +41,30 @@ export default class DetailRouteDAO extends BaseDAO {
             const results = await this._protectedGetAll();
             if (!results || results.length === 0) {
                 console.warn(`Warning: No detail routes found`);
+                return [];
+            }
+            return results.map(row => DetailRoute.fromDatabase(row));
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return [];
+        }
+    }
+
+    /**
+     * Get detail routes by multiple routeIds
+     * @param {number[]} routeIds
+     * @return {Promise<DetailRoute[]>}
+     */
+    async getByRouteIds(routeIds) {
+        if (!Array.isArray(routeIds) || routeIds.length === 0) {
+            console.warn(`Warning: routeIds must be a non-empty array`);
+            return [];
+        }
+        try {
+            const results = await this._protectedGetBySelection(["*"], routeIds,
+                `WHERE ${dbSchema.DETAIL_ROUTE_COLUMNS.ROUTE_ID} IN (${routeIds.map(() => '?').join(', ')})`);
+            if (!results || results.length === 0) {
+                console.warn(`Warning: No detail routes found for provided routeIds`);
                 return [];
             }
             return results.map(row => DetailRoute.fromDatabase(row));

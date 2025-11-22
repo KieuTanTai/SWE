@@ -1,6 +1,8 @@
 import { default as DetailRouteDAO } from "../infrastructure/data/detailRouteDAO.js";
 import DetailRoute from "../models/DetailRoute.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
+import BusRouteDAO from "../infrastructure/data/busRouteDAO.js";
+import RouteDAO from "../infrastructure/data/routeDAO.js";
 
 /**
  * DetailRouteServices
@@ -27,6 +29,54 @@ class DetailRouteServices {
                 success: false,
                 error: error.message
             };
+        }
+    }
+
+    /**
+     * Get bus route details for multiple busRouteIds
+     * @param {number[]} busRouteIds
+     * @return {Promise<{success: boolean, data?: any[], error?: string}>}
+     */
+    async getBusRouteDetails(busRouteIds) {
+        try {
+            if (!Array.isArray(busRouteIds) || busRouteIds.length === 0) {
+                return { success: false, error: 'busRouteIds must be a non-empty array' };
+            }
+            const results = await withConnection(async (connection) => {
+                const busRouteRepo = new BusRouteDAO(connection);
+                const routeRepo = new RouteDAO(connection);
+                const detailRouteRepo = new DetailRouteDAO(connection);
+
+                // Get all busRoutes in bulk
+                const busRoutes = await busRouteRepo.getByBusRouteIds(busRouteIds);
+                const routeIds = busRoutes.map(br => br.route_id).filter(Boolean);
+                // Get all routes in bulk
+                const routes = await routeRepo.getByRouteIds(routeIds);
+                // Map routeId to route
+                const routeMap = new Map(routes.map(r => [r.route_id, r]));
+
+                // Get all detailRoutes in bulk
+                const detailRoutes = await detailRouteRepo.getByRouteIds(routeIds);
+                // Map routeId to array of detailRoutes
+                const detailRouteMap = {};
+                for (const dr of detailRoutes) {
+                    if (!detailRouteMap[dr.route_id]) detailRouteMap[dr.route_id] = [];
+                    detailRouteMap[dr.route_id].push(dr);
+                }
+
+                // Gán navigation cho từng busRoute
+                for (const busRoute of busRoutes) {
+                    const route = routeMap.get(busRoute.route_id);
+                    if (route) {
+                        route.detailRoutes = detailRouteMap[route.route_id] || [];
+                        busRoute.route = route;
+                    }
+                }
+                return busRoutes;
+            });
+            return { success: true, data: results };
+        } catch (error) {
+            return { success: false, error: error.message };
         }
     }
 

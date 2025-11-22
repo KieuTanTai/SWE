@@ -1,4 +1,7 @@
-import { BusRouteDetailInfo } from "@/interfaces/bus-route-detail";
+import {
+  BusRouteDetailInfo,
+  DetailRouteInfo,
+} from "@/interfaces/bus-route-detail";
 import axios from "axios";
 
 export default async function getRouteDetails(
@@ -22,17 +25,18 @@ export default async function getRouteDetails(
   }
 }
 
-export function getDetailRouteNames(result: BusRouteDetailInfo[]): string[][] {
-  return result.map(
-    (detailRoutes) => detailRoutes.detail_routes?.map((detail) => detail.detail_route_name) ??[]);
+export function getDetailRouteNames(
+  result: BusRouteDetailInfo[]
+): DetailRouteInfo[][] {
+  return result.map((busRoute) => busRoute.detail_routes ?? []);
 }
 
 // Test function: gọi thử API với một số routeIds và log ra console
-if (require.main === module) {
-  (async () => {
-    const testRouteIds = [1, 2, 3];
-    const result = await getRouteDetails(testRouteIds);
-    console.log("Test getRouteDetails:", JSON.stringify(result, null, 2));
-    console.log("result detailRoutes:", getDetailRouteNames(result));
-  })();
-}
+// if (require.main === module) {
+//   (async () => {
+//     const testRouteIds = [1, 2, 3];
+//     const result = await getRouteDetails(testRouteIds);
+//     console.log("Test getRouteDetails:", JSON.stringify(result, null, 2));
+//     console.log("result detailRoutes:", getDetailRouteNames(result));
+//   })();
+// }

@@ -236,30 +236,3 @@ END;
 //
 
 DELIMITER ;
--- Tắt kiểm tra ràng buộc khóa ngoại (force drop mọi bảng)
-SET FOREIGN_KEY_CHECKS = 0;
-
--- DROP TABLES (xóa hết các bảng đã tạo)
-DROP TABLE IF EXISTS Pickup_Schedule;
-DROP TABLE IF EXISTS Report;
-DROP TABLE IF EXISTS Bus_Route;
-DROP TABLE IF EXISTS Bus;
-DROP TABLE IF EXISTS Detail_Schedule;
-DROP TABLE IF EXISTS Schedule;
-DROP TABLE IF EXISTS Time_Role;
-DROP TABLE IF EXISTS Student;
-DROP TABLE IF EXISTS Driver;
-DROP TABLE IF EXISTS Parent;
-DROP TABLE IF EXISTS Person;
-DROP TABLE IF EXISTS Detail_Route;
-DROP TABLE IF EXISTS Route;
-DROP TABLE IF EXISTS Address;
-DROP TABLE IF EXISTS Location_Ward;
-DROP TABLE IF EXISTS Location_District;
-DROP TABLE IF EXISTS Location_City;
-DROP TABLE IF EXISTS Account_Role;
-DROP TABLE IF EXISTS Role;
-DROP TABLE IF EXISTS Account;
-
--- Bật lại kiểm tra ràng buộc khoá ngoại
-SET FOREIGN_KEY_CHECKS = 1;

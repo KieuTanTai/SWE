@@ -1,6 +1,12 @@
 import { default as AddressDAO } from "../infrastructure/data/addressDAO.js";
 import Address from "../models/Address.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
+import LocationCityDAO from "../infrastructure/data/locationCityDAO.js";
+import LocationWardDAO from "../infrastructure/data/locationWardDAO.js";
+import LocationDistrictDAO from "../infrastructure/data/locationDistrictDAO.js";
+import LocationCity from "../models/LocationCity.js";
+import LocationWard from "../models/LocationWard.js";
+import LocationDistrict from "../models/LocationDistrict.js";
 
 /**
  * AddressServices
@@ -12,6 +18,7 @@ class AddressServices {
      * Get all addresses
      * @return {Promise<{success: boolean, data?: Address[], error?: string}>}
      */
+
     async getAllAddresses() {
         try {
             const results = await withConnection(async (connection) => {
@@ -61,6 +68,72 @@ class AddressServices {
             };
         }
     }
+
+    /**
+     *
+     *
+     * @param {number[]} addressIds
+     * @return {Promise<{success: boolean, data?: string[], error?: string}>} 
+     * @memberof AddressServices
+     */
+async getStringNameAddressByIds(addressIds) {
+    try {
+        if (!Array.isArray(addressIds) || addressIds.length === 0) {
+            return {
+                success: false,
+                error: 'addressIds must be a non-empty array'
+            };
+        }
+
+        const results = await withConnection(async (connection) => {
+            const repo = new AddressDAO(connection);
+            const CityRepo = new LocationCityDAO(connection);
+            const wardRepo = new LocationWardDAO(connection);
+            const districtRepo = new LocationDistrictDAO(connection);
+            console.log('Address IDs:', addressIds);
+
+            // Đảm bảo thứ tự khớp với addressIds
+            const addresses = await Promise.all(addressIds.map(async (id) => {
+                const address = await repo.getByAddressId(id);
+                if (!address) return null;
+                const city = await CityRepo._protectedGetById(address.address_city_id); 
+                const district = await districtRepo._protectedGetById(address.address_district_id);
+                const ward = await wardRepo._protectedGetById(address.address_ward_id);
+                if (city && city.location_city_name && district && district.location_district_name && ward && ward.location_ward_name) {
+                    return {
+                        ...address,
+                        
+                        city_name: city.location_city_name,
+                        district_name: district.location_district_name,
+                        ward_name: ""
+                    };
+                }
+                return null;
+            }));
+
+            return addresses.map(addr => {
+                if (!addr) return ""; // hoặc "Không xác định"
+                const parts = [
+                    addr.address_number,
+                    addr.ward_name,
+                    addr.district_name,
+                    addr.city_name
+                ].filter(part => part);
+                return parts.join(', ');
+            });
+        });
+
+        return {
+            success: true,
+            data: results
+        };
+    } catch (error) {
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
 
     /**
      * Create a new address
@@ -149,4 +222,4 @@ class AddressServices {
     }
 }
 
-export default new AddressServices();
+export default AddressServices;

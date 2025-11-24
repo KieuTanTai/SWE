@@ -1,12 +1,12 @@
 import express from "express";
-import AccountService from "../services/AccountServices.js";
 import Account from "../models/Account.js";
+import AccountServices from "../services/AccountServices.js";
 const router = express.Router();
 
 // GET /api/accounts - Get all accounts
 router.get("/", async (req, res) => {
     try {
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.getAllAccounts();
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
 router.get("/:accountId", async (req, res) => {
     try {
         const accountId = parseInt(req.params.accountId);
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.getByAccountId(accountId);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -35,7 +35,7 @@ router.get("/batch/ids", async (req, res) => {
         }
         
         const accountIds = ids.split(",").map(id => parseInt(id.trim()));
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.getByAccountIds(accountIds);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -47,7 +47,7 @@ router.get("/batch/ids", async (req, res) => {
 router.get("/email/:email", async (req, res) => {
     try {
         const { email } = req.params;
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.getByEmail(email);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -64,7 +64,7 @@ router.get("/batch/emails", async (req, res) => {
         }
         
         const emailArray = emails.split(",").map(e => e.trim());
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.getByEmails(emailArray);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -76,7 +76,7 @@ router.get("/batch/emails", async (req, res) => {
 router.get("/login-status/:status", async (req, res) => {
     try {
         const loginStatus = req.params.status === 'true';
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.getByLoginStatus(loginStatus);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -87,13 +87,13 @@ router.get("/login-status/:status", async (req, res) => {
 // POST /api/accounts - Create single account
 router.post("/", async (req, res) => {
     try {
-        const { account_email, account_password, account_login_status } = req.body;
-        if (!account_email || !account_password) {
-            return res.status(400).json({ error: "account_email and account_password are required" });
+        const { username, password, account_login_status } = req.body;
+        if (!username || !password) {
+            return res.status(400).json({ error: "username and password are required" });
         }
 
-        const account = new Account({ account_email, account_password, account_login_status });
-        const service = new AccountService();
+        const account = new Account({ account_email: username, account_password: password, account_login_status });
+        const service = new AccountServices();
         const result = await service.createAccount(account);
         result.success ? res.status(201).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -110,9 +110,30 @@ router.post("/bulk", async (req, res) => {
         }
 
         const accountObjects = accounts.map(acc => new Account(acc));
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.createAccounts(accountObjects);
         result.success ? res.status(201).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /api/login - Account login
+router.post("/login", async (req, res) => { 
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(400).json({ error: "username and password are required" });
+        }
+
+        const service = new AccountServices();
+        const result = await service.login(username, password);
+        
+        if (result.isSuccess()) {
+            res.status(200).json(result.getData());
+        } else {
+            res.status(401).json({ error: result.getError() });
+        }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -128,7 +149,7 @@ router.put("/:accountId/email", async (req, res) => {
             return res.status(400).json({ error: "email is required" });
         }
 
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.updateEmail(accountId, email);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -146,7 +167,7 @@ router.put("/:accountId/password", async (req, res) => {
             return res.status(400).json({ error: "password is required" });
         }
 
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.updatePassword(accountId, password);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -164,7 +185,7 @@ router.put("/:accountId/login-status", async (req, res) => {
             return res.status(400).json({ error: "login_status (boolean) is required" });
         }
 
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.updateLoginStatus(accountId, login_status);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -180,7 +201,7 @@ router.put("/bulk/emails", async (req, res) => {
             return res.status(400).json({ error: "accounts array is required and cannot be empty" });
         }
 
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.updateEmails(accounts);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -196,7 +217,7 @@ router.put("/bulk/passwords", async (req, res) => {
             return res.status(400).json({ error: "accounts array is required and cannot be empty" });
         }
 
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.updatePasswords(accounts);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
@@ -212,7 +233,7 @@ router.put("/bulk/login-statuses", async (req, res) => {
             return res.status(400).json({ error: "accounts array is required and cannot be empty" });
         }
 
-        const service = new AccountService();
+        const service = new AccountServices();
         const result = await service.updateLoginStatuses(accounts);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {

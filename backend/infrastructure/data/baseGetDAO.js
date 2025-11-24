@@ -40,6 +40,7 @@ export default class BaseGetDAO {
      *
      *
      * @param {string|number} id
+     * @return {Promise<Object|null>}
      * @memberof BaseDAO
      */
     async _protectedGetById(id) {

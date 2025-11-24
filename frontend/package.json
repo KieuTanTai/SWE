@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack --experimental-https",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@here/flexpolyline": "^0.1.0",
     "@types/leaflet": "^1.9.21",
     "@types/leaflet-routing-machine": "^3.2.9",
+    "axios": "^1.13.2",
     "leaflet": "^1.9.4",
     "leaflet-routing-machine": "^3.2.12",
     "lucide-react": "^0.552.0",

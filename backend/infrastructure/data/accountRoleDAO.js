@@ -1,7 +1,7 @@
 import Account from "../../models/Account.js";
 import AccountRole from "../../models/AccountRole.js";
 import { default as BaseDAO } from "./baseDAO.js";
-import dbSchema from "./dbSchema.js";
+import * as dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise";
 
 class AccountRoleDAO extends BaseDAO {

@@ -10,7 +10,7 @@ class Account {
         account_create_date = new Date(),
         account_last_updated_date = new Date(),
         account_login_status = false
-    }) {
+    } = {}) {
         this.account_id = account_id;
         this.account_email = account_email;
         this.account_password = account_password;

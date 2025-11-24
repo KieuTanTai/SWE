@@ -1,3 +1,4 @@
+import BusRoute from "../../models/BusRoute.js";
 import DetailSchedule from "../../models/DetailSchedule.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";

@@ -3,44 +3,20 @@ import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import type { LatLngExpression } from "leaflet";
 import { Play, Square, MapPin, Bus } from "lucide-react";
+import type { LocationData, RouteData } from "./types";
+import axios from "axios";
+import { decode } from "@here/flexpolyline";
 
-// Dynamic imports as default functions
-const MapContainer = dynamic(
-    () => import("react-leaflet").then((mod) => mod.MapContainer),
-    { ssr: false }
-);
+const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), { ssr: false });
+const Marker = dynamic(() => import("react-leaflet").then((mod) => mod.Marker), { ssr: false });
+const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), { ssr: false });
+const Polyline = dynamic(() => import("react-leaflet").then((mod) => mod.Polyline), { ssr: false });
+const Circle = dynamic(() => import("react-leaflet").then((mod) => mod.Circle), { ssr: false });
 
-const TileLayer = dynamic(
-    () => import("react-leaflet").then((mod) => mod.TileLayer),
-    { ssr: false }
-);
-
-const Marker = dynamic(
-    () => import("react-leaflet").then((mod) => mod.Marker),
-    { ssr: false }
-);
-
-const Popup = dynamic(
-    () => import("react-leaflet").then((mod) => mod.Popup),
-    { ssr: false }
-);
-
-const Polyline = dynamic(
-    () => import("react-leaflet").then((mod) => mod.Polyline),
-    { ssr: false }
-);
-
-const Circle = dynamic(
-    () => import("react-leaflet").then((mod) => mod.Circle),
-    { ssr: false }
-);
-
-interface LocationData {
-    lat: number;
-    lng: number;
-    display_name: string;
+interface MapsProps {
+    routes: RouteData[];
 }
-
 interface CurrentPosition {
     lat: number;
     lng: number;
@@ -49,67 +25,130 @@ interface CurrentPosition {
     speed: number | null;
 }
 
-const geocodeAddress = async (address: string): Promise<LocationData | null> => {
+export const hereGeocodeAddressViaApi = async (address: string): Promise<LocationData | null> => {
     try {
-        const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
-            {
-                headers: {
-                    'User-Agent': 'SchoolBusSystem/1.0'
-                }
-            }
-        );
-        const data = await response.json();
-        if (data && data.length > 0) {
+        console.log("Gọi API geocode cho địa chỉ:", address);
+        const url = `http://localhost:5000/api/detail-routes/geocode-here?address=${encodeURIComponent(address)}`;
+        const resp = await axios.get(url);
+        const data = resp.data;
+        console.log("Kết quả geocode:", data);
+        if (data && data.position) {
+            console.log("Tọa độ đầu ra:", data.position, data.title);
             return {
-                lat: parseFloat(data[0].lat),
-                lng: parseFloat(data[0].lon),
-                display_name: data[0].display_name
+                lat: data.position.lat,
+                lng: data.position.lng,
+                display_name: data.title || address
             };
         }
+        console.log("Không tìm thấy vị trí:", address);
         return null;
-    } catch (error) {
-        console.error("Geocoding error:", error);
+    } catch (err) {
+        console.log("Lỗi khi geocode:", err);
         return null;
     }
 };
 
-// Helper function - Get route using OSRM
-const getRoute = async (start: LocationData, end: LocationData): Promise<LatLngExpression[]> => {
+const manyHereGeocodeAddressesViaApi = async (addresses: string[]): Promise<LocationData[]> => {
+    console.log("Nhiều địa chỉ cần geocode:", addresses);
+    const locations: LocationData[] = [];
+    for (const address of addresses) {
+        const loc = await hereGeocodeAddressViaApi(address);
+        console.log("Từng kết quả:", address, loc);
+        if (loc) locations.push(loc);
+    }
+    console.log("Hoàn tất geocode, kết quả:", locations);
+    return locations;
+};
+
+export const getHereRouteViaApi = async (
+    stops: LocationData[]
+): Promise<LatLngExpression[][]> => {
+    if (stops.length < 2) {
+        console.log("Phải truyền vào ít nhất 2 điểm dừng (stops):", stops);
+        return [];
+    }
     try {
-        const response = await fetch(
-            `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`
-        );
-        const data = await response.json();
-        if (data.code === "Ok" && data.routes && data.routes.length > 0) {
-            const coordinates = data.routes[0].geometry.coordinates;
-            return coordinates.map((coord: number[]) => [coord[1], coord[0]] as LatLngExpression);
+        console.log("Bắt đầu gọi API route-here tới", "http://localhost:5000/api/detail-routes/route-here", "cho các điểm:", stops.map(x => x.display_name));
+        const resp = await axios.post("http://localhost:5000/api/detail-routes/route-here", { stops });
+        const data = resp.data;
+        console.log("Kết quả HERE route API trả về:", data);
+
+        const allPaths: LatLngExpression[][] = [];
+
+        if (Array.isArray(data.routes) && data.routes.length > 0) {
+            const route = data.routes[0];
+            if (Array.isArray(route.sections) && route.sections.length > 0) {
+                interface Section {
+                    polyline?: string;
+                    [key: string]: string | undefined;
+                }
+
+                (route.sections as Section[]).forEach((section: Section, idx: number) => {
+                    console.log(`Section ${idx}:`, section);
+                    if (typeof section.polyline === "string") {
+                        const decoded: { polyline: number[][] } = decode(section.polyline);
+                        const polyline: [number, number][] = decoded.polyline
+                            .map((point: number[]) => [point[0] ?? 0, point[1] ?? 0] as [number, number]);
+                        allPaths.push(polyline as LatLngExpression[]);
+                        console.log(`Đã decode polyline cho đoạn ${idx}:`, polyline.length, polyline);
+                    } else {
+                        if (stops[idx] && stops[idx + 1]) {
+                            allPaths.push([
+                                [stops[idx].lat, stops[idx].lng],
+                                [stops[idx + 1].lat, stops[idx + 1].lng]
+                            ]);
+                            console.log(`Đoạn này không có polyline, vẽ đoạn thẳng giữa ${stops[idx].display_name} và ${stops[idx + 1].display_name}`);
+                        }
+                    }
+                });
+            } else {
+                for (let i = 0; i < stops.length - 1; ++i) {
+                    allPaths.push([
+                        [stops[i].lat, stops[i].lng],
+                        [stops[i + 1].lat, stops[i + 1].lng]
+                    ]);
+                    console.log(`Không có section nào, vẽ nối thẳng giữa ${stops[i].display_name} và ${stops[i + 1].display_name}`);
+                }
+            }
+        } else {
+            for (let i = 0; i < stops.length - 1; ++i) {
+                allPaths.push([
+                    [stops[i].lat, stops[i].lng],
+                    [stops[i + 1].lat, stops[i + 1].lng]
+                ]);
+                console.log(`Fallback: nối thẳng giữa ${stops[i].display_name} và ${stops[i + 1].display_name}`);
+            }
         }
-        return [];
-    } catch (error) {
-        console.error("Routing error:", error);
-        return [];
+        console.log("Dữ liệu paths cuối cùng để vẽ polyline:", allPaths);
+        return allPaths;
+    } catch (err) {
+        console.log("Lỗi khi gọi route-here, fallback nối thẳng:", err);
+        const fallbackPaths: LatLngExpression[][] = [];
+        for (let i = 0; i < stops.length - 1; ++i) {
+            fallbackPaths.push([
+                [stops[i].lat, stops[i].lng],
+                [stops[i + 1].lat, stops[i + 1].lng]
+            ]);
+        }
+        return fallbackPaths;
     }
 };
 
-export default function Maps() {
-    const [isClient, setIsClient] = useState(false);
-    const [startPoint, setStartPoint] = useState<LocationData | null>(null);
-    const [endPoint, setEndPoint] = useState<LocationData | null>(null);
-    const [route, setRoute] = useState<LatLngExpression[]>([]);
-    const [loading, setLoading] = useState(true);
+export default function Maps({ routes }: MapsProps) {
+    const [isClient, setIsClient] = useState<boolean>(false);
+    const [routeStops, setRouteStops] = useState<LocationData[][]>([]);
+    const [routePaths, setRoutePaths] = useState<LatLngExpression[][][]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
     const [currentPosition, setCurrentPosition] = useState<CurrentPosition | null>(null);
-    const [tracking, setTracking] = useState(false);
+    const [tracking, setTracking] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const watchIdRef = useRef<number | null>(null);
 
     useEffect(() => {
         setIsClient(true);
 
-        // Fix Leaflet default icon issue in Next.js
         import("leaflet").then((L) => {
-            // @ts-expect-error - Leaflet icon fix for Next.js
-            delete L.Icon.Default.prototype._getIconUrl;
+            delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
             L.Icon.Default.mergeOptions({
                 iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
                 iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -117,68 +156,79 @@ export default function Maps() {
             });
         });
 
-        // Geocode addresses and get route
         const initRoute = async () => {
-            const start = await geocodeAddress("273 An Dương Vương, Quận 5, TP.HCM");
-            const end = await geocodeAddress("Đại Học Bách Khoa TP.HCM");
+            setLoading(true);
+            console.log("Khởi động hàm initRoute với list routes:", routes);
+            const allRouteStops: LocationData[][] = [];
+            const allRoutePaths: LatLngExpression[][][] = [];
+            for (const route of routes) {
+                console.log("Đang xử lý tuyến:", route.routeId, route.routeName);
+                const geocodedStops = await manyHereGeocodeAddressesViaApi(route.stopPoints);
+                console.log("Kết quả geocode:", geocodedStops);
 
-            if (start && end) {
-                setStartPoint(start);
-                setEndPoint(end);
-                const routeCoords = await getRoute(start, end);
-                setRoute(routeCoords);
+                if (geocodedStops.length > 0) {
+                    allRouteStops.push(geocodedStops);
+                    const paths = await getHereRouteViaApi(geocodedStops);
+                    console.log("Kết quả polyline/routes:", paths);
+                    if (paths.length > 0) {
+                        allRoutePaths.push(paths);
+                    }
+                } else {
+                    console.log("Tuyến này không có geocodedStops");
+                }
             }
+            setRouteStops(allRouteStops);
+            setRoutePaths(allRoutePaths);
             setLoading(false);
+            console.log("Kết quả sau khi process xong tất cả:", { allRouteStops, allRoutePaths });
         };
-
         initRoute();
-    }, []);
+    }, [routes]);
 
-    // Start/Stop tracking
-    const toggleTracking = () => {
+    const toggleTracking = (): void => {
         if (!tracking) {
-            // Start tracking
             if ("geolocation" in navigator) {
                 setError(null);
                 setTracking(true);
 
-                // Watch position continuously
                 const watchId = navigator.geolocation.watchPosition(
-                    (position) => {
+                    (position: GeolocationPosition) => {
                         setCurrentPosition({
                             lat: position.coords.latitude,
                             lng: position.coords.longitude,
                             accuracy: position.coords.accuracy,
                             timestamp: position.timestamp,
-                            speed: position.coords.speed
+                            speed: position.coords.speed,
                         });
+                        console.log("Cập nhật vị trí người dùng", position.coords);
                     },
-                    (error) => {
-                        setError(`Lỗi: ${error.message}`);
+                    (err: GeolocationPositionError) => {
+                        setError(`Lỗi: ${err.message}`);
                         setTracking(false);
+                        console.log("Lỗi GPS:", err);
                     },
                     {
                         enableHighAccuracy: true,
                         timeout: 5000,
-                        maximumAge: 0
+                        maximumAge: 0,
                     }
                 );
                 watchIdRef.current = watchId;
             } else {
                 setError("Trình duyệt không hỗ trợ Geolocation");
+                console.log("Browser không hỗ trợ Geolocation");
             }
         } else {
-            // Stop tracking
             if (watchIdRef.current !== null) {
                 navigator.geolocation.clearWatch(watchIdRef.current);
                 watchIdRef.current = null;
             }
             setTracking(false);
             setCurrentPosition(null);
+            console.log("Dừng tracking người dùng");
         }
     };
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             if (watchIdRef.current !== null) {
@@ -188,6 +238,7 @@ export default function Maps() {
     }, []);
 
     if (!isClient || loading) {
+        console.log("Không render Map, đang loading hoặc chưa ssr.");
         return (
             <div className="h-full w-full bg-gray-700 flex items-center justify-center">
                 <p className="text-gray-300">Đang tải bản đồ và tuyến đường...</p>
@@ -195,17 +246,19 @@ export default function Maps() {
         );
     }
 
+    const routeColors: string[] = ['#FF5733', '#33FF57', '#3357FF', '#FF33F5', '#F5FF33', '#33FFF5'];
     const center: LatLngExpression = currentPosition
         ? [currentPosition.lat, currentPosition.lng]
-        : startPoint ? [startPoint.lat, startPoint.lng]
+        : routeStops.length > 0 && routeStops[0].length > 0
+            ? [routeStops[0][0].lat, routeStops[0][0].lng]
             : [10.762622, 106.660172];
+
+    console.log("Ready render Map với center:", center);
 
     return (
         <div className="w-full h-full">
             <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
             <div className="relative h-full w-full rounded-lg overflow-hidden shadow-lg">
-                {/* Control Panel */}
                 <div className="absolute top-4 right-4 z-[1000] bg-white p-4 rounded-lg shadow-md">
                     <button
                         onClick={toggleTracking}
@@ -228,9 +281,7 @@ export default function Maps() {
                     </button>
 
                     {error && (
-                        <div className="text-red-600 text-xs mt-1">
-                            {error}
-                        </div>
+                        <div className="text-red-600 text-xs mt-1">{error}</div>
                     )}
 
                     {currentPosition && (
@@ -252,47 +303,44 @@ export default function Maps() {
                     )}
                 </div>
 
-                <MapContainer
-                    center={center}
-                    zoom={currentPosition ? 16 : 13}
-                    className="h-full w-full"
-                >
+                <MapContainer center={center} zoom={currentPosition ? 16 : 13} className="h-full w-full">
                     <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
 
-                    {/* Start Point Marker */}
-                    {startPoint && (
-                        <Marker position={[startPoint.lat, startPoint.lng]}>
-                            <Popup>
-                                <strong>Điểm đón:</strong><br />
-                                273 An Dương Vương, Quận 5
-                            </Popup>
-                        </Marker>
-                    )}
+                    {routeStops.map((stops, routeIdx) => (
+                        <div key={`route-${routeIdx}`}>
+                            {stops.map((stop, stopIdx) => (
+                                <Marker key={`route-${routeIdx}-stop-${stopIdx}`} position={[stop.lat, stop.lng]}>
+                                    <Popup>
+                                        <div className="flex items-start gap-2">
+                                            <MapPin size={20} style={{ color: routeColors[routeIdx % routeColors.length] }} className="mt-0.5" />
+                                            <div>
+                                                <strong>Route {routes[routeIdx]?.routeName} - Điểm {stopIdx + 1}</strong><br />
+                                                {stop.display_name}
+                                            </div>
+                                        </div>
+                                    </Popup>
+                                </Marker>
+                            ))}
+                        </div>
+                    ))}
 
-                    {/* End Point Marker */}
-                    {endPoint && (
-                        <Marker position={[endPoint.lat, endPoint.lng]}>
-                            <Popup>
-                                <strong>Điểm đến:</strong><br />
-                                Đại Học Bách Khoa TP.HCM
-                            </Popup>
-                        </Marker>
-                    )}
+                    {routePaths.map((paths, routeIdx) => (
+                        <div key={`route-path-${routeIdx}`}>
+                            {paths.map((path, pathIdx) => (
+                                <Polyline
+                                    key={`route-${routeIdx}-path-${pathIdx}`}
+                                    positions={path}
+                                    color={routeColors[routeIdx % routeColors.length]}
+                                    weight={4}
+                                    opacity={0.7}
+                                />
+                            ))}
+                        </div>
+                    ))}
 
-                    {/* Route Polyline */}
-                    {route.length > 0 && (
-                        <Polyline
-                            positions={route}
-                            color="blue"
-                            weight={4}
-                            opacity={0.7}
-                        />
-                    )}
-
-                    {/* Current Position - Live Tracking */}
                     {currentPosition && (
                         <>
                             <Circle
@@ -302,7 +350,7 @@ export default function Maps() {
                                     fillColor: "#3388ff",
                                     fillOpacity: 0.15,
                                     color: "#3388ff",
-                                    weight: 2
+                                    weight: 2,
                                 }}
                             />
                             <Marker position={[currentPosition.lat, currentPosition.lng]}>

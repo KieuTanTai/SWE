@@ -49,7 +49,7 @@ export default function Sidebar({ activeItem, onNavigate }: SidebarProps) {
                                     }
                                 `}
                             >
-                                <Icon size={20} className="flex-shrink-0" />
+                                <Icon size={20} className="shrink-0" />
                                 <span className="font-medium">{item.text}</span>
                             </li>
                         );

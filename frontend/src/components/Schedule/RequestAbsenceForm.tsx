@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Calendar } from "lucide-react";
 import ContentCard from "../ContentCard";
 
 const RequestAbsenceForm: React.FC = () => {
@@ -22,20 +21,20 @@ const RequestAbsenceForm: React.FC = () => {
       <div className="space-y-4">
         {/* Date Picker */}
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">Date</label>
+          <label className="block text-sm font-semibold text-gray-100 mb-2">Date</label>
           <div className="relative">
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full px-4 py-3 pr-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              className="w-full px-4 py-3 pr-10 bg-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100"
             />
           </div>
         </div>
 
         {/* Reason Input */}
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
+          <label className="block text-sm font-semibold text-gray-100 mb-2">
             Reason (Optional)
           </label>
           <textarea
@@ -43,7 +42,7 @@ const RequestAbsenceForm: React.FC = () => {
             onChange={(e) => setReason(e.target.value)}
             placeholder="Enter reason for absence..."
             rows={4}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-400"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-white placeholder-gray-400"
           />
         </div>
 

@@ -26,7 +26,7 @@ const ScheduleCard: React.FC<ScheduleCardProps> = ({ schedule, className = '' })
   const endTime = formatTime(timeRole?.end_time);
   
   return (
-    <div className={`bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow ${className}`}>
+    <div className={`bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-700 hover:shadow-md transition-shadow ${className}`}>
       <div className="flex items-start gap-3">
         {/* Icon */}
         <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-blue-100">
@@ -35,13 +35,13 @@ const ScheduleCard: React.FC<ScheduleCardProps> = ({ schedule, className = '' })
         
         {/* Content */}
         <div className="flex-1">
-          <h3 className="text-gray-900 font-semibold mb-2">
+          <h3 className="text-gray-300 font-semibold mb-2">
             {busRoute?.route_name || 'Bus Route'}
           </h3>
           
           {/* Time Range */}
           {timeRole && (
-            <div className="flex items-center gap-2 text-gray-700 mb-1.5">
+            <div className="flex items-center gap-2 text-gray-300 mb-1.5">
               <Clock className="w-4 h-4 text-gray-400" />
               <span className="text-sm font-medium">
                 {startTime} - {endTime}
@@ -51,7 +51,7 @@ const ScheduleCard: React.FC<ScheduleCardProps> = ({ schedule, className = '' })
           
           {/* Driver Name */}
           {busRoute?.driver_name && (
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-gray-300">
               <User className="w-4 h-4 text-gray-400" />
               <span className="text-sm">{busRoute.driver_name}</span>
             </div>

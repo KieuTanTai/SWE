@@ -12,14 +12,18 @@
     "@here/flexpolyline": "^0.1.0",
     "@types/leaflet": "^1.9.21",
     "@types/leaflet-routing-machine": "^3.2.9",
+    "@types/next": "^8.0.7",
     "axios": "^1.13.2",
     "leaflet": "^1.9.4",
     "leaflet-routing-machine": "^3.2.12",
     "lucide-react": "^0.552.0",
-    "next": "15.5.3",
+    "next": "^15.5.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-leaflet": "^5.0.0"
+    "react-hot-toast": "^2.6.0",
+    "react-leaflet": "^5.0.0",
+    "sweetalert2": "^11.26.3",
+    "sweetalert2-react-content": "^5.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

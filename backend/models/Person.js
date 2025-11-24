@@ -8,7 +8,7 @@ class Person {
         person_account_id = 0,
         person_phone = '',
         person_name = '',
-        person_gender = '',
+        person_gender = true,
         person_birthday = new Date(),
         person_type = '',
         person_life_cycle_status = true

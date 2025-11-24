@@ -17,7 +17,7 @@ export interface Person {
   person_phone: string;
   person_name: string;
   person_gender: boolean; // true = male, false = female
-  person_birthday: Date | string;
+  person_birthday: Date ;
   person_type: PersonType;
   person_life_cycle_status: boolean;
 
@@ -34,7 +34,7 @@ export interface CreatePersonDTO {
   person_phone: string;
   person_name: string;
   person_gender: boolean;
-  person_birthday: Date | string;
+  person_birthday: Date;
   person_type: PersonType;
 }
 
@@ -42,7 +42,7 @@ export interface UpdatePersonDTO {
   person_phone?: string;
   person_name?: string;
   person_gender?: boolean;
-  person_birthday?: Date | string;
+  person_birthday?: Date;
   person_type?: PersonType;
   person_life_cycle_status?: boolean;
 }
@@ -59,7 +59,7 @@ export function createDefaultPerson(overrides?: Partial<Person>): Person {
     person_phone: "",
     person_name: "",
     person_gender: true,
-    person_birthday: new Date().toISOString(),
+    person_birthday: new Date(),
     person_type: "other",
     person_life_cycle_status: true,
     account: null,

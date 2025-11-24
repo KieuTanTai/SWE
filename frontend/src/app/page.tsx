@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation"; // Đảm bảo đã import useRouter
 import Layout from "../components/layout/Layout";
 import Maps from "../components/maps/ggmaps";
 import DashboardForManager from "../components/admin/DashboardForManager";
@@ -50,6 +51,7 @@ const testPoints = async (): Promise<TestPoints | undefined> => {
 }
 
 export default function HomePage() {
+  const router = useRouter();
   const [activeItem, setActiveItem] = useState("dashboard");
   const [routes, setRoutes] = useState<RouteData[]>([]);
 
@@ -64,7 +66,18 @@ export default function HomePage() {
   }, []);
 
   const handleNavigate = (item: string) => {
-    setActiveItem(item);
+    // 1. Nếu bấm vào Student -> Chuyển trang
+    if (item === 'student') {
+      router.push('/students');
+    } 
+    // 2. THÊM DÒNG NÀY: Nếu bấm vào Driver -> Chuyển sang trang /drivers
+    else if (item === 'driver') {
+      router.push('/drivers');
+    }
+    // 3. Các mục Dashboard/Tracking thì đổi state để hiển thị ngay tại đây
+    else {
+      setActiveItem(item);
+    }
   };
 
   const renderContent = () => {

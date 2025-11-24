@@ -259,7 +259,7 @@ export default function Maps({ routes }: MapsProps) {
         <div className="w-full h-full">
             <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
             <div className="relative h-full w-full rounded-lg overflow-hidden shadow-lg">
-                <div className="absolute top-4 right-4 z-[1000] bg-white p-4 rounded-lg shadow-md">
+                <div className="absolute top-4 right-4 z-1000 bg-white p-4 rounded-lg shadow-md">
                     <button
                         onClick={toggleTracking}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-white font-bold mb-2.5 cursor-pointer border-none transition-colors ${tracking

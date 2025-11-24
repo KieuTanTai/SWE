@@ -5,17 +5,23 @@ interface LayoutProps {
     children: React.ReactNode;
     activeItem: string;
     onNavigate: (item: string) => void;
+    navItems: {
+        id: string;
+        text: string;
+        icon: React.ComponentType<{ size?: number; className?: string }>;
+    }[];
 }
 
 export default function Layout({
     children,
     activeItem,
     onNavigate,
+    navItems,
 }: LayoutProps) {
     return (
         <div className="flex h-screen bg-gray-900 overflow-hidden">
             {/* Sidebar cố định */}
-            <Sidebar activeItem={activeItem} onNavigate={onNavigate} />
+            <Sidebar activeItem={activeItem} onNavigate={onNavigate} navItems={navItems} />
 
             {/* Khu vực nội dung chính */}
             <div className="flex-1 flex flex-col overflow-hidden ml-2">

@@ -4,6 +4,7 @@ import Layout from "../components/layout/Layout";
 import Maps from "../components/maps/ggmaps";
 import DashboardForManager from "../components/admin/DashboardForManager";
 import getRouteDetails, { getDetailRouteNames } from "@/api/detail-routes-api";
+import { LayoutDashboard, Navigation, Users, Bus, Clock, MapPin } from "lucide-react";
 
 interface RouteData {
   routeId: number;
@@ -84,11 +85,22 @@ export default function HomePage() {
         );
     }
   };
+  
+  
+  const navItems = [
+      { id: 'dashboard', text: 'Dashboard', icon: LayoutDashboard },
+      { id: 'tracking', text: 'Live Tracking', icon: Navigation },
+      { id: 'student', text: 'Student Management', icon: Users },
+      { id: 'driver', text: 'Driver Management', icon: Bus },
+      { id: 'schedule', text: 'Schedule Management', icon: Clock },
+      { id: 'route', text: 'Route Management', icon: MapPin },
+  ];
 
   return (
     <Layout
       activeItem={activeItem}
       onNavigate={handleNavigate}
+      navItems={navItems}
     >
       {renderContent()}
     </Layout>

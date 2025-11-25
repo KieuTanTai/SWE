@@ -77,19 +77,14 @@ export default function EditStudentPage({ params }: { params: Promise<{ id: stri
     try {
       const payload = {
         person_name: formData.person_name,
-        student_grade: grade,
+        student_grade: grade.toString(),
         student_parent_id: parseInt(formData.student_parent_id),
       };
 
-      // --- SỬA LỖI 1: Xóa "as any" ---
-      // Vì trong service ta đã định nghĩa hàm updateStudent nhận (id, data: any)
-      // nên ta truyền thẳng object payload vào là được, không cần ép kiểu.
       await studentService.updateStudent(studentId, payload);
       
       alert("Update successful!");
       router.push("/students");
-    // --- SỬA LỖI 2: Xóa ": any" ---
-    // TypeScript cho phép bỏ qua kiểu trong catch, hoặc dùng unknown
     } catch (err) { 
       console.error(err);
       setError("Failed to update student. Please try again.");

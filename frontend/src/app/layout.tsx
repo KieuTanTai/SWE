@@ -3,6 +3,7 @@ import AppModalProvider from "@/contexts/modal/AppModalProvider";
 import MessageModalProviderRoot from "@/contexts/message/MessageModalProviderRoot";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../styles/globals.css";
+import { AccountProvider } from "../contexts/AccountContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,11 +30,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <MessageModalProviderRoot>
-          <AppModalProvider>
-            {children}
-          </AppModalProvider>
-        </MessageModalProviderRoot>
+        <AccountProvider>
+          <MessageModalProviderRoot>
+            <AppModalProvider>
+              {children}
+            </AppModalProvider>
+          </MessageModalProviderRoot>
+        </AccountProvider>
       </body>
     </html>
   );

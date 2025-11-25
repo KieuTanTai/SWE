@@ -40,7 +40,7 @@ export default function CreateStudentPage() {
         // Chuẩn bị dữ liệu gửi lên (Mock)
         const payload = {
             ...formData,
-            student_grade: Number(formData.student_grade),
+            student_grade: String(formData.student_grade),
             student_parent_id: Number(formData.student_parent_id),
             person_type: 'student'
         };

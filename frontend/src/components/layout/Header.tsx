@@ -1,21 +1,16 @@
 import { Bell, UserCircle } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useMessageModalProvider } from '@/hooks/useMessageModalContext';
 import LoginModal from '@/modal/components/account/LoginModal';
 import SignupModal from '@/modal/components/account/SignupModal';
-import { Account } from '@/interfaces';
+import { useAccount } from "../../contexts/AccountContext"; // Import AccountContext
+import { Account } from "@/interfaces"; // Import Account từ interfaces
 
 export default function Header() {
     const [showMenu, setShowMenu] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
     const [showSignup, setShowSignup] = useState(false);
-    const [account, setAccount] = useState<Account | null>(null);
-
-    // Lấy account từ localStorage khi mount
-    useEffect(() => {
-        const stored = localStorage.getItem("account");
-        if (stored) setAccount(JSON.parse(stored));
-    }, []);
+    const { account, setAccount, logout } = useAccount();
 
     // Helper chuyển modal
     const openLogin = () => {
@@ -26,13 +21,14 @@ export default function Header() {
         setShowLogin(false);
         setShowSignup(true);
     };
+
     const { showMessage } = useMessageModalProvider();
-    const handleLoginSuccess = (account: Account) => {
+    const handleLoginSuccess = (newAccount: Account) => {
         showMessage("Đăng nhập thành công!", "success");
         setShowLogin(false);
-        setAccount(account);
-        localStorage.setItem("account", JSON.stringify(account));
+        setAccount(newAccount);
     };
+
     return (
         <header className="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-end shadow-sm relative">
             <div className="flex items-center gap-4">
@@ -40,7 +36,7 @@ export default function Header() {
                     <Bell size={24} className="text-gray-300" />
                 </button>
                 <div className="relative">
-                    {account ? (
+                    {account && account.account_email ? (
                         <div onMouseEnter={() => setShowMenu(true)} onMouseLeave={() => setShowMenu(false)} className="relative">
                             <button
                                 id="account-btn"
@@ -50,7 +46,6 @@ export default function Header() {
                                 <UserCircle size={24} />
                                 <span className="hidden sm:inline">{account.account_email}</span>
                             </button>
-                            {/* Pseudo zone rộng bằng menu */}
                             {showMenu && (
                                 <>
                                     <div
@@ -66,8 +61,7 @@ export default function Header() {
                                         <button
                                             className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
                                             onClick={() => {
-                                                localStorage.removeItem("account");
-                                                setAccount(null);
+                                                logout();
                                                 setShowMenu(false);
                                                 showMessage("Đã đăng xuất!", "success");
                                             }}
@@ -84,7 +78,6 @@ export default function Header() {
                             >
                                 <UserCircle size={24} className="text-gray-300" />
                             </button>
-                            {/* Pseudo zone rộng bằng menu */}
                             {showMenu && (
                                 <>
                                     <div
@@ -113,7 +106,6 @@ export default function Header() {
                     )}
                 </div>
             </div>
-            {/* Modal login/signup */}
             {showLogin && (
                 <LoginModal
                     isOpen={showLogin}

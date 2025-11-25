@@ -75,7 +75,7 @@ export default function StudentPage() {
 
     if (result.isConfirmed) {
       try {
-        await studentService(id);
+        await studentService.deleteStudent(id);
 
         // Thông báo thành công
         MySwal.fire({

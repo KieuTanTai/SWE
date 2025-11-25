@@ -1,109 +1,257 @@
+// src/app/students/page.tsx
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // Đảm bảo đã import useRouter
-import Layout from "../components/layout/Layout";
-import Maps from "../components/maps/ggmaps";
-import DashboardForManager from "../components/admin/DashboardForManager";
-import getRouteDetails, { getDetailRouteNames } from "@/api/detail-routes-api";
 
-interface RouteData {
-  routeId: number;
-  routeName: string;
-  stopPoints: string[]; // Điểm dừng của route này
-}
+import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { studentService } from "@/services/studentService";
+import { Student } from "@/interfaces/student";
+import { Trash2, Plus, Edit, User, Search, CheckCircle, XCircle, ScanEye } from "lucide-react";
+import Layout from "@/components/layout/Layout";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
-interface TestPoints {
-  routes: RouteData[]; // Mỗi route có danh sách điểm dừng riêng
-}
+const MySwal = withReactContent(Swal);
 
-const testPoints = async (): Promise<TestPoints | undefined> => {
-  const result = await getRouteDetails([1, 2, 3]);
-  console.log("Test getRouteDetails in page.tsx:", JSON.stringify(result, null, 2));
-  if (result.length > 0) {
-    const routes: RouteData[] = [];
-    const detailRouteInfos = getDetailRouteNames(result); // DetailRouteInfo[][]
-
-    result.forEach((busRoute, index) => {
-      const stopPoints: string[] = [];
-      const routeDetails = detailRouteInfos[index] || [];
-
-      routeDetails.forEach((detail) => {
-        // Thêm start_name nếu chưa có trong danh sách
-        if (detail.start_name && !stopPoints.includes(detail.start_name)) {
-          stopPoints.push(detail.start_name);
-        }
-        // Thêm end_name nếu chưa có trong danh sách
-        if (detail.end_name && !stopPoints.includes(detail.end_name)) {
-          stopPoints.push(detail.end_name);
-        }
-      });
-
-      routes.push({
-        routeId: busRoute.route_id,
-        routeName: busRoute.route_name,
-        stopPoints
-      });
-    });
-
-    console.log("Extracted routes:", routes);
-    return { routes };
-  }
-}
-
-export default function HomePage() {
+export default function StudentPage() {
   const router = useRouter();
-  const [activeItem, setActiveItem] = useState("dashboard");
-  const [routes, setRoutes] = useState<RouteData[]>([]);
-
-  // Fetch test points on component mount
-  useEffect(() => {
-    (async () => {
-      const points = await testPoints();
-      if (points) {
-        setRoutes(points.routes);
-      }
-    })();
-  }, []);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleNavigate = (item: string) => {
-    // 1. Nếu bấm vào Student -> Chuyển trang
-    if (item === 'student') {
-      router.push('/students');
-    } 
-    // 2. THÊM DÒNG NÀY: Nếu bấm vào Driver -> Chuyển sang trang /drivers
-    else if (item === 'driver') {
-      router.push('/drivers');
+    if (item === "dashboard") router.push("/");
+    else if (item === "tracking") router.push("/?tab=tracking");
+    else if (item === "driver") router.push("/drivers");
+  };
+
+  const fetchStudents = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await studentService.getAllStudents();
+      if (Array.isArray(data)) {
+        setStudents(data);
+      } else {
+        const response = data as unknown as { data: Student[] };
+        setStudents(response.data || []);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
     }
-    // 3. Các mục Dashboard/Tracking thì đổi state để hiển thị ngay tại đây
-    else {
-      setActiveItem(item);
+  }, []);
+
+  useEffect(() => {
+    fetchStudents();
+  }, [fetchStudents]);
+
+  const showDeleteConfirm = async (title: string, text: string) => {
+    return MySwal.fire({
+      title: title,
+      text: text,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, disable it!',
+      background: '#1f2937',
+      color: '#fff',
+      iconColor: '#f87171'
+    });
+  };
+
+  const handleDelete = async (id: number) => {
+    const result = await showDeleteConfirm(
+      'Disable Student?', 
+      "This student will be marked as inactive. You can restore them later if needed."
+    );
+
+    if (result.isConfirmed) {
+      try {
+        await studentService.deleteStudent(id);
+        MySwal.fire({
+          title: 'Disabled!',
+          text: 'Student has been marked as inactive.',
+          icon: 'success',
+          background: '#1f2937',
+          color: '#fff',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        fetchStudents();
+      } catch (err) {
+        console.error("Delete error:", err);
+        MySwal.fire({ title: 'Error!', text: 'Failed to disable student.', icon: 'error', background: '#1f2937', color: '#fff' });
+      }
     }
   };
 
-  const renderContent = () => {
-    switch (activeItem) {
-      case "dashboard":
-        return <DashboardForManager />;
-      case "tracking":
-        return <Maps routes={routes} />;
-      default:
-        return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-2">Coming Soon</h2>
-              <p className="text-gray-400">This section is under development</p>
-            </div>
-          </div>
-        );
-    }
+  const formatId = (id: number | undefined) => {
+    if (!id) return "#STU-???";
+    return `#STU-${String(id).padStart(5, "0")}`;
   };
+
+  const filteredStudents = students.filter((student) => {
+    const term = searchTerm.toLowerCase();
+    // SỬA: Dùng person_name đúng với DB
+    const name = student.person?.person_name?.toLowerCase() || "";
+    const id = student.student_id?.toString() || "";
+    return name.includes(term) || id.includes(term);
+  });
+
+  const content = (
+    <div className="p-6 w-full text-gray-100">
+      
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Student Records</h1>
+          <p className="text-gray-400 text-sm mt-1">Manage all student data and information</p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <div className="relative">
+                <input
+                type="text"
+                placeholder="Search by Name or ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="bg-gray-800 text-white pl-10 pr-4 py-2 rounded-md border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full sm:w-64"
+                />
+                <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+            </div>
+
+            <div className="flex gap-3">
+                <Link 
+                    href="/students/create" 
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-colors shadow-sm whitespace-nowrap"
+                >
+                    <Plus size={18} /> 
+                    Add Student
+                </Link>
+            </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="text-center py-20">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-500 mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading records...</p>
+        </div>
+      ) : (
+        <div className="bg-gray-800 rounded-lg shadow-xl border border-gray-700 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-700">
+              <thead className="bg-gray-900/50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Student ID</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Grade</th> 
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Parent Info</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-gray-700 bg-gray-800">
+                {filteredStudents.length > 0 ? filteredStudents.map((student) => {
+                  // --- SỬA LỖI LOGIC TẠI ĐÂY ---
+                  // Dùng !! để ép kiểu số 0/1 thành false/true chuẩn xác
+                  const isActive = !!student.person?.person_life_cycle_status;
+
+                  return (
+                    <tr key={student.student_id} className={`hover:bg-gray-750 transition-colors group ${!isActive ? 'opacity-50 bg-gray-900' : ''}`}>
+                      
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                        {formatId(student.student_id)}
+                      </td>
+                      
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-blue-400 mr-3">
+                            <User size={16} />
+                          </div>
+                          <div className="text-sm font-medium text-white">
+                              {/* Đã dùng đúng person_name */}
+                              {student.person?.person_name || "Unknown Name"}
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                         <span className="bg-gray-700 px-2 py-1 rounded text-xs text-gray-300 border border-gray-600">
+                            Grade {student.student_grade}
+                         </span>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                        {/* Cố gắng lấy tên phụ huynh nếu có, không thì hiện ID */}
+                        {/* Lưu ý: Cần đảm bảo interface Student có structure này hoặc dùng any */}
+                        {(student.parent as any)?.person?.person_name || `ID: ${student.student_parent_id}`}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {isActive ? (
+                            <span className="flex items-center gap-1 text-green-400 text-xs bg-green-900/20 px-2 py-1 rounded-full w-fit border border-green-800">
+                                <CheckCircle size={12} /> Active
+                            </span>
+                        ) : (
+                            <span className="flex items-center gap-1 text-red-400 text-xs bg-red-900/20 px-2 py-1 rounded-full w-fit border border-red-800">
+                                <XCircle size={12} /> Inactive
+                            </span>
+                        )}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex justify-start items-center gap-4">
+                          {isActive ? (
+                            <>
+                              <Link 
+                                href={`/students/view/${student.student_id}`} 
+                                className="flex items-center gap-1 p-2 rounded-md bg-teal-500/10 text-teal-400 hover:bg-teal-500/20 transition-colors group-hover:opacity-100"
+                                title="View Details"
+                                >
+                             <ScanEye size={18} /> View 
+                             </Link>
+                              <Link 
+                                href={`/students/edit/${student.student_id}`} 
+                                className="text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
+                              >
+                                <Edit size={16} /> Edit
+                              </Link>
+                              <button 
+                                onClick={() => student.student_id && handleDelete(student.student_id)}
+                                className="text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
+                              >
+                                <Trash2 size={16} /> Delete
+                              </button>
+                            </>
+                          ) : (
+                            <span className="text-gray-500 italic text-xs cursor-not-allowed">Archived</span>
+                          )}
+                        </div>
+                      </td>
+
+                    </tr>
+                  );
+                }) : (
+                    <tr>
+                        <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
+                            No students found matching &quot;{searchTerm}&quot;
+                        </td>
+                    </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
-    <Layout
-      activeItem={activeItem}
-      onNavigate={handleNavigate}
-    >
-      {renderContent()}
+    <Layout activeItem="student" onNavigate={handleNavigate}>
+      {content}
     </Layout>
   );
 }

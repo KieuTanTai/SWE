@@ -1,128 +1,88 @@
+// src/services/studentService.ts
+import axiosClient from "@/utils/axiosClient";
 import { Student } from "@/interfaces/student";
 
-// === MOCK DATA (Dữ liệu giả lập) ===
-const MOCK_STUDENTS: Student[] = [
-  {
-    student_id: 1,
-    student_person_id: 101,
-    student_grade: 10,
-    student_parent_id: 501,
-    person: {
-      person_id: 101,
-      person_name: "Nguyen Van A",
-      person_gender: true,
-      person_birthday: new Date("2008-01-01"),
-      person_phone: "0900000001",
-      person_type: "student",
-      person_life_cycle_status: true,
-    },
-    parent: {
-      parent_person_id: 2,
-      parent_job: "Unknown",
-      parent_type: "mother"
-    }
-  },
-  {
-    student_id: 2,
-    student_person_id: 102,
-    student_grade: 10,
-    student_parent_id: 5,
-    person: {
-      person_id: 102,
-      person_name: "Tran Thi B",
-      person_gender: false,
-      person_birthday: new Date("2007-05-20"),
-      person_phone: "0900000002",
-      person_type: "student",
-      person_life_cycle_status: true,
-    },
-    parent: {
-      parent_person_id: 5,
-      parent_job: "Unknown",
-      parent_type: "mother"
-    }
-  },
-  {
-    student_id: 3,
-    student_person_id: 103,
-    student_grade: 10,
-    student_parent_id: 1,
-    person: {
-      person_id: 103,
-      person_name: "Le Van C",
-      person_gender: true,
-      person_birthday: new Date("2006-12-12"),
-      person_phone: "0900000003",
-      person_type: "student",
-      person_life_cycle_status: true,
-    },
-    parent: {
-      parent_person_id: 1,
-      parent_job: "Engineer",
-      parent_type: "father"
-    }
-  }
-];
-
 export const studentService = {
-  // 1. Lấy danh sách
+  // 1. Lấy danh sách (GET /students)
   getAllStudents: async () => {
-    return new Promise<Student[]>((resolve) => {
-      // Giả lập độ trễ mạng 800ms
-      setTimeout(() => resolve(MOCK_STUDENTS), 800);
-    });
+    const response = await axiosClient.get('/students');
+    // Backend trả về mảng object, cần đảm bảo đúng interface
+    return response.data;
   },
 
-  // 2. Lấy chi tiết theo ID (Dùng cho trang Edit)
+  // 2. Lấy chi tiết (GET /students/:id)
   getStudentById: async (id: number) => {
-    return new Promise<Student>((resolve, reject) => {
-      setTimeout(() => {
-        // Log id để tránh warning 'unused variable'
-        console.log("Fetching student ID:", id);
-        
-        const student = MOCK_STUDENTS.find(s => s.student_id === id);
-        if (student) resolve(student);
-        else reject(new Error("Student not found"));
-      }, 500);
-    });
+    const response = await axiosClient.get(`/students/${id}`);
+    // Dữ liệu trả về có thể bao gồm cả object `person` nhờ logic của Backend
+    return response.data;
   },
 
-  // 3. Tạo mới (Nhận data gộp Person + Student)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // 3. Tạo mới (Logic gộp: Tạo Person trước -> Tạo Student sau)
   createStudent: async (data: any) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log("Create Student & Person Mock Data:", data);
-        resolve({ success: true });
-      }, 1000);
-    });
+    try {
+      // B1: Tạo Person
+      const personPayload = {
+        person_name: data.person_name,
+        person_gender: data.person_gender === 'Male' ? 1 : 0, // SQL lưu 1/0
+        person_birthday: data.person_birthday,
+        person_phone: data.person_phone,
+        person_type: 'student', // Enum
+        person_life_cycle_status: 1
+      };
+      const personRes = await axiosClient.post('/persons', personPayload);
+      const newPersonId = personRes.data.person_id || personRes.data.insertId; // Tùy backend trả về
+
+      // B2: Tạo Student gắn với Person vừa tạo
+      const studentPayload = {
+        student_person_id: newPersonId,
+        student_grade: data.student_grade,
+        student_parent_id: data.student_parent_id
+      };
+      const studentRes = await axiosClient.post('/students', studentPayload);
+      
+      return { success: true, data: studentRes.data };
+    } catch (error) {
+      throw error;
+    }
   },
 
-  // 4. Cập nhật
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // 4. Cập nhật (Cập nhật cả 2 bảng nếu cần)
   updateStudent: async (id: number, data: any) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log(`Update Student ID ${id} with data:`, data);
-        resolve({ success: true });
-      }, 1000);
+    // B1: Update thông tin Student (Lớp, Parent)
+    await axiosClient.put(`/students/${id}`, {
+        student_grade: data.student_grade,
+        student_parent_id: data.student_parent_id
     });
+
+    // B2: Nếu có sửa tên/thông tin cá nhân, cần lấy person_id để update bảng Person
+    // (Giả sử bạn đã lấy được student_person_id từ hàm getById trước đó)
+    // Đây là logic phức tạp, tạm thời ta chỉ update bảng Student hoặc cần Backend hỗ trợ API update gộp.
+    // Với code hiện tại, ta sẽ gửi request update Person nếu có person_id
+    if (data.student_person_id) {
+        const personPayload = {
+            person_name: data.person_name,
+            // ... các trường khác
+        };
+        await axiosClient.put(`/persons/${data.student_person_id}`, personPayload);
+    }
+
+    return { success: true };
   },
 
-  
+  // 5. Xóa (Soft Delete)
+  // Backend SQL có ON DELETE CASCADE, xóa Person là mất Student.
+  // Nhưng ở đây ta muốn Soft Delete (Update status)
   deleteStudent: async (id: number) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log(`Soft Deleting (Disabling) Student ID: ${id}`);
-        
-        // Tìm và đổi trạng thái thành false (Inactive)
-        const student = MOCK_STUDENTS.find(s => s.student_id === id);
-        if (student && student.person) {
-            student.person.person_life_cycle_status = false;
-        }
-        
-        resolve({ success: true });
-      }, 500);
-    });
+    // Cần lấy student_person_id trước để soft delete bảng Person
+    const student = await axiosClient.get(`/students/${id}`);
+    const personId = student.data.student_person_id;
+
+    if (personId) {
+        // Update trạng thái person thành 0 (Inactive)
+        // Lưu ý: Cần backend hỗ trợ route PUT /persons/:id để update status
+        // Hoặc dùng DELETE nếu backend đã viết logic soft delete trong đó.
+        await axiosClient.delete(`/persons/${personId}`); 
+    }
+    return { success: true };
   }
 };

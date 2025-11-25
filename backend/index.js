@@ -7,6 +7,7 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+// Đã loại bỏ cấu hình HTTPS, chỉ giữ lại các import cần thiết cho Express
 
 // Controllers Import
 import AccountController from './controllers/AccountController.js';
@@ -35,7 +36,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: 'https://localhost:3000',
+    credentials: true
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -87,7 +91,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal server error', message: err.message });
 });
 
-// Start Server
+// Start HTTP Server
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
     console.log(`📍 API endpoint: http://localhost:${PORT}`);

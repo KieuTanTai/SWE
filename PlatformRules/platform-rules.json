@@ -1,0 +1,47 @@
+{
+    "custom-rules": {
+        "expiry-cookie": {
+            "type": "cookie-expiry-days",
+            "maxAgeDays": 7,
+            "enabled": true
+        },
+        "expiry-try-timeout": {
+            "type": "try-timeout",
+            "maxTryTimes": 3,
+            "enabled": true
+        },
+        "expiry-fetch-timeout": {
+            "type": "fetch-timeout",
+            "maxFetchTimeout": 500,
+            "enabled": true
+        },
+        "message-timeout": {
+            "type": "message-timeout",
+            "maxMessageTimeout": 3000,
+            "enabled": true
+        },
+        "cache-expiry-minutes": {
+            "type": "cache-expiry-minutes",
+            "maxCacheExpiryMinutes": 60,
+            "enabled": true
+        },
+        "max-return-records": {
+            "type": "max-return-records",
+            "maxRecords": 200,
+            "enabled": true
+        },
+        // new rule for default page size
+        "default-page-size": {
+            "type": "default-page-size",
+            "defaultPageSize": 10,
+            "enabled": true
+        },
+        // new rule for rate limiting
+        "rate-limiting": {
+            "type": "rate-limiting",
+            "maxRequestsPerMinute": 100,
+            "enabled": true
+        }
+    },
+    "rules-version": "2.0.0"
+}

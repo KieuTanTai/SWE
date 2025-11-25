@@ -1,17 +1,102 @@
 import { Bell, UserCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { useMessageModalProvider } from '@/hooks/useMessageModalContext';
+import LoginModal from '@/modal/components/account/LoginModal';
+import SignupModal from '@/modal/components/account/SignupModal';
 
 export default function Header() {
+    const [showMenu, setShowMenu] = useState(false);
+    const [showLogin, setShowLogin] = useState(false);
+    const [showSignup, setShowSignup] = useState(false);
+    const [account, setAccount] = useState<Account | null>(null);
+
+    // Helper chuyển modal
+    const openLogin = () => {
+        setShowSignup(false);
+        setShowLogin(true);
+    };
+    const openSignup = () => {
+        setShowLogin(false);
+        setShowSignup(true);
+    };
+    const { showMessage } = useMessageModalProvider();
+    const handleLoginSuccess = (account: Account) => {
+        showMessage("Đăng nhập thành công!", "success");
+        setShowLogin(false);
+        setAccount(account);
+    };
     return (
-        <header className="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-end shadow-sm">
-            {/* Các biểu tượng bên phải */}
+        <header className="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-end shadow-sm relative">
             <div className="flex items-center gap-4">
                 <button id='message-btn' className="p-2 rounded-lg hover:bg-gray-700 transition-colors">
                     <Bell size={24} className="text-gray-300" />
                 </button>
-                <button id='account-btn' className="p-2 rounded-lg hover:bg-gray-700 transition-colors">
-                    <UserCircle size={24} className="text-gray-300" />
-                </button>
+                                <div className="relative">
+                                    {account ? (
+                                        <button
+                                            id="account-btn"
+                                            className="p-2 rounded-lg bg-green-700 text-white flex items-center gap-2"
+                                            title={account.account_email}
+                                        >
+                                            <UserCircle size={24} />
+                                            <span className="hidden sm:inline">{account.account_email}</span>
+                                        </button>
+                                    ) : (
+                                        <>
+                                            <button
+                                                id='account-btn'
+                                                className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
+                                                onMouseEnter={() => setShowMenu(true)}
+                                                onMouseLeave={() => setShowMenu(false)}
+                                            >
+                                                <UserCircle size={24} className="text-gray-300" />
+                                            </button>
+                                            {/* Pseudo zone nối giữa button và menu */}
+                                            {showMenu && (
+                                                <>
+                                                    <div
+                                                        className="absolute right-0 top-full w-8 h-4"
+                                                        style={{ pointerEvents: 'auto' }}
+                                                        onMouseEnter={() => setShowMenu(true)}
+                                                        onMouseLeave={() => setShowMenu(false)}
+                                                    />
+                                                    <div
+                                                        className="absolute right-0 mt-2 w-32 bg-white rounded shadow-lg z-50"
+                                                        onMouseEnter={() => setShowMenu(true)}
+                                                        onMouseLeave={() => setShowMenu(false)}
+                                                    >
+                                                        <button
+                                                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                                                            onClick={() => { openLogin(); setShowMenu(false); }}
+                                                        >Đăng nhập</button>
+                                                        <button
+                                                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                                                            onClick={() => { openSignup(); setShowMenu(false); }}
+                                                        >Đăng ký</button>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
             </div>
+            {/* Modal login/signup */}
+            {showLogin && (
+                <LoginModal
+                    isOpen={showLogin}
+                    onRequestClose={() => setShowLogin(false)}
+                    onSuccess={handleLoginSuccess}
+                    dictLinksClick={{ signup: openSignup, forgotPassword: () => {} }}
+                />
+            )}
+            {showSignup && (
+                <SignupModal
+                    isOpen={showSignup}
+                    onRequestClose={() => setShowSignup(false)}
+                    onSuccess={() => {}}
+                    dictLinksClick={{ login: openLogin }}
+                />
+            )}
         </header>
     );
 }

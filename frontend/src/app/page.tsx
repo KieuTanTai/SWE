@@ -74,6 +74,9 @@ export default function HomePage() {
     else if (item === 'driver') {
       router.push('/drivers');
     }
+    else if (item === 'schedule') {
+      router.push('/schedules');
+    }
     // 3. Các mục Dashboard/Tracking thì đổi state để hiển thị ngay tại đây
     else {
       setActiveItem(item);

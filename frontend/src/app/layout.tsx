@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import AppModalProvider from "@/contexts/modal/AppModalProvider";
+import MessageModalProviderRoot from "@/contexts/message/MessageModalProviderRoot";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../styles/globals.css";
 
@@ -27,7 +29,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <MessageModalProviderRoot>
+          <AppModalProvider>
+            {children}
+          </AppModalProvider>
+        </MessageModalProviderRoot>
       </body>
     </html>
   );

@@ -199,8 +199,14 @@ class AccountRoleDAO extends BaseDAO {
             return -1;
         }
 
+        // Chỉ insert 2 trường account_id, role_id
+        const dbAccountRole = {
+            account_id: accountRole.account_id,
+            role_id: accountRole.role_id
+        };
+
         try {
-            const result = await this._protectedCreate(accountRole);
+            const result = await this._protectedCreate(dbAccountRole);
             return result;
         } catch (error) {
             console.error(`Error: ${error.message}`);

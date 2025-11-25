@@ -95,7 +95,18 @@ router.post("/", async (req, res) => {
         const account = new Account({ account_email: username, account_password: password, account_login_status });
         const service = new AccountServices();
         const result = await service.createAccount(account);
-        result.success ? res.status(201).json(result.data) : res.status(500).json({ error: result.error });
+        if (result.success) {
+            // Lấy lại thông tin Account vừa tạo
+            const createdId = result.data;
+            const getResult = await service.getByAccountId(createdId);
+            if (getResult.success) {
+                res.status(201).json(getResult.data);
+            } else {
+                res.status(201).json({ account_id: createdId }); // fallback: chỉ trả về id nếu không lấy được Account
+            }
+        } else {
+            res.status(500).json({ error: result.error });
+        }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

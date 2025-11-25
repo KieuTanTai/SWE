@@ -4,6 +4,7 @@ import { withConnection, withTransaction } from "../infrastructure/connection/tr
 import { comparePassword, hashPassword } from "../utils/passwordHash.js";
 import ServiceResponse from "../utils/ServiceResponse.js";
 import AccountRoleDAO from "../infrastructure/data/accountRoleDAO.js";
+import AccountRole from "../models/AccountRole.js";
 
 /**
  * AccountServices
@@ -88,7 +89,13 @@ class AccountServices {
                 const repo = new AccountDAO(connection);
                 return await repo.getByAccountId(accountId);
             });
-            
+            // Lấy roles cho account
+            if (result && result.account_id) {
+                result.roles = await withConnection(async (connection) => {
+                    const repo = new AccountRoleDAO(connection);
+                    return await repo.getByAccountId(result.account_id);
+                });
+            }
             return ServiceResponse.success(result);
         } catch (error) {
             return ServiceResponse.failure(error.message);
@@ -199,14 +206,37 @@ class AccountServices {
                 account.account_password = await hashPassword(account.account_password);
             }
 
+
+            // Create a new Account instance with only DB columns
+            const dbAccount = new Account({
+                account_email: account.account_email,
+                account_password: account.account_password,
+                account_create_date: account.account_create_date,
+                account_last_updated_date: account.account_last_updated_date,
+                account_login_status: account.account_login_status
+            });
+
             const result = await withTransaction(async (connection) => {
                 const repo = new AccountDAO(connection);
-                return await repo.createAccount(account);
+                return await repo.createAccount(dbAccount);
             });
-            
+
             if (result === -1) {
                 return ServiceResponse.failure('Failed to create account');
             }
+
+            // Gán role mặc định là 4 (parent) cho account vừa tạo
+            await withTransaction(async (connection) => {
+                const accountRoleRepo = new AccountRoleDAO(connection);
+                const assignedDate = new Date();
+                const accountRole = new AccountRole({
+                    account_id: result,
+                    role_id: 4, // role 4 = parent
+                    assigned_date: assignedDate,
+                    assigned_by: null,
+                });
+                await accountRoleRepo.createAccountRole(accountRole);
+            });
 
             return ServiceResponse.success(result);
         } catch (error) {

@@ -186,8 +186,17 @@ class AccountDAO extends BaseDAO {
             return -1;
         }
 
+        // Only pass DB columns
+        const dbAccount = {
+            account_email: account.account_email,
+            account_password: account.account_password,
+            account_create_date: account.account_create_date,
+            account_last_updated_date: account.account_last_updated_date,
+            account_login_status: account.account_login_status
+        };
+
         try {
-            const result = await this._protectedCreate(account);
+            const result = await this._protectedCreate(dbAccount);
             return result;
         } catch (error) {
             console.error(`Error: ${error.message}`);

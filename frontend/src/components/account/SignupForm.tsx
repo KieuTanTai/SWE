@@ -16,21 +16,29 @@ function SignupForm({ onSuccess, onLoginLinkClick }: SignupFormProps) {
                async (data: UISignupData): Promise<Account> => {
                     try {
                          const result = await signup(data);
-                         if (!(result instanceof Array) && result && result.account_email !== "") {
+                         if (!(result instanceof Array) && result && result.account_email) {
                               onSuccess();
                               showMessage("Đăng ký thành công! Vui lòng đăng nhập.", "success");
+                              // Tự động chuyển sang form login
+                              if (typeof onLoginLinkClick === 'function') {
+                                   setTimeout(() => { onLoginLinkClick(); }, 500); // delay nhỏ để hiển thị message
+                              }
                               return result;
                          }
-                         else if (result instanceof Array)
-                              showMessage(result[0].message ?? "lỗi khi đăng kí, kiểm tra lại thông tin ", "error");
-                         else
-                              showMessage("lỗi khi đăng kí, vui lòng thử lại!", "error");
+                         else if (result instanceof Array && result[0]?.message) {
+                              showMessage(result[0].message, "error");
+                         }
+                         else {
+                              showMessage("Lỗi khi đăng ký, vui lòng thử lại!", "error");
+                         }
                          return {} as Account;
                     } catch (error) {
-                         if (error instanceof Error)
-                              throw new Error(error.message);
-                         else
-                              throw new Error('An unknown error occurred during submission.');
+                         // Luôn show lỗi khi có exception
+                         showMessage(
+                              error instanceof Error ? error.message : 'Đăng ký thất bại, vui lòng thử lại!',
+                              "error"
+                         );
+                         return {} as Account;
                     }
                }
           )

@@ -33,13 +33,19 @@ export async function signup(
   form: UISignupData
 ): Promise<Account | JsonLogEntry[]> {
   try {
-    const sendData = { Email: form.email, Password: form.password };
+    // Backend expects: username, password
+    const sendData = { username: form.email, password: form.password };
     const response: AxiosResponse<Account> = await axios.post(
-      `${baseUrl}/signup`,
+      `${baseUrl}/`,
       sendData
     );
     console.log("[signup] Kết quả trả về:", response.data);
-    return response.data;
+    // Only return if response is Account object
+    if (response.data && response.data.account_email) {
+      return response.data;
+    } else {
+      throw new Error("Signup failed: Invalid response");
+    }
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       console.error("[signup] Lỗi từ Axios:", error.message, error.code);

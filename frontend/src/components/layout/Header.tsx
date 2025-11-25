@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useMessageModalProvider } from '@/hooks/useMessageModalContext';
 import LoginModal from '@/modal/components/account/LoginModal';
 import SignupModal from '@/modal/components/account/SignupModal';
+import { Account } from '@/interfaces';
 
 export default function Header() {
     const [showMenu, setShowMenu] = useState(false);
@@ -118,14 +119,14 @@ export default function Header() {
                     isOpen={showLogin}
                     onRequestClose={() => setShowLogin(false)}
                     onSuccess={handleLoginSuccess}
-                    dictLinksClick={{ signup: openSignup, forgotPassword: () => {} }}
+                    dictLinksClick={{ signup: openSignup, forgotPassword: () => { } }}
                 />
             )}
             {showSignup && (
                 <SignupModal
                     isOpen={showSignup}
                     onRequestClose={() => setShowSignup(false)}
-                    onSuccess={() => {}}
+                    onSuccess={() => { }}
                     dictLinksClick={{ login: openLogin }}
                 />
             )}

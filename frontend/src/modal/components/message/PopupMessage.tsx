@@ -73,7 +73,7 @@ export function MessageModal({ message, type, timeout = 3000, marginTop = 0, onC
     <div
       style={{
         position: 'fixed',
-        top: `calc(${marginTop}px + 0.2em)`,
+        top: `calc(${marginTop}px + 6em)`,
         right: '32px',
         zIndex: 9999,
         minWidth: 100,

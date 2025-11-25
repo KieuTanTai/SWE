@@ -26,7 +26,7 @@ export default function EditStudentPage({ params }: { params: Promise<{ id: stri
 
   const handleNavigate = (item: string) => {
     if (item === "dashboard") router.push("/");
-    else if (item === "tracking") router.push("/?tab=tracking");
+    else if (item === "tracking") router.push("/tracking");
     else if (item === "driver") router.push("/drivers");
     else if (item === "student") router.push("/students");
   };
@@ -36,8 +36,8 @@ export default function EditStudentPage({ params }: { params: Promise<{ id: stri
       try {
         const data = await studentService.getStudentById(studentId);
         setFormData({
-          person_name: data.person?.person_full_name || "", 
-          student_grade: data.student_grade,
+          person_name: data.person?.person_name || "", 
+          student_grade: data.student_grade ?? 0,
           student_parent_id: data.student_parent_id ? data.student_parent_id.toString() : "",
         });
       } catch (err) {

@@ -27,7 +27,7 @@ export default function ViewBusPage({ params }: { params: Promise<{ id: string }
   const handleNavigate = (item: string) => {
     if (item === "dashboard") router.push("/");
     else if (item === "student") router.push("/students");
-    else if (item === "tracking") router.push("/?tab=tracking");
+    else if (item === "tracking") router.push("/tracking");
     else if (item === "driver") router.push("/drivers");
   };
 

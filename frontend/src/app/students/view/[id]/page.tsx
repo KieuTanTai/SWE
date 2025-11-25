@@ -13,7 +13,7 @@ export default function ViewStudentPage({ params }: { params: Promise<{ id: stri
   const studentId = Number(resolvedParams.id);
 
   const [loading, setLoading] = useState(true);
-  
+
   // State lưu dữ liệu để hiển thị
   const [studentData, setStudentData] = useState({
     person_name: "",
@@ -28,7 +28,7 @@ export default function ViewStudentPage({ params }: { params: Promise<{ id: stri
     if (item === "dashboard") router.push("/");
     else if (item === "driver") router.push("/drivers");
     else if (item === "student") router.push("/students");
-    else if (item === "tracking") router.push("/?tab=tracking");
+    else if (item === "tracking") router.push("/tracking");
   };
 
   // Load dữ liệu
@@ -64,8 +64,8 @@ export default function ViewStudentPage({ params }: { params: Promise<{ id: stri
   const content = (
     <div className="p-6 max-w-3xl mx-auto text-gray-100">
       {/* Nút quay lại */}
-      <button 
-        onClick={() => router.back()} 
+      <button
+        onClick={() => router.back()}
         className="flex items-center text-gray-400 hover:text-white mb-6 transition-colors"
       >
         <ArrowLeft size={20} className="mr-2" /> Back to List
@@ -74,71 +74,71 @@ export default function ViewStudentPage({ params }: { params: Promise<{ id: stri
       <div className="bg-gray-800 rounded-lg shadow-xl border border-gray-700 p-8">
         {/* Header với icon ScanEye */}
         <h1 className="text-2xl font-bold text-white mb-6 flex items-center gap-2 border-b border-gray-700 pb-4">
-          <ScanEye className="text-teal-400" size={28} /> 
+          <ScanEye className="text-teal-400" size={28} />
           Student Details <span className="text-gray-500 text-lg font-normal">#{studentId}</span>
         </h1>
 
         {loading ? (
-           <div className="text-center py-10 text-gray-400">Loading information...</div>
+          <div className="text-center py-10 text-gray-400">Loading information...</div>
         ) : (
           <div className="space-y-8">
-            
+
             {/* SECTION 1: PERSONAL DETAILS */}
             <div>
-                <h3 className="text-lg font-semibold text-blue-400 mb-4 flex items-center gap-2">
-                    <User size={18} /> Personal Details
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Full Name</label>
-                        <div className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white">
-                            {studentData.person_name}
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Gender</label>
-                        <div className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white">
-                            {studentData.person_gender}
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Date of Birth</label>
-                        <div className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white">
-                            {studentData.person_birthday}
-                        </div>
-                    </div>
+              <h3 className="text-lg font-semibold text-blue-400 mb-4 flex items-center gap-2">
+                <User size={18} /> Personal Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Full Name</label>
+                  <div className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white">
+                    {studentData.person_name}
+                  </div>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Gender</label>
+                  <div className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white">
+                    {studentData.person_gender}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Date of Birth</label>
+                  <div className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white">
+                    {studentData.person_birthday}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* SECTION 2: SCHOOL INFORMATION */}
             <div>
-                <h3 className="text-lg font-semibold text-green-500 mb-4 flex items-center gap-2">
-                    <GraduationCap size={18} /> School Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Grade (Class)</label>
-                        <div className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white">
-                            Grade {studentData.student_grade}
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Parent ID</label>
-                        <div className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white">
-                            {studentData.student_parent_id}
-                        </div>
-                    </div>
+              <h3 className="text-lg font-semibold text-green-500 mb-4 flex items-center gap-2">
+                <GraduationCap size={18} /> School Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Grade (Class)</label>
+                  <div className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white">
+                    Grade {studentData.student_grade}
+                  </div>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Parent ID</label>
+                  <div className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white">
+                    {studentData.student_parent_id}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Footer Actions */}
             <div className="pt-6 border-t border-gray-700 flex justify-end gap-4">
-                <button 
-                    onClick={() => router.push(`/students/edit/${studentId}`)} 
-                    className="flex items-center justify-center px-6 py-2.5 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all"
-                >
-                    <Edit size={18} className="mr-2" /> Edit This Student
-                </button>
+              <button
+                onClick={() => router.push(`/students/edit/${studentId}`)}
+                className="flex items-center justify-center px-6 py-2.5 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all"
+              >
+                <Edit size={18} className="mr-2" /> Edit This Student
+              </button>
             </div>
           </div>
         )}

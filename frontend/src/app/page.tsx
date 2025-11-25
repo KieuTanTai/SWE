@@ -5,6 +5,7 @@ import Layout from "../components/layout/Layout";
 import Maps from "../components/maps/ggmaps";
 import DashboardForManager from "../components/admin/DashboardForManager";
 import getRouteDetails, { getDetailRouteNames } from "@/api/detail-routes-api";
+// Đã chuyển navItems ra Layout, không cần import icon ở đây nữa
 
 interface RouteData {
   routeId: number;
@@ -67,17 +68,20 @@ export default function HomePage() {
 
   const handleNavigate = (item: string) => {
     // 1. Nếu bấm vào Student -> Chuyển trang
-    if (item === 'student') {
+    if (item === "tracking")
+      router.push('/tracking');
+    else if (item === 'student') {
       router.push('/students');
-    } 
-    // 2. THÊM DÒNG NÀY: Nếu bấm vào Driver -> Chuyển sang trang /drivers
+    }
     else if (item === 'driver') {
       router.push('/drivers');
     }
     else if (item === 'schedule') {
       router.push('/schedules');
     }
-    // 3. Các mục Dashboard/Tracking thì đổi state để hiển thị ngay tại đây
+    else if (item === 'route') {
+      router.push('/route');
+    }
     else {
       setActiveItem(item);
     }
@@ -100,6 +104,8 @@ export default function HomePage() {
         );
     }
   };
+
+
 
   return (
     <Layout

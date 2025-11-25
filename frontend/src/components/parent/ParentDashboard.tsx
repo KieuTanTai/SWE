@@ -3,25 +3,15 @@ import ContentCard from '../ContentCard';
 import TodaySchedule from './TodaySchedule';
 import BusStatusCard from './BusStatusCard';
 import { Student } from '../../interfaces/student';
+import { BusRoute, PickupSchedule } from '@/interfaces';
 
 interface ParentDashboardProps {
-  studentId?: number;
+  student?: Student;
+  busRoute?: BusRoute;
+  todaySchedule?: PickupSchedule;
 }
 
-export default function ParentDashboard({ studentId }: ParentDashboardProps) {
-  const [student, setStudent] = useState<Student | null>(null);
-
-  // create fallback ID
-  const studentId_val = studentId || 5;
-
-  useEffect(() => {
-    setStudent({
-      student_id: studentId_val,
-      student_parent_id: 1,
-      student_person_id: 1,
-      student_grade: 5,
-    });
-  }, [studentId]);
+export default function ParentDashboard({ student, busRoute, todaySchedule }: ParentDashboardProps) {
 
   return (
     <div className=" max-w-6xl mx-auto">

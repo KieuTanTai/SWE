@@ -7,7 +7,7 @@ import ContentCard from '../ContentCard';
  */
 interface BusStatus {
   route: string;
-  time: 'Morning' | 'Afternoon' | 'Evening';
+  time: 'Morning' | 'Afternoon';
   status: 'On Route' | 'Delayed' | 'Arrived' | 'Cancelled';
   message: string;
   eta: string;

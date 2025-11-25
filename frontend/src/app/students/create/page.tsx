@@ -62,7 +62,7 @@ export default function CreateStudentPage() {
     if (item === "dashboard") router.push("/");
     else if (item === "driver") router.push("/drivers");
     else if (item === "student") router.push("/students");
-    else if (item === "tracking") router.push("/?tab=tracking");
+    else if (item === "tracking") router.push("/tracking");
   };
 
   const content = (

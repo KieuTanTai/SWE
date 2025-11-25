@@ -1,27 +1,16 @@
-import {
-    LayoutDashboard,
-    Users,
-    Bus,
-    Clock,
-    MapPin,
-    Navigation,
-} from 'lucide-react';
+'use client';
 
-interface SidebarProps {
+export interface SidebarProps {
     activeItem: string;
     onNavigate: (item: string) => void;
+    navItems: {
+        id: string;
+        text: string;
+        icon: React.ComponentType<{ size?: number; className?: string }>;
+    }[];
 }
 
-const navItems = [
-    { id: 'dashboard', text: 'Dashboard', icon: LayoutDashboard },
-    { id: 'tracking', text: 'Live Tracking', icon: Navigation },
-    { id: 'student', text: 'Student Management', icon: Users },
-    { id: 'driver', text: 'Driver Management', icon: Bus },
-    { id: 'schedule', text: 'Schedule Management', icon: Clock },
-    { id: 'route', text: 'Route Management', icon: MapPin },
-];
-
-export default function Sidebar({ activeItem, onNavigate }: SidebarProps) {
+export default function Sidebar({ activeItem, onNavigate, navItems }: SidebarProps) {
     return (
         <aside className="w-64 bg-gray-900 text-white flex flex-col shadow-xl">
             {/* Logo */}

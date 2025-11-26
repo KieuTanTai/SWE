@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import Maps from "@/components/maps/ggmaps";
 import getRouteDetails, { getDetailRouteNames } from "@/api/detail-routes-api";
+import { useRouter } from "next/navigation"; // Corrected import for useRouter
 
 interface RouteData {
     routeId: number;
@@ -13,7 +14,7 @@ interface RouteData {
 export default function TrackingPage() {
     const [routes, setRoutes] = useState<RouteData[]>([]);
     const [activeItem, setActiveItem] = useState("tracking");
-
+    const router = useRouter();
     useEffect(() => {
         (async () => {
             const result = await getRouteDetails([1, 2, 3]);
@@ -46,17 +47,17 @@ export default function TrackingPage() {
     const handleNavigate = (item: string) => {
         if (item === "tracking") return;
         if (item === "dashboard") {
-            window.location.href = "/";
+            router.push("/");
         } else if (item === "student") {
-            window.location.href = "/students";
+            router.push("/students");
         } else if (item === "driver") {
-            window.location.href = "/drivers";
+            router.push("/drivers");
         } else if (item === "schedule") {
-            window.location.href = "/schedules";
+            router.push("/schedules");
         } else if (item === "route") {
-            window.location.href = "/routes";
+            router.push("/routes");
         } else {
-            window.location.href = "/";
+            router.push("/");
         }
     };
 

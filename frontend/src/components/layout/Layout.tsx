@@ -6,6 +6,7 @@ import { LayoutDashboard, Navigation, Users, Bus, Clock, MapPin, Users2 } from "
 import { useAccount } from "../../contexts/AccountContext"; // Import AccountContext
 import { useEffect } from "react";
 import { useRouter } from "next/navigation"; // Corrected import for useRouter
+import { usePathname } from "next/navigation"; // Import usePathname for current path
 
 export const navItems = [
     { id: 'dashboard', text: 'Dashboard', icon: LayoutDashboard },
@@ -43,19 +44,42 @@ export default function Layout({
     navItems,
 }: LayoutProps) {
     const { account } = useAccount();
-    const router = useRouter(); // Moved inside the component
+    const router = useRouter();
+    const currentPath = usePathname(); // Call usePathname outside useEffect
 
     useEffect(() => {
         if (!account || !account.account_email) {
             router.push("/");
-        } else {
-            const roleIds = account.roles?.map((role) => role.role_id) || [];
-            if (roleIds.includes(4) || roleIds.includes(5) || roleIds.includes(6)) {
-                router.push("/tracking");
-            }
+            return;
         }
-        // No return statement needed for useEffect
-    }, [account, router]);
+
+        const roleIds = account.roles?.map((role) => role.role_id) || [];
+
+        // Define default paths based on roles
+        const defaultPaths: Record<number, string> = {
+            4: "/tracking",
+            5: "/schedules",
+            6: "/pickups",
+        };
+
+        const accessiblePaths: Record<number, string[]> = {
+            4: ["/tracking"],
+            5: ["/tracking", "/schedules", "/pickups"],
+            6: ["/tracking"],
+        };
+
+        const isAccessible = roleIds.some((roleId) =>
+            accessiblePaths[roleId]?.includes(currentPath)
+        );
+
+        // Allow roles not defined in accessiblePaths to access any page
+        const isRoleDefined = roleIds.some((roleId) => roleId in accessiblePaths);
+
+        if (isRoleDefined && !isAccessible) {
+            const defaultPath = defaultPaths[roleIds[0]] || "/";
+            router.push(defaultPath);
+        }
+    }, [account, router, currentPath]);
 
     const filteredNavItems = (navItems ?? navItemsDefault).filter((item: NavigationItem) => {
         const roleIds = account?.roles?.map((role) => role.role_id) || [];

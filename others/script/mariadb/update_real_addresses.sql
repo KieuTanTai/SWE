@@ -12,3 +12,6 @@ UPDATE Address SET address_number = '47 Hoàng Hoa Thám' WHERE address_id = 8;
 UPDATE Address SET address_number = '7 Nguyễn Tri Phương' WHERE address_id = 9;
 UPDATE Address SET address_number = '45/210/41' WHERE address_id = 10;
 UPDATE Address SET address_number = '268 Lý Thường Kiệt Đường Nguyễn Siêu' WHERE address_id = 14;
+
+UPDATE accounts SET password = '$2a$10$4GgH1IaJbeZ414Z98N5SVOJ0.kaT3JrpZZC8lMQ5c58gLrjcHf8Rq'
+SHOW CREATE TABLE products;

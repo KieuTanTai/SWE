@@ -1,109 +1,70 @@
 "use client";
+import React from "react";
+import { Users, Bus, MapPin, LayoutDashboard, AlertCircle, Sun, Wrench, Calendar } from "lucide-react";
 
-import { Bus, Users, Route, Plus, Edit, Trash2 } from "lucide-react";
-
-interface Student {
-  id: string;
-  name: string;
-  bus: string;
-  route: string;
+interface Stat {
+  label: string;
+  value: number;
+  icon: React.ReactElement;
 }
 
-export default function DashboardForManager() {
-  const students: Student[] = [
-    { id: "#STU-00123", name: "Johnathan Doe", bus: "B-42", route: "Maple Street Express" },
-    { id: "#STU-00124", name: "Emily Smith", bus: "B-17", route: "Oak Avenue Line" },
+interface QuickInfoCard {
+  title: string;
+  desc: string;
+  icon: React.ReactElement;
+}
+
+export default function Dashboard(): React.ReactElement {
+  // Mock data UI
+  const stats: Stat[] = [
+    { label: "Tổng số học sinh", value: 1250, icon: <Users size={32} className="text-blue-500" /> },
+    { label: "Tổng số tài xế", value: 85, icon: <LayoutDashboard size={32} className="text-green-500" /> },
+    { label: "Tổng số xe bus", value: 42, icon: <Bus size={32} className="text-yellow-500" /> },
+    { label: "Tổng số tuyến đường", value: 28, icon: <MapPin size={32} className="text-red-500" /> },
   ];
 
-  const stats = [
-    { title: "Total Students", value: "1,250", icon: Users, color: "text-blue-500" },
-    { title: "Total Buses", value: "84", icon: Bus, color: "text-green-500" },
-    { title: "Active Routes", value: "45", icon: Route, color: "text-purple-500" },
+  const quickInfoCards: QuickInfoCard[] = [
+    { title: "Tình trạng xe", desc: "Tất cả xe bus đang hoạt động bình thường.", icon: <Bus size={24} className="text-green-500" /> },
+    { title: "Thời tiết hôm nay", desc: "Trời nắng nhẹ, phù hợp cho lịch trình đưa đón.", icon: <Sun size={24} className="text-yellow-500" /> },
+    { title: "Thông tin bảo trì", desc: "3 xe bus sẽ bảo trì vào cuối tuần.", icon: <Wrench size={24} className="text-blue-500" /> },
+    { title: "Sự kiện sắp tới", desc: "Họp phụ huynh vào ngày 10/12.", icon: <Calendar size={24} className="text-purple-500" /> },
   ];
 
   return (
-    <div className="w-full h-full bg-gray-900 text-gray-100">
-      {/* Dashboard cards */}
-      <div className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <div key={index} className="bg-gray-800 rounded-lg p-6 shadow-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">{stat.title}</p>
-                    <h2 className="text-3xl font-bold mt-2">{stat.value}</h2>
-                  </div>
-                  <Icon className={`w-12 h-12 ${stat.color}`} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+    <div className="py-4 px-6">
+      {/* TITLE */}
+      <h2 className="font-bold text-2xl mb-4">Dashboard</h2>
 
-        {/* Student Table */}
-        <div className="bg-gray-800 rounded-lg shadow-lg">
-          <div className="flex justify-between items-center p-6 border-b border-gray-700">
-            <h5 className="text-xl font-semibold">Student Records</h5>
-            <div className="flex gap-3">
-              <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                <Plus className="w-4 h-4" />
-                Create New Route
-              </button>
-              <button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                <Plus className="w-4 h-4" />
-                Add New Student
-              </button>
+      {/* STATISTICS */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        {stats.map((item: Stat, index: number) => (
+          <div key={index} className="bg-black rounded-lg shadow flex flex-col items-center p-4">
+            {item.icon}
+            <h6 className="text-gray-500 mt-2">{item.label}</h6>
+            <h2 className="font-bold text-xl mt-1">{item.value}</h2>
+          </div>
+        ))}
+      </div>
+
+      {/* IMPORTANT ANNOUNCEMENT */}
+      <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 shadow flex items-center mb-4">
+        <AlertCircle size={24} className="mr-2 text-red-500" />
+        <span className="font-bold mr-2">Thông báo quan trọng:</span>
+        Tuyến đường SSB System sẽ thay đổi lịch trình trong tuần này do nâng cấp đường.
+      </div>
+
+      {/* GENERAL INFORMATION CARDS */}
+      <h5 className="font-bold text-lg mt-4 mb-3">Thông tin chung</h5>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {quickInfoCards.map((info: QuickInfoCard, index: number) => (
+          <div key={index} className="bg-black rounded-lg shadow p-4 flex items-center">
+            {info.icon}
+            <div className="ml-3">
+              <div className="font-bold">{info.title}</div>
+              <div className="text-gray-600">{info.desc}</div>
             </div>
           </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Student ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Bus No.
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Route
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-700">
-                {students.map((student, index) => (
-                  <tr key={index} className="hover:bg-gray-700 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{student.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">{student.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">{student.bus}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">{student.route}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="flex gap-2">
-                        <button className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors">
-                          <Edit className="w-4 h-4" />
-                          Edit
-                        </button>
-                        <button className="flex items-center gap-1 text-red-400 hover:text-red-300 transition-colors">
-                          <Trash2 className="w-4 h-4" />
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

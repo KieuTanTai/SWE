@@ -69,7 +69,7 @@ const TodaySchedule: React.FC<{ studentId?: number }> = ({ studentId }) => {
   if (todaySchedule.length === 0) {
     return (
       <div className="bg-slate-900 rounded-lg p-6 border border-slate-800">
-        <h3 className="text-xl font-semibold mb-6">Today's Schedule</h3>
+        <h3 className="text-xl font-semibold mb-6">Today&apos;s Schedule</h3>
         <div className="text-center py-8">
           <p className="text-gray-400">No schedule for today</p>
         </div>
@@ -88,7 +88,7 @@ const TodaySchedule: React.FC<{ studentId?: number }> = ({ studentId }) => {
             className="flex items-start gap-4 p-4 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors"
           >
             {/* Icon */}
-            <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center shrink-0">
               <span className="text-xl">{getTypeIcon(item.type)}</span>
             </div>
 
@@ -105,11 +105,11 @@ const TodaySchedule: React.FC<{ studentId?: number }> = ({ studentId }) => {
               {/* Details */}
               <div className="flex items-center gap-4 text-sm text-gray-400 flex-wrap">
                 <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4 flex-shrink-0" />
+                  <Clock className="w-4 h-4 shrink-0" />
                   <span>{item.time}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4 flex-shrink-0" />
+                  <MapPin className="w-4 h-4 shrink-0" />
                   <span className="truncate">{item.location}</span>
                 </div>
               </div>

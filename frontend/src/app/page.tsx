@@ -79,6 +79,9 @@ export default function HomePage() {
     else if (item === 'route') {
       router.push('/routes');
     }
+    else if (item === 'pickup') {
+      router.push('/pickups');
+    }
     else {
       setActiveItem(item);
     }

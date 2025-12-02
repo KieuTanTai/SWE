@@ -16,7 +16,7 @@ export const navItems = [
     { id: 'driver', text: 'Driver Management', icon: Bus },
     { id: 'schedule', text: 'Schedule Management', icon: Clock },
     { id: 'route', text: 'Route Management', icon: MapPin },
-    { id: 'pickups', text: 'Pickup Management', icon: Users2 },
+    { id: 'pickups', text: 'Lịch trình', icon: Users2 },
 ];
 
 interface NavigationItem {
@@ -65,7 +65,7 @@ export default function Layout({
 
         const accessiblePaths: Record<number, string[]> = {
             4: ["/tracking"],
-            5: ["/tracking", "/schedules", "/pickups"],
+            5: ["/tracking",  "/pickups"],
             6: ["/tracking"],
         };
 
@@ -92,7 +92,7 @@ export default function Layout({
         if (roleIds.includes(4)) {
             return item.id === "tracking";
         } else if (roleIds.includes(5)) {
-            return ["tracking", "schedule", "pickups"].includes(item.id);
+            return ["tracking", "pickups"].includes(item.id);
         } else if (roleIds.includes(6)) {
             return item.id === "tracking";
         }

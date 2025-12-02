@@ -9,3 +9,13 @@ export async function getSchedulesByRouteId(
   );
   return response.data as Schedule[];
 }
+// 🔹 Lịch trình theo tài xế (dựa trên accountId)
+export async function getSchedulesByDriverAccountId(
+    accountId: number
+): Promise<Schedule[]> {
+  const response = await axios.get(
+      `http://localhost:5000/api/schedules/driver`,
+      { params: { accountId } }
+  );
+  return response.data as Schedule[];
+}

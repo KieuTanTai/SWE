@@ -339,7 +339,9 @@ export default function TrackingPage() {
             router.push("/students");
         } else if (item === "driver") {
             router.push("/drivers");
-        } else if (item === "schedule") {
+        } else if (item === "pickups") {
+            router.push("/pickups");
+        }else if (item === "schedule") {
             router.push("/schedules");
         } else if (item === "route") {
             router.push("/routes");

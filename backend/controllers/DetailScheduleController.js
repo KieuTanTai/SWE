@@ -40,6 +40,25 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
+ * @route GET /api/detail-schedules/schedule/:scheduleId
+ * @desc Get detail schedules by schedule ID
+ */
+router.get('/schedule/:scheduleId', async (req, res) => {
+    try {
+        const scheduleId = parseInt(req.params.scheduleId);
+        const result = await DetailScheduleServices.getByScheduleId(scheduleId);
+        
+        if (result.success) {
+            res.json(result.data);
+        } else {
+            res.status(400).json({ error: result.error });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
  * @route POST /api/detail-schedules
  * @desc Create a new detail schedule
  */

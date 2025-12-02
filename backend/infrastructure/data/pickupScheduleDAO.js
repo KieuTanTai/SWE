@@ -158,10 +158,6 @@ export default class PickupScheduleDAO extends BaseDAO {
      * @memberof PickupScheduleDAO
      */
     async createPickupSchedule(pickupSchedule) {
-        if (!(pickupSchedule instanceof PickupSchedule)) {
-            console.error('Error: pickupSchedule must be an instance of PickupSchedule');
-            return -1;
-        }
 
         try {
             const data = {

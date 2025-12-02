@@ -1,6 +1,7 @@
 import { default as BusRouteDAO } from "../infrastructure/data/busRouteDAO.js";
 import BusRoute from "../models/BusRoute.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
+import BusDAO from "../infrastructure/data/busDAO.js";
 
 /**
  * BusRouteServices
@@ -16,7 +17,19 @@ class BusRouteServices {
         try {
             const results = await withConnection(async (connection) => {
                 const repo = new BusRouteDAO(connection);
-                return await repo.getAllBusRoutes();
+                const busRepo = new BusDAO(connection);
+
+                const busRoutes = await repo.getAllBusRoutes();
+
+                const busIds =  busRoutes.map(br => br.bus_id);
+                const buses = await busRepo.getByBusIds(busIds);
+                const busMap = new Map( buses.map(b => [b.bus_id, b]));
+
+                busRoutes.forEach(br => {
+                    br.bus = busMap.get(br.bus_id);
+                })
+
+                return busRoutes;
             });
             
             return {

@@ -1,4 +1,5 @@
 import { default as DriverDAO } from "../infrastructure/data/driverDAO.js";
+import { default as PersonDAO } from "../infrastructure/data/personDAO.js";
 import Driver from "../models/Driver.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 
@@ -15,8 +16,23 @@ class DriverServices {
     async getAllDrivers() {
         try {
             const results = await withConnection(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.getAllDrivers();
+                const driverRepo = new DriverDAO(connection);
+                const personRepo = new PersonDAO(connection);
+                
+                const drivers = await driverRepo.getAllDrivers();
+                if (drivers.length === 0) return drivers;
+                
+                // Load person navigation property
+                const personIds = drivers.map(d => d.driver_person_id).filter(id => id);
+                if (personIds.length > 0) {
+                    const persons = await personRepo.getByPersonIds(personIds);
+                    const personMap = new Map(persons.map(p => [p.person_id, p]));
+                    drivers.forEach(driver => {
+                        driver.person = personMap.get(driver.driver_person_id) || null;
+                    });
+                }
+                
+                return drivers;
             });
             
             return {
@@ -46,8 +62,15 @@ class DriverServices {
             }
 
             const result = await withConnection(async (connection) => {
-                const repo = new DriverDAO(connection);
-                return await repo.getByDriverPersonId(driverPersonId);
+                const driverRepo = new DriverDAO(connection);
+                const personRepo = new PersonDAO(connection);
+                
+                const driver = await driverRepo.getByDriverPersonId(driverPersonId);
+                if (driver && driver.driver_person_id) {
+                    driver.person = await personRepo.getByPersonId(driver.driver_person_id);
+                }
+                
+                return driver;
             });
             
             return {

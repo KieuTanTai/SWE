@@ -2,7 +2,7 @@ import BusRoute from "../../models/BusRoute.js";
 import DetailSchedule from "../../models/DetailSchedule.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
-import mySql from "mysql2/promise"
+import mySql from "mysql2/promise";
 
 export default class DetailScheduleDAO extends BaseDAO {
     
@@ -122,6 +122,38 @@ export default class DetailScheduleDAO extends BaseDAO {
     }
 
     /**
+     * Get detail schedules by multiple schedule IDs
+     * @param {number[]} scheduleIds
+     * @return {Promise<DetailSchedule[]>} 
+     * @memberof DetailScheduleDAO
+     */
+    async getByScheduleIds(scheduleIds) {
+        if (!Array.isArray(scheduleIds) || scheduleIds.length === 0) {
+            console.warn(`Warning: scheduleIds must be a non-empty array`);
+            return [];
+        }
+
+        try {
+            const placeholders = scheduleIds.map(() => '?').join(', ');
+            const results = await this._protectedGetBySelection(
+                ["*"], 
+                scheduleIds,
+                `WHERE ${dbSchema.DETAIL_SCHEDULE_COLUMNS.SCHEDULE_ID} IN (${placeholders})`
+            );
+
+            if (!results || results.length === 0) {
+                console.warn(`Warning: No detail schedules found for provided scheduleIds`);
+                return [];
+            }
+
+            return results.map(row => DetailSchedule.fromDatabase(row));
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+            return [];
+        }
+    }
+
+    /**
      * Get detail schedules by bus route ID
      * @param {number} busRouteId
      * @return {Promise<DetailSchedule[]>} 
@@ -151,6 +183,38 @@ export default class DetailScheduleDAO extends BaseDAO {
             return [];
         }
     }
+
+    /**
+ * Get detail schedules by multiple bus route IDs
+ * @param {number[]} busRouteIds
+ * @return {Promise<DetailSchedule[]>} 
+ * @memberof DetailScheduleDAO
+ */
+async getByBusRouteIds(busRouteIds) {
+    if (!Array.isArray(busRouteIds) || busRouteIds.length === 0) {
+        console.warn(`Warning: busRouteIds must be a non-empty array`);
+        return [];
+    }
+
+    try {
+        const placeholders = busRouteIds.map(() => '?').join(', ');
+        const results = await this._protectedGetBySelection(
+            ["*"], 
+            busRouteIds,
+            `WHERE ${dbSchema.DETAIL_SCHEDULE_COLUMNS.BUS_ROUTE_ID} IN (${placeholders})`
+        );
+
+        if (!results || results.length === 0) {
+            console.warn(`Warning: No detail schedules found for provided busRouteIds`);
+            return [];
+        }
+
+        return results.map(row => DetailSchedule.fromDatabase(row));
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+        return [];
+    }
+}
 
     /**
      * Get detail schedules by time role ID
@@ -190,10 +254,6 @@ export default class DetailScheduleDAO extends BaseDAO {
      * @memberof DetailScheduleDAO
      */
     async createDetailSchedule(detailSchedule) {
-        if (!(detailSchedule instanceof DetailSchedule)) {
-            console.error('Error: detailSchedule must be an instance of DetailSchedule');
-            return -1;
-        }
 
         try {
             const data = {

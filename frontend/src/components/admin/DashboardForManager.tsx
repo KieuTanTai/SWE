@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { Users, Bus, MapPin, LayoutDashboard, AlertCircle, Sun, Wrench, Calendar } from "lucide-react";
+import AlertButton from "../AlertButton";
 
 interface Stat {
   label: string;
@@ -15,6 +16,12 @@ interface QuickInfoCard {
 }
 
 export default function Dashboard(): React.ReactElement {
+  const handleSendAlert = (recipient: string, message: string) => {
+    console.log(`Sending alert to ${recipient}: ${message}`);
+    alert(`Alert sent to ${recipient}: ${message}`);
+    // TODO: Implement API call to send alert
+  };
+
   // Mock data UI
   const stats: Stat[] = [
     { label: "Tổng số học sinh", value: 1250, icon: <Users size={32} className="text-blue-500" /> },
@@ -65,6 +72,20 @@ export default function Dashboard(): React.ReactElement {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ALERT BUTTONS - Fixed position at bottom right */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-40">
+        <AlertButton
+          type="parent"
+          onSendAlert={(message) => handleSendAlert('parent', message)}
+          id="parent-alert"
+        />
+        <AlertButton
+          type="driver"
+          onSendAlert={(message) => handleSendAlert('driver', message)}
+          id="driver-alert"
+        />
       </div>
     </div>
   );

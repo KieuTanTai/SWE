@@ -1,6 +1,7 @@
 // src/services/driverService.ts
 import axiosClient from "@/utils/axiosClient";
 import { Driver } from "@/interfaces/driver";
+import { Person } from "@/interfaces";
 
 export const driverService = {
   getAllDrivers: async () => {
@@ -14,7 +15,7 @@ export const driverService = {
   },
 
   // Tạo Person -> Tạo Driver
-  createDriver: async (data: any) => {
+  createDriver: async (data: Person) => {
     try {
       // 1. Create Person
       const personRes = await axiosClient.post('/persons', {

@@ -4,7 +4,7 @@ import dbSchema from "./dbSchema.js";
 import mySql from "mysql2/promise"
 
 export default class PickupScheduleDAO extends BaseDAO {
-    
+
     /**
      * Creates an instance of PickupScheduleDAO.
      * @param {mySql.PoolConnection} connection
@@ -16,7 +16,7 @@ export default class PickupScheduleDAO extends BaseDAO {
 
     /**
      * Get all pickup schedules
-     * @return {Promise<PickupSchedule[]>} 
+     * @return {Promise<PickupSchedule[]>}
      * @memberof PickupScheduleDAO
      */
     async getAllPickupSchedules() {
@@ -36,7 +36,7 @@ export default class PickupScheduleDAO extends BaseDAO {
     /**
      * Get pickup schedule by ID
      * @param {number} pickupScheduleId
-     * @return {Promise<PickupSchedule>} 
+     * @return {Promise<PickupSchedule>}
      * @memberof PickupScheduleDAO
      */
     async getByPickupScheduleId(pickupScheduleId) {
@@ -66,7 +66,7 @@ export default class PickupScheduleDAO extends BaseDAO {
     /**
      * Get pickup schedules by multiple IDs
      * @param {number[]} pickupScheduleIds
-     * @return {Promise<PickupSchedule[]>} 
+     * @return {Promise<PickupSchedule[]>}
      * @memberof PickupScheduleDAO
      */
     async getByPickupScheduleIds(pickupScheduleIds) {
@@ -92,7 +92,7 @@ export default class PickupScheduleDAO extends BaseDAO {
     /**
      * Get pickup schedules by detail schedule ID
      * @param {number} detailScheduleId
-     * @return {Promise<PickupSchedule[]>} 
+     * @return {Promise<PickupSchedule[]>}
      * @memberof PickupScheduleDAO
      */
     async getByDetailScheduleId(detailScheduleId) {
@@ -123,7 +123,7 @@ export default class PickupScheduleDAO extends BaseDAO {
     /**
      * Get pickup schedules by student ID
      * @param {number} studentId
-     * @return {Promise<PickupSchedule[]>} 
+     * @return {Promise<PickupSchedule[]>}
      * @memberof PickupScheduleDAO
      */
     async getByStudentId(studentId) {
@@ -247,4 +247,87 @@ export default class PickupScheduleDAO extends BaseDAO {
             return -1;
         }
     }
+
+    /**
+     * Lấy danh sách học sinh + thông tin địa chỉ cho 1 detailScheduleId
+     * Dùng cho màn tracking của driver.
+     *
+     * @param {number} detailScheduleId
+     * @return {Promise<any[]>}
+     */
+    async getStudentListForDetailSchedule(detailScheduleId) {
+        if (
+            detailScheduleId === null ||
+            detailScheduleId === undefined ||
+            !Number.isInteger(detailScheduleId)
+        ) {
+            console.warn(`Warning: detailScheduleId is invalid : ${detailScheduleId}`);
+            return [];
+        }
+
+        if (detailScheduleId <= 0) {
+            console.warn(
+                `Warning: detailScheduleId must be greater than zero : ${detailScheduleId}`
+            );
+            return [];
+        }
+
+        try {
+            const sql = `
+                SELECT ps.${dbSchema.PICKUP_SCHEDULE_COLUMNS.PICKUP_SCHEDULE_ID}         AS pickup_schedule_id,
+                       ps.${dbSchema.PICKUP_SCHEDULE_COLUMNS.PICKUP_SCHEDULE_DETAIL_ID}  AS pickup_schedule_detail_id,
+                       ps.${dbSchema.PICKUP_SCHEDULE_COLUMNS.PICKUP_SCHEDULE_STUDENT_ID} AS pickup_schedule_student_id,
+
+                       s.student_id                                                      AS student_id,
+                       sp.person_name                                                    AS student_name,
+
+                       -- Lấy SĐT phụ huynh từ Person (cha mẹ)
+                       pp.person_phone                                                   AS parent_phone,
+
+                       CONCAT_WS(', ',
+                                 addr.address_number,
+                                 ward.location_ward_name,
+                                 district.location_district_name,
+                                 city.location_city_name
+                       )                                                                 AS parent_address
+                FROM Pickup_Schedule ps
+                         JOIN Student s
+                              ON s.student_id = ps.${dbSchema.PICKUP_SCHEDULE_COLUMNS.PICKUP_SCHEDULE_STUDENT_ID}
+                    -- Person của học sinh
+                         JOIN Person sp
+                              ON sp.person_id = s.student_person_id
+                    -- Parent: liên kết học sinh -> phụ huynh
+                         LEFT JOIN Parent pa
+                                   ON pa.parent_person_id = s.student_parent_id
+                    -- Person của phụ huynh (để lấy phone)
+                         LEFT JOIN Person pp
+                                   ON pp.person_id = pa.parent_person_id
+                         LEFT JOIN Address addr
+                                   ON addr.address_id = pa.parent_address_id
+                         LEFT JOIN Location_Ward ward
+                                   ON ward.location_ward_id = addr.address_ward_id
+                         LEFT JOIN Location_District district
+                                   ON district.location_district_id = addr.address_district_id
+                         LEFT JOIN Location_City city
+                                   ON city.location_city_id = addr.address_city_id
+                WHERE ps.${dbSchema.PICKUP_SCHEDULE_COLUMNS.PICKUP_SCHEDULE_DETAIL_ID} = ?
+            `;
+
+            const [rows] = await this.connection.execute(sql, [detailScheduleId]);
+            if (!rows || rows.length === 0) {
+                console.warn(
+                    `Warning: No student pickup found for detailScheduleId ${detailScheduleId}`
+                );
+                return [];
+            }
+
+            return rows;
+        } catch (error) {
+            console.error(
+                `[PickupScheduleDAO.getStudentListForDetailSchedule] Error: ${error.message}`
+            );
+            return [];
+        }
+    }
 }
+

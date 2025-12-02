@@ -30,6 +30,8 @@ import ScheduleController from './controllers/ScheduleController.js';
 import DetailScheduleController from './controllers/DetailScheduleController.js';
 import PickupScheduleController from './controllers/PickupScheduleController.js';
 import ReportController from './controllers/ReportController.js';
+import DriverPickupController from './controllers/DriverPickupController.js';
+
 
 // Initialize Express App
 const app = express();
@@ -37,9 +39,10 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-    origin: 'https://localhost:3000',
+    origin: true,
     credentials: true
 }));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -79,6 +82,12 @@ app.use('/api/pickup-schedules', PickupScheduleController);
 
 // API Routes - Reporting
 app.use('/api/reports', ReportController);
+
+// // API Routes - Reporting
+// app.use('/api/reports', ReportController);
+
+// API Routes - Driver Tracking / Pickup
+app.use('/api/driver', DriverPickupController);
 
 // 404 Handler
 app.use((req, res) => {

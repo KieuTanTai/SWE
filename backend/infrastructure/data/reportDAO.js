@@ -221,6 +221,7 @@ export default class ReportDAO extends BaseDAO {
      * @return {Promise<number>} The report_id or -1 if failed
      * @memberof ReportDAO
      */
+    // ReportDAO.js
     async createReport(report) {
         if (!(report instanceof Report)) {
             console.warn(`Warning: Invalid report object`);
@@ -228,7 +229,15 @@ export default class ReportDAO extends BaseDAO {
         }
 
         try {
-            const result = await this._protectedCreate(report);
+            // chỉ lấy các cột thật sự tồn tại trong bảng Report
+            const valueInsert = {
+                [dbSchema.REPORT_COLUMNS.REPORT_DRIVER_ID]: report.report_driver_id,
+                [dbSchema.REPORT_COLUMNS.REPORT_TIME]: report.report_time,
+                [dbSchema.REPORT_COLUMNS.REPORT_TYPE]: report.report_type,
+                [dbSchema.REPORT_COLUMNS.REPORT_CONTENT]: report.report_content,
+            };
+
+            const result = await this._protectedCreate(valueInsert);
             return result;
         } catch (error) {
             console.error(`Error: ${error.message}`);

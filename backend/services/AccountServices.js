@@ -5,6 +5,7 @@ import { comparePassword, hashPassword } from "../utils/passwordHash.js";
 import ServiceResponse from "../utils/ServiceResponse.js";
 import AccountRoleDAO from "../infrastructure/data/accountRoleDAO.js";
 import AccountRole from "../models/AccountRole.js";
+import PersonDAO from "../infrastructure/data/personDAO.js";
 
 /**
  * AccountServices
@@ -32,7 +33,12 @@ class AccountServices {
 
             let result = await withConnection(async (connection) => {
                 const repo = new AccountDAO(connection);
-                return await repo.getByEmail(email);
+                const personRepo = new PersonDAO(connection);
+
+                const account = await repo.getByEmail(email);
+                const person = await personRepo.getByAccountId(account.account_id);
+                account.person = person;
+                return account;
             });
             
             // Check if account exists (DAO returns empty Account object if not found)

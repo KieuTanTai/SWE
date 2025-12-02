@@ -1,7 +1,7 @@
 import Schedule from "../../models/Schedule.js";
 import { default as BaseDAO } from "./baseDAO.js";
 import dbSchema from "./dbSchema.js";
-import mySql from "mysql2/promise"
+import mySql from "mysql2/promise";
 
 export default class ScheduleDAO extends BaseDAO {
     
@@ -211,11 +211,6 @@ export default class ScheduleDAO extends BaseDAO {
      * @memberof ScheduleDAO
      */
     async createSchedule(schedule) {
-        if (!(schedule instanceof Schedule)) {
-            console.error('Error: schedule must be an instance of Schedule');
-            return -1;
-        }
-
         try {
             const data = {
                 [dbSchema.SCHEDULE_COLUMNS.SCHEDULE_BY_MANAGER_ID]: schedule.schedule_by_manager_id,

@@ -15,6 +15,16 @@ function getCurrentWeekRange(): { startOfWeek: Date; endOfWeek: Date } {
   return { startOfWeek, endOfWeek };
 }
 
+export function formatDate(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "--"; // check invalid date
+  return d.toLocaleDateString('en-GB'); // "DD/MM/YYYY"
+}
+
+export function getDuration (endDate: Date): number {
+  const duration = Date.now() - endDate.getTime()
+  return duration / (1000 * 3600 * 24)
+}
 
 export function formatTime(time: string|undefined): string {
     if (!time) return 'N/A';

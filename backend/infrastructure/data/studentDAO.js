@@ -161,17 +161,37 @@ export default class StudentDAO extends BaseDAO {
         }
     }
 
-    async deleteStudent(studentId) {
-        if (!studentId) return -1;
+    // async deleteStudent(studentId) {
+    //     if (!studentId) return -1;
+    //     try {
+    //         const affectedRows = await this._protectedDeleteById(studentId);
+    //         return affectedRows > 0 ? affectedRows : -1;
+    //     } catch (error) {
+    //         console.error(`Error: ${error.message}`);
+    //         return -1;
+    //     }
+    // }
+async deleteStudent(studentId) {
         try {
-            const affectedRows = await this._protectedDeleteById(studentId);
-            return affectedRows > 0 ? affectedRows : -1;
+            // B1: Tìm Person ID của học sinh này
+            const queryGet = `SELECT student_person_id FROM Student WHERE student_id = ?`;
+            /** @type {[any[], any]} */
+            const [rows] = await this.connection.execute(queryGet, [studentId]);
+            
+            if (rows.length === 0) return -1;
+            const personId = rows[0].student_person_id;
+
+            // B2: Update bảng Person -> status = 0
+            const queryUpdate = `UPDATE Person SET person_life_cycle_status = 0 WHERE person_id = ?`;
+            /** @type {[any, any]} */
+            const [result] = await this.connection.execute(queryUpdate, [personId]);
+            
+            return (result && result.affectedRows > 0) ? studentId : -1;
         } catch (error) {
-            console.error(`Error: ${error.message}`);
+            console.error(`Error deleteStudent: ${error.message}`);
             return -1;
         }
     }
-
     async isPersonStudent(personId) {
         if (!personId) return false;
         try {

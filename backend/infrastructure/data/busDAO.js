@@ -281,17 +281,30 @@ export default class BusDAO extends BaseDAO {
      * @return {Promise<number>} 
      * @memberof BusDAO
      */
-    async deleteBus(busId) {
-        if (busId === null || busId === undefined || !Number.isInteger(busId)) {
-            console.warn(`Warning: Invalid Bus Id : ${busId}`);
-            return -1;
-        }
+    // async deleteBus(busId) {
+    //     if (busId === null || busId === undefined || !Number.isInteger(busId)) {
+    //         console.warn(`Warning: Invalid Bus Id : ${busId}`);
+    //         return -1;
+    //     }
 
+    //     try {
+    //         const result = await this._protectedDeleteById(busId);
+    //         return result;
+    //     } catch (error) {
+    //         console.error(`Error: ${error.message}`);
+    //         return -1;
+    //     }
+    // }
+    async deleteBus(busId) {
         try {
-            const result = await this._protectedDeleteById(busId);
-            return result;
+            // Update bảng Bus -> bus_status = 0
+            const query = `UPDATE Bus SET bus_status = 0 WHERE bus_id = ?`;
+            /** @type {[any, any]} */
+            const [result] = await this.connection.execute(query, [busId]);
+            
+            return (result && result.affectedRows > 0) ? busId : -1;
         } catch (error) {
-            console.error(`Error: ${error.message}`);
+            console.error(`Error deleteBus: ${error.message}`);
             return -1;
         }
     }

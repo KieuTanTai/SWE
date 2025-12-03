@@ -68,13 +68,17 @@ export const studentService = {
     return { success: true };
   },
 
-  deleteStudent: async (id: number) => {
-    const student = await axiosClient.get(`/students/${id}`);
-    const personId = student.data.student_person_id;
+  // deleteStudent: async (id: number) => {
+  //   const student = await axiosClient.get(`/students/${id}`);
+  //   const personId = student.data.student_person_id;
 
-    if (personId) {
-        await axiosClient.delete(`/persons/${personId}`); 
-    }
+  //   if (personId) {
+  //       await axiosClient.delete(`/persons/${personId}`); 
+  //   }
+  //   return { success: true };
+  // }
+  deleteStudent: async (id: number) => {
+    await axiosClient.delete(`/students/${id}`);
     return { success: true };
   }
 };

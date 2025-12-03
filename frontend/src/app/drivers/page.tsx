@@ -200,8 +200,9 @@ export default function DriverAndBusPage() {
                                 </thead>
                                 <tbody className="divide-y divide-gray-700 bg-gray-800">
                                     {filteredDrivers.length > 0 ? filteredDrivers.map((driver) => {
-                                        const isActive = driver.person?.person_life_cycle_status !== false; // Mặc định true
-
+                                        // const isActive = driver.person?.person_life_cycle_status !== false; // Mặc định true
+                                         const rawStatus = driver.person?.person_life_cycle_status;
+                                         const isActive = rawStatus === 1 || rawStatus === true;
                                         return (
                                             <tr key={driver.driver_person_id} className={`hover:bg-gray-750 transition-colors ${!isActive ? 'opacity-50 bg-gray-900' : ''}`}>
                                                 <td className="px-6 py-4 text-sm font-medium text-white">{formatId(driver.driver_person_id, 'DRV')}</td>
@@ -254,7 +255,8 @@ export default function DriverAndBusPage() {
                                 <tbody className="divide-y divide-gray-700 bg-gray-800">
                                     {filteredBuses.length > 0 ? filteredBuses.map((bus) => {
                                         const isActive = bus.bus_status;
-
+                                        const rawStatus = bus.bus_status;
+    
                                         return (
                                             <tr key={bus.bus_id} className={`hover:bg-gray-750 transition-colors ${!isActive ? 'opacity-50 bg-gray-900' : ''}`}>
                                                 <td className="px-6 py-4"><div className={`text-sm font-bold px-2 py-1 rounded w-fit border ${isActive ? 'text-yellow-400 bg-yellow-900/20 border-yellow-700/50' : 'text-gray-500 bg-gray-800 border-gray-700'}`}>{bus.bus_license_plate}</div></td>

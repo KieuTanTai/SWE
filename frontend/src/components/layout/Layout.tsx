@@ -3,7 +3,7 @@
 import Header from './Header';
 import Sidebar from './Sidebar';
 import AlertReceiver from '../AlertReceiver';
-import { LayoutDashboard, Navigation, Users, Bus, Clock, MapPin, Users2 } from "lucide-react";
+import { LayoutDashboard, Navigation, Users, Bus, Clock, MapPin } from "lucide-react";
 import { useAccount } from "../../contexts/AccountContext"; // Import AccountContext
 import { useEffect } from "react";
 import { useRouter } from "next/navigation"; // Corrected import for useRouter
@@ -15,8 +15,7 @@ export const navItems = [
     { id: 'student', text: 'Student Management', icon: Users },
     { id: 'driver', text: 'Driver Management', icon: Bus },
     { id: 'schedule', text: 'Schedule Management', icon: Clock },
-    { id: 'route', text: 'Route Management', icon: MapPin },
-    { id: 'pickups', text: 'Pickup Management', icon: Users2 },
+    { id: 'route', text: 'Route Management', icon: MapPin }
 ];
 
 interface NavigationItem {
@@ -59,13 +58,12 @@ export default function Layout({
         // Define default paths based on roles
         const defaultPaths: Record<number, string> = {
             4: "/tracking",
-            5: "/schedules",
-            6: "/pickups",
+            5: "/schedules"
         };
 
         const accessiblePaths: Record<number, string[]> = {
             4: ["/tracking"],
-            5: ["/tracking", "/schedules", "/pickups"],
+            5: ["/tracking", "/schedules"],
             6: ["/tracking"],
         };
 
@@ -92,7 +90,7 @@ export default function Layout({
         if (roleIds.includes(4)) {
             return item.id === "tracking";
         } else if (roleIds.includes(5)) {
-            return ["tracking", "schedule", "pickups"].includes(item.id);
+            return ["tracking", "schedule"].includes(item.id);
         } else if (roleIds.includes(6)) {
             return item.id === "tracking";
         }

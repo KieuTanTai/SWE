@@ -1,5 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import ContentCard from '../ContentCard';
 import TodaySchedule from './TodaySchedule';
 import BusStatusCard from './BusStatusCard';
 import { Student } from '../../interfaces/student';
@@ -18,7 +16,7 @@ export default function ParentDashboard({ student, busRoute, todaySchedule }: Pa
       {/* Student Info Card */}
       <div className="flex flex-row items-center gap-4 mb-6
       bg-gray-900 shadow-lg p-4">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-2xl font-bold flex-shrink-0">
+        <div className="w-16 h-16 rounded-full bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-2xl font-bold flex-shrink-0">
           ?
         </div>
 

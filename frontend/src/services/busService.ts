@@ -13,7 +13,7 @@ export const busService = {
     return response.data;
   },
 
-  createBus: async (data: any) => {
+  createBus: async (data: Bus ) => {
     const payload = {
         bus_license_plate: data.bus_license_plate,
         bus_brand: data.bus_brand,
@@ -29,7 +29,7 @@ export const busService = {
     return { success: true };
   },
 
-  updateBus: async (id: number, data: any) => {
+  updateBus: async (id: number, data: Bus) => {
     await axiosClient.put(`/buses/${id}`, {
         ...data,
         bus_has_wifi: data.bus_has_wifi ? 1 : 0,

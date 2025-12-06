@@ -2,6 +2,7 @@
 
 import Header from './Header';
 import Sidebar from './Sidebar';
+import AlertReceiver from '../AlertReceiver';
 import { LayoutDashboard, Navigation, Users, Bus, Clock, MapPin, Users2 } from "lucide-react";
 import { useAccount } from "../../contexts/AccountContext"; // Import AccountContext
 import { useEffect } from "react";
@@ -103,7 +104,9 @@ export default function Layout({
             <Sidebar activeItem={activeItem} onNavigate={onNavigate} navItems={filteredNavItems} />
 
             <div className="flex-1 flex flex-col overflow-hidden ml-2">
-                <Header />
+                <Header>
+                    <AlertReceiver />
+                </Header>
 
                 <main className="flex-1 overflow-y-auto p-6 w-full bg-gray-800 text-gray-100">
                     {children}

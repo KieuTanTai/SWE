@@ -91,7 +91,7 @@ const BusStatusCard: React.FC<BusStatusCardProps> = ({ studentId, onTrackBus }) 
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <Bus className="w-6 h-6 text-blue-400 flex-shrink-0" />
+          <Bus className="w-6 h-6 text-blue-400 shrink-0" />
           <div>
             <p className="text-gray-400 text-sm">
               {busStatus.route} - {busStatus.time}
@@ -99,7 +99,7 @@ const BusStatusCard: React.FC<BusStatusCardProps> = ({ studentId, onTrackBus }) 
           </div>
         </div>
         <span
-          className={`${statusColor.bg} border ${statusColor.border} ${statusColor.text} px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0`}
+          className={`${statusColor.bg} border ${statusColor.border} ${statusColor.text} px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap shrink-0`}
         >
           {busStatus.status}
         </span>
@@ -112,25 +112,25 @@ const BusStatusCard: React.FC<BusStatusCardProps> = ({ studentId, onTrackBus }) 
       <div className="space-y-3 mb-6">
         {/* ETA */}
         <div className="flex items-center gap-3 p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
-          <Clock className="w-5 h-5 text-orange-400 flex-shrink-0" />
+          <Clock className="w-5 h-5 text-orange-400 shrink-0" />
           <span className="text-orange-400 font-semibold">ETA: {busStatus.eta}</span>
         </div>
 
         {/* Pickup Location */}
         <div className="flex items-center gap-3">
-          <MapPin className="w-5 h-5 text-blue-400 flex-shrink-0" />
+          <MapPin className="w-5 h-5 text-blue-400 shrink-0" />
           <span className="text-gray-300 text-sm">{busStatus.pickup}</span>
         </div>
 
         {/* Bus Info */}
         <div className="flex items-center gap-3">
-          <Bus className="w-5 h-5 text-gray-400 flex-shrink-0" />
+          <Bus className="w-5 h-5 text-gray-400 shrink-0" />
           <span className="text-gray-300 text-sm">{busStatus.bus}</span>
         </div>
 
         {/* Driver Info */}
         <div className="flex items-center gap-3">
-          <Phone className="w-5 h-5 text-gray-400 flex-shrink-0" />
+          <Phone className="w-5 h-5 text-gray-400 shrink-0" />
           <span className="text-gray-300 text-sm">{busStatus.driver}</span>
         </div>
       </div>

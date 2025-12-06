@@ -1,4 +1,4 @@
-import { Bell, UserCircle } from 'lucide-react';
+import { UserCircle } from 'lucide-react';
 import React, { useState } from 'react';
 import { useMessageModalProvider } from '@/hooks/useMessageModalContext';
 import LoginModal from '@/modal/components/account/LoginModal';
@@ -6,7 +6,11 @@ import SignupModal from '@/modal/components/account/SignupModal';
 import { useAccount } from "../../contexts/AccountContext"; // Import AccountContext
 import { Account } from "@/interfaces"; // Import Account từ interfaces
 
-export default function Header() {
+interface HeaderProps {
+    children?: React.ReactNode;
+}
+
+export default function Header({ children }: HeaderProps) {
     const [showMenu, setShowMenu] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
     const [showSignup, setShowSignup] = useState(false);
@@ -32,9 +36,7 @@ export default function Header() {
     return (
         <header className="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-end shadow-sm relative">
             <div className="flex items-center gap-4">
-                <button id='message-btn' className="p-2 rounded-lg hover:bg-gray-700 transition-colors">
-                    <Bell size={24} className="text-gray-300" />
-                </button>
+                {children}
                 <div className="relative">
                     {account && account.account_email ? (
                         <div onMouseEnter={() => setShowMenu(true)} onMouseLeave={() => setShowMenu(false)} className="relative">

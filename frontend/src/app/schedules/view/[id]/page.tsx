@@ -20,7 +20,7 @@ export default function ViewSchedulePage() {
 
   const fetchSchedule = async () => {
     if (!scheduleId) {
-      router.back();
+      // router.back();
       return;
     }
     

@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --experimental-https",
-    "build": "next build --turbopack",
+    "dev": "next dev --experimental-https --experimental-https-cert=certificates/localhost.pem --experimental-https-key=certificates/localhost-key.pem",
+    "build": "next build ",
     "start": "next start",
     "lint": "eslint"
   },

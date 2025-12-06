@@ -64,12 +64,12 @@ export default function Layout({
 
         const accessiblePaths: Record<number, string[]> = {
             4: ["/tracking"],
-            5: ["/tracking", "/schedules", "/pickups"],
+            // 5: ["/tracking", "/schedules", "/pickups"],
             6: ["/tracking"],
         };
 
         const isAccessible = roleIds.some((roleId) =>
-            accessiblePaths[roleId]?.includes(currentPath)
+            accessiblePaths[roleId]?.includes(currentPath || '')
         );
 
         // Allow roles not defined in accessiblePaths to access any page

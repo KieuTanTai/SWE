@@ -26,7 +26,7 @@ export const AccountProvider: React.FC<{ children: ReactNode }> = ({ children })
     const navigation: NavigationItem[] = useMemo(() => {
         if (!account) return [];
 
-        switch (account.roles?.[0]?.role_id) {
+        switch (account.roles?.[0  ]?.role_id) {
             case 4:
                 return [
                     { name: 'Tracking', path: '/tracking' },
@@ -35,7 +35,6 @@ export const AccountProvider: React.FC<{ children: ReactNode }> = ({ children })
                 return [
                     { name: 'Tracking', path: '/tracking' },
                     { name: 'Schedules', path: '/schedules' },
-                    { name: 'Pickup Students', path: '/pickups' },
                 ];
             default:
                 return [];

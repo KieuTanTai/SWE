@@ -1,6 +1,7 @@
 import express from 'express';
 import StudentServices from '../services/StudentServices.js';
 import Student from '../models/Student.js';
+import PickupScheduleServices from '../services/PickupScheduleServices.js';
 
 const router = express.Router();
 
@@ -26,22 +27,34 @@ router.get('/:studentId', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-// GET /api/students/batch?ids=1,2,3 - Get students by multiple IDs
-router.get('/batch/ids', async (req, res) => {
+
+// GET /api/students/:studentId/pickup-schedules - Get student by ID
+router.get('/:studentId/pickup-schedules', async (req, res) => {
     try {
-        const ids = req.query.ids;
-        if (!ids || typeof ids !== 'string') {
-            return res.status(400).json({ error: "Query parameter 'ids' is required" });
-        }
-        
-        const studentIds = ids.split(",").map(id => parseInt(id.trim()));
-        const service = new StudentServices();
-        const result = await service.getByStudentIds(studentIds);
+        const studentId = parseInt(req.params.studentId);
+        const result = await PickupScheduleServices.getByStudentId(studentId);
         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
+// GET /api/students/batch?ids=1,2,3 - Get students by multiple IDs
+// router.get('/batch/ids', async (req, res) => {
+//     try {
+//         const ids = req.query.ids;
+//         if (!ids || typeof ids !== 'string') {
+//             return res.status(400).json({ error: "Query parameter 'ids' is required" });
+//         }
+        
+//         const studentIds = ids.split(",").map(id => parseInt(id.trim()));
+//         const service = new StudentServices();
+//         const result = await service.getByStudentIds(studentIds);
+//         result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// });
 
 // GET /api/students/person/:personId - Get student by person ID
 router.get('/person/:personId', async (req, res) => {

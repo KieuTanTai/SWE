@@ -186,7 +186,7 @@ export default function DriverSchedulesPage() {
                                                     <div className="flex gap-4 items-center">
                                                         {isActive ? (
                                                             <Link 
-                                                                href={`/schedules/view/${account?.account_id}`} 
+                                                                href={`/schedules/view/${schedule.schedule_id}`} 
                                                                 className="text-teal-400 hover:text-teal-300 flex gap-1 items-center transition-colors" 
                                                                 title="View Details"
                                                             >

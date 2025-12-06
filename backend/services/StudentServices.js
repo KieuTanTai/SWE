@@ -67,31 +67,31 @@ class StudentServices {
      * @param {number[]} studentIds
      * @return {Promise<{success: boolean, data?: Student[], error?: string}>}
      */
-    async getByStudentIds(studentIds) {
-        try {
-            if (!Array.isArray(studentIds) || studentIds.length === 0) {
-                return {
-                    success: false,
-                    error: 'Invalid studentIds array'
-                };
-            }
+    // async getByStudentIds(studentIds) {
+    //     try {
+    //         if (!Array.isArray(studentIds) || studentIds.length === 0) {
+    //             return {
+    //                 success: false,
+    //                 error: 'Invalid studentIds array'
+    //             };
+    //         }
 
-            const results = await withConnection(async (connection) => {
-                const repo = new StudentDAO(connection);
-                return await repo.getByStudentIds(studentIds);
-            });
+    //         const results = await withConnection(async (connection) => {
+    //             const repo = new StudentDAO(connection);
+    //             return await repo.getByStudentIds(studentIds);
+    //         });
             
-            return {
-                success: true,
-                data: results
-            };
-        } catch (error) {
-            return {
-                success: false,
-                error: error.message
-            };
-        }
-    }
+    //         return {
+    //             success: true,
+    //             data: results
+    //         };
+    //     } catch (error) {
+    //         return {
+    //             success: false,
+    //             error: error.message
+    //         };
+    //     }
+    // }
 
     /**
      * Get student by person ID

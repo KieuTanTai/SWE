@@ -138,7 +138,6 @@ const fetchSchedule = async () => {
         setPickupSchedules(loadedDetailSchedule.pickupSchedules);
       }
     } 
-    console.log("Loaded from schedule.detailSchedules:", loadedDetailSchedule);
     
     // Populate form data from schedule and detail schedule
     setFormData({

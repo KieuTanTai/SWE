@@ -64,7 +64,7 @@ export default function SchedulesPage() {
             fetchData(); 
             router.replace("/schedules"); 
         }
-    }, [refreshFlag]);
+    }, [refreshFlag, fetchData, router]);
 
     const formatId = (id: number) => `#SCH-${String(id).padStart(5, "0")}`;
 

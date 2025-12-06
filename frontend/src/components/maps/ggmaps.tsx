@@ -305,8 +305,9 @@ export default function Maps({ routes }: MapsProps) {
 
                 <MapContainer center={center} zoom={currentPosition ? 16 : 13} className="h-full w-full">
                     <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; HERE 2024'
+                        url={`https://maps.hereapi.com/v3/base/mc/{z}/{x}/{y}/png8?style=explore.day&apiKey=${process.env.NEXT_PUBLIC_HERE_KEY || ''}`}
+                        maxZoom={20}
                     />
 
                     {routeStops.map((stops, routeIdx) => (

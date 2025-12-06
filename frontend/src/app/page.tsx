@@ -51,7 +51,7 @@ const testPoints = async (): Promise<TestPoints | undefined> => {
 
 export default function HomePage() {
   const router = useRouter();
-  const [activeItem, setActiveItem] = useState("dashboard");
+  const [activeItem, setActiveItem] = useState("");
   const [routes, setRoutes] = useState<RouteData[]>([]);
 
   // Fetch test points on component mount

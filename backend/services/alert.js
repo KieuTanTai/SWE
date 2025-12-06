@@ -1,5 +1,5 @@
 import { WebSocketServer } from 'ws';
-const wss = new WebSocketServer({ port: 9050 });
+const wss = new WebSocketServer({ port: 8050 });
 
 // Map to store clients by role: { 'admin': [ws1, ws2], 'parent': [ws3], 'driver': [ws4] }
 const clientsByRole = new Map();
@@ -82,4 +82,4 @@ wss.on('connection', function connection(ws) {
   });
 });
 
-console.log('WebSocket server is running on ws://localhost:9050');
+console.log('WebSocket server is running on ws://localhost:8050');

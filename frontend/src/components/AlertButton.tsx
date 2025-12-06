@@ -14,7 +14,7 @@ const AlertButton: React.FC<AlertButtonProps> = ({ type, onSendAlert, id }) => {
 
     useEffect(() => {
         // Connect to WebSocket server
-        const ws = new WebSocket('ws://localhost:9050');
+        const ws = new WebSocket('ws://localhost:8050');
 
         ws.onopen = () => {
             console.log('WebSocket connected (Admin)');

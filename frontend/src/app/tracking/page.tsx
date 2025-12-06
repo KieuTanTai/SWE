@@ -7,6 +7,7 @@ import getRouteDetails, { getDetailRouteNames } from "@/api/detail-routes-api";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/contexts/AccountContext";
 import driverPickupApi from "@/api/driver-pickup-api";
+import { Role } from "@/interfaces";
 
 interface RouteData {
     routeId: number;
@@ -37,7 +38,7 @@ export default function TrackingPage() {
 
     // Driver: role_id = 5 (hoặc role_name = 'driver')
     const isDriver =
-        account?.roles?.some((r: any) => {
+        account?.roles?.some((r: Role) => {
             const name = r.role_name?.toString().toLowerCase();
             return name === "driver" || r.role_id === 5;
         }) ?? false;
@@ -53,20 +54,14 @@ export default function TrackingPage() {
     const [error, setError] = useState<string | null>(null);
     const [showList, setShowList] = useState(false); // bật/tắt panel danh sách
     const [tripAction, setTripAction] = useState<string | null>(null);
-    // type TripStatus = "not_started" | "in_progress" | "finished";
 
-
-// --------------- KHI MỞ PANEL DANH SÁCH THÌ TỰ LOAD HỌC SINH ---------------
     useEffect(() => {
-        if (!showList) return;            // chỉ khi panel đang mở
-        if (!detailScheduleId) return;    // tránh gọi với id 0 / undefined
-
-        // gọi API lấy danh sách học sinh
+        if (!showList) return;
+        if (!detailScheduleId) return;
         loadStudents();
     }, [showList, detailScheduleId]);
 
     const [tripStatus, setTripStatus] = useState<TripStatus>("not_started");
-// --------------- TRIP LEVEL ACTIONS (Bắt đầu / Kết thúc / Sự cố) ---------------
 
     const createTripReport = async (
         type: "start_pickup" | "dropped_off" | "warning",
@@ -81,11 +76,9 @@ export default function TrackingPage() {
 
         let note = defaultNote || "";
 
-        // Nếu là sự cố thì cho driver nhập mô tả
         if (actionKey === "incident") {
             const input = window.prompt("Mô tả sự cố:", defaultNote || "");
             if (input === null) {
-                // user bấm Cancel
                 return;
             }
             note = input;
@@ -114,7 +107,7 @@ export default function TrackingPage() {
         }
     };
 
-// handler cho từng nút
+    // handler cho từng nút
     const handleStartTrip = () => {
         // chỉ cho start 1 lần
         if (tripStatus === "not_started") {
@@ -139,7 +132,6 @@ export default function TrackingPage() {
         setShowList((v) => !v);
     };
 
-    // --------------- LOAD ROUTE CHO MAP ---------------
     useEffect(() => {
         (async () => {
             const result = await getRouteDetails([1, 2, 3]);
@@ -168,15 +160,11 @@ export default function TrackingPage() {
         })();
     }, []);
 
-    // THÊM: lấy driverPersonId từ account
     useEffect(() => {
         if (account?.account_id) {
             setDriverPersonId(account.account_id);
         }
     }, [account]);
-
-
-    // --------------- LOAD DANH SÁCH HỌC SINH ---------------
 
     const loadStudents = async () => {
         setLoadingList(true);
@@ -197,7 +185,6 @@ export default function TrackingPage() {
                 rawList = res.data.data ?? [];
             }
 
-            // sắp xếp theo thứ tự đón (pickupScheduleId tăng dần)
             rawList.sort(
                 (a, b) => a.pickupScheduleId - b.pickupScheduleId
             );
@@ -217,7 +204,6 @@ export default function TrackingPage() {
 
             console.log("[Tracking] data map sang PickupStudent =", data);
 
-            // chọn học sinh đầu tiên chưa 'picked_up' hoặc 'late'
             const idx = data.findIndex(
                 (s) => s.status !== "picked_up" && s.status !== "late"
             );
@@ -235,16 +221,12 @@ export default function TrackingPage() {
         }
     };
 
-    // auto load lần đầu (nếu bạn muốn)
     useEffect(() => {
         loadStudents();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const currentStudent =
         students.length > 0 ? students[currentIndex] ?? students[0] : null;
-
-    // --------------- GỬI TRẠNG THÁI PICKUP ---------------
 
     const updateStatus = async (
         pickupScheduleId: number,
@@ -295,8 +277,6 @@ export default function TrackingPage() {
         }
     };
 
-
-    // handler cho 2 nút "Đã đón" & "Quá giờ" trên card
     const handleStatusAndNext = async (status: "picked_up" | "late") => {
         if (!currentStudent) return;
 
@@ -304,7 +284,6 @@ export default function TrackingPage() {
             alert("Bạn phải bấm 'Bắt đầu chuyến' trước khi cập nhật trạng thái học sinh.");
             return;
         }
-        // 1. Update trạng thái local + BE
         await updateStatus(
             currentStudent.pickupScheduleId,
             currentStudent.studentId,
@@ -312,7 +291,6 @@ export default function TrackingPage() {
             status === "picked_up" ? "Đã đón" : "Phụ huynh tới trễ"
         );
 
-        // 2. Nhảy sang học sinh tiếp theo dựa trên state local
         setStudents((prev) => {
             const updated = prev;
             const nextIdx = updated.findIndex(
@@ -322,14 +300,7 @@ export default function TrackingPage() {
             setCurrentIndex(nextIdx === -1 ? 0 : nextIdx);
             return updated;
         });
-
-        // reload lại list từ BE để status chuẩn, rồi tự nhảy sang học sinh kế tiếp
-        //await loadStudents();
     };
-
-
-
-    // --------------- NAVIGATION ---------------
 
     const handleNavigate = (item: string) => {
         if (item === "tracking") return;
@@ -348,26 +319,17 @@ export default function TrackingPage() {
         }
     };
 
-    // --------------- RENDER ---------------
-
     return (
         <Layout activeItem={activeItem} onNavigate={handleNavigate}>
-            {/* container cho map, các overlay dùng position: fixed nên không bị đè */}
             <div className="relative h-full">
-                {/* MAP chiếm full */}
                 <div className="h-full">
                     <Maps routes={routes} />
                 </div>
 
-                {/* Cụm nút bên PHẢI TRÊN (Bắt đầu / Kết thúc / Báo cáo / Xem danh sách) */}
                 {isDriver && (
-                    <div className="fixed top-6 left-1/2 z-[2000]">
+                    <div className="fixed top-6 left-1/2 z-2000">
                         <div
-                            // className="group relative"
-                            // onMouseEnter={() => setShowTripControls(true)}
-                            // onMouseLeave={() => setShowTripControls(false)}
                         >
-                            {/* Nút nhỏ luôn luôn thấy */}
                             <button
                                 onClick={() => setShowTripControls((v) => !v)}
                                 className="px-4 py-2 rounded-full bg-slate-900/90 text-white text-sm font-semibold shadow border border-slate-600 flex items-center gap-2"
@@ -375,10 +337,8 @@ export default function TrackingPage() {
                                 <span>Chi tiết chuyến đi</span>
                             </button>
 
-                            {/* Cụm nút chỉ hiện khi hover / click */}
                             {showTripControls && (
                                 <div className="absolute right-0 mt-2 w-56 bg-slate-900/95 rounded-xl shadow-xl p-3 flex flex-col gap-2">
-                                    {/* CHƯA bắt đầu → chỉ hiện nút Bắt đầu */}
                                     {tripStatus === "not_started" && (
                                         <button
                                             className="px-3 py-2 rounded-md bg-sky-500 text-white text-sm font-semibold"
@@ -388,7 +348,6 @@ export default function TrackingPage() {
                                         </button>
                                     )}
 
-                                    {/* ĐANG chạy → ẩn Bắt đầu, hiện Kết thúc + Sự cố */}
                                     {tripStatus === "in_progress" && (
                                         <>
                                             <button
@@ -406,11 +365,10 @@ export default function TrackingPage() {
                                         </>
                                     )}
 
-                                    {/* ĐÃ kết thúc → chỉ hiện label */}
                                     {tripStatus === "finished" && (
                                         <span className="px-3 py-2 rounded-md bg-emerald-700 text-white text-xs text-center">
-        Chuyến đi đã kết thúc
-      </span>
+                                            Chuyến đi đã kết thúc
+                                        </span>
                                     )}
 
                                     <button
@@ -426,8 +384,6 @@ export default function TrackingPage() {
                     </div>
                 )}
 
-
-                {/* CARD HỌC SINH hiện tại ở ĐÁY TRÁI, 2 nút Quá giờ / Đã đón */}
                 {currentStudent && (
                     <div className="fixed left-72 bottom-6 max-w-xl bg-slate-900/95 text-slate-50 rounded-2xl px-5 py-4 shadow-2xl z-1100">
                         <div className="text-lg font-semibold">
@@ -441,13 +397,13 @@ export default function TrackingPage() {
                             Học sinh {currentIndex + 1} / {students.length}
                             {currentStudent.status === "picked_up" && (
                                 <span className="ml-2 px-2 py-0.5 rounded-full bg-emerald-600 text-[11px]">
-                  Đã đón
-                </span>
+                                    Đã đón
+                                </span>
                             )}
                             {currentStudent.status === "late" && (
                                 <span className="ml-2 px-2 py-0.5 rounded-full bg-orange-500 text-[11px]">
-                  Quá giờ
-                </span>
+                                    Quá giờ
+                                </span>
                             )}
                         </div>
 
@@ -489,19 +445,17 @@ export default function TrackingPage() {
                     </div>
                 )}
 
-                {/* PANEL DANH SÁCH (bật bằng "Xem danh sách") */}
                 {showList && (
-                    <div className="fixed top-24 right-6 w-80 max-h-[70vh] bg-slate-800 rounded-xl p-4 text-slate-100 shadow-xl z-50 flex flex-col">
+                    <div className="fixed top-24 right-6 w-80 max-h-[70vh] bg-slate-800 rounded-xl p-4 text-slate-100 shadow-xl flex flex-col z-2000">
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-sm font-semibold">
                                 Danh sách học sinh (thứ tự đón)
                             </h3>
                             <span className="text-xs text-slate-300">
-                DS ID: {detailScheduleId}
-              </span>
+                                DS ID: {detailScheduleId}
+                            </span>
                         </div>
 
-                        {/* filter nhanh: detailScheduleId + driverPersonId */}
                         <div className="flex flex-col gap-2 mb-3 text-xs">
                             <div className="flex gap-2 items-center">
                                 <span>Detail ID:</span>
@@ -557,11 +511,10 @@ export default function TrackingPage() {
                                                     setCurrentIndex(idx);   // đổi học sinh đang xem
                                                     setShowList(false);     // (tuỳ) đóng panel sau khi chọn
                                                 }}
-                                                className={`cursor-pointer px-3 py-2 rounded-lg bg-slate-900 flex justify-between items-center ${
-                                                    isActive
+                                                className={`cursor-pointer px-3 py-2 rounded-lg bg-slate-900 flex justify-between items-center ${isActive
                                                         ? "border border-sky-500 ring-1 ring-sky-500"
                                                         : "hover:bg-slate-800"
-                                                }`}
+                                                    }`}
                                             >
                                                 <div>
                                                     <div className="font-semibold">{s.studentName}</div>
@@ -570,8 +523,8 @@ export default function TrackingPage() {
                                                     </div>
                                                 </div>
                                                 <span className="text-[10px] text-slate-300">
-                    #{idx + 1}
-                </span>
+                                                    #{idx + 1}
+                                                </span>
                                             </li>
                                         );
                                     })}

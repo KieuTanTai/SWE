@@ -3,7 +3,6 @@
  * Main entry point for the Express application
  * Port: 5000
  */
-
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';

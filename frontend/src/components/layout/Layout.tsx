@@ -10,12 +10,12 @@ import { useRouter } from "next/navigation"; // Corrected import for useRouter
 import { usePathname } from "next/navigation"; // Import usePathname for current path
 
 export const navItems = [
-    { id: 'dashboard', text: 'Dashboard', icon: LayoutDashboard },
-    { id: 'tracking', text: 'Live Tracking', icon: Navigation },
-    { id: 'student', text: 'Student Management', icon: Users },
-    { id: 'driver', text: 'Driver Management', icon: Bus },
-    { id: 'schedule', text: 'Schedule Management', icon: Clock },
-    { id: 'route', text: 'Route Management', icon: MapPin }
+    { id: 'dashboard', text: 'Tổng quan', icon: LayoutDashboard },
+    { id: 'tracking', text: 'Xem vị trí xe', icon: Navigation },
+    { id: 'student', text: 'Học sinh', icon: Users },
+    { id: 'driver', text: 'Tài xế', icon: Bus },
+    { id: 'schedule', text: 'Lịch trình', icon: Clock },
+    { id: 'route', text: 'Tuyến đường', icon: MapPin }
 ];
 
 interface NavigationItem {

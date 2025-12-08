@@ -94,8 +94,8 @@ export default function HomePage() {
         return (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <h2 className="text-2xl font-bold mb-2">Coming Soon</h2>
-              <p className="text-gray-400">This section is under development</p>
+              <h2 className="text-2xl font-bold mb-2">Hệ thống Smart School Bus</h2>
+              <p className="text-gray-400">Vui lòng đăng nhập tài khoản để tiếp tục</p>
             </div>
           </div>
         );

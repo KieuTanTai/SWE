@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Layout from "@/components/layout/Layout";
 import Maps from "@/components/maps/ggmaps";
 import getRouteDetails, { getDetailRouteNames } from "@/api/detail-routes-api";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/contexts/AccountContext";
 import driverPickupApi from "@/api/driver-pickup-api";
+import { scheduleService } from "@/services/scheduleService";
 
 interface RouteData {
     routeId: number;
@@ -32,42 +33,199 @@ export default function TrackingPage() {
     const [activeItem, setActiveItem] = useState("tracking");
     const [showTripControls, setShowTripControls] = useState(false);
     const router = useRouter();
+    const wsRef = useRef<WebSocket | null>(null);
+    const [parentAlerts, setParentAlerts] = useState<any[]>([]);
+
 
     const { account } = useAccount();
 
-    // Driver: role_id = 5 (hoặc role_name = 'driver')
-    const isDriver =
-        account?.roles?.some((r: any) => {
-            const name = r.role_name?.toString().toLowerCase();
-            return name === "driver" || r.role_id === 5;
-        }) ?? false;
+    // Phân quyền: Driver = 5, Admin = 1,2,3, Parent = 4
+    const isDriver = account?.roles?.some((r: any) => {
+        const name = r.role_name?.toString().toLowerCase();
+        return name === "driver" || r.role_id === 5;
+    }) ?? false;
 
-    // tạm: nhập tay detailScheduleId + driverPersonId
-    const [detailScheduleId, setDetailScheduleId] = useState<number>(1);
-    const [driverPersonId, setDriverPersonId] = useState<number>(1);
+    const isAdmin = account?.roles?.some((r: any) => [1, 2, 3].includes(r.role_id)) ?? false;
+
+    const isParent = account?.roles?.some((r: any) => {
+        const name = r.role_name?.toString().toLowerCase();
+        return name === "parent" || r.role_id === 4;
+    }) ?? false;
+
+    // ✅ detailScheduleId sẽ được lấy từ schedule của driver
+    const [detailScheduleId, setDetailScheduleId] = useState<number | null>(null);
+    const [driverPersonId, setDriverPersonId] = useState<number | null>(null);
+    const [driverAccountId, setDriverAccountId] = useState<number | null>(null);
 
     const [students, setStudents] = useState<PickupStudent[]>([]);
-    const [currentIndex, setCurrentIndex] = useState<number>(0); // học sinh đang hiển thị
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [loadingList, setLoadingList] = useState(false);
     const [updatingId, setUpdatingId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [showList, setShowList] = useState(false); // bật/tắt panel danh sách
+    const [showList, setShowList] = useState(false);
     const [tripAction, setTripAction] = useState<string | null>(null);
-    // type TripStatus = "not_started" | "in_progress" | "finished";
+    const [tripStatus, setTripStatus] = useState<TripStatus>("not_started");
 
-
-// --------------- KHI MỞ PANEL DANH SÁCH THÌ TỰ LOAD HỌC SINH ---------------
+    // ✅ Lấy person_id và account_id từ account
     useEffect(() => {
-        if (!showList) return;            // chỉ khi panel đang mở
-        if (!detailScheduleId) return;    // tránh gọi với id 0 / undefined
+        if (account?.person?.person_id) {
+            console.log("[Tracking] Setting driverPersonId:", account.person.person_id);
+            setDriverPersonId(account.person.person_id);
+        }
+        if (account?.account_id) {
+            console.log("[Tracking] Setting driverAccountId:", account.account_id);
+            setDriverAccountId(account.account_id);
+        }
+    }, [account]);
 
-        // gọi API lấy danh sách học sinh
+    // ✅ Lấy detailScheduleId từ schedule của driver
+    useEffect(() => {
+        const fetchDriverSchedule = async () => {
+            if (!driverPersonId) return;
+
+            try {
+                console.log("[Tracking] Fetching schedule for driverPersonId:", driverPersonId);
+
+                // TODO: Thay bằng API endpoint thực tế để lấy schedule của driver
+                // Ví dụ: const schedules = await driverPickupApi.getDriverSchedule(driverPersonId);
+
+                // Tạm thời: Lấy tất cả schedules và tìm schedule của driver này
+                // Giả sử driver có account_id tương ứng với driver_id trong schedule
+                const allSchedules = await scheduleService.getAll();
+                const driverSchedule = allSchedules.find((s: any) => s.driver_id === account?.account_id);
+
+                if (driverSchedule && driverSchedule.detailSchedules && driverSchedule.detailSchedules.length > 0) {
+                    const firstDetailSchedule = driverSchedule.detailSchedules[0];
+                    const detailId = firstDetailSchedule.detail_schedule_id;
+                    console.log("[Tracking] Found detailScheduleId:", detailId);
+                    setDetailScheduleId(detailId);
+                } else {
+                    console.warn("[Tracking] No schedule found for this driver");
+                    // Fallback về 1 nếu không tìm thấy
+                    setDetailScheduleId(1);
+                }
+            } catch (err) {
+                console.error("[Tracking] Error fetching driver schedule:", err);
+                // Fallback về 1 nếu có lỗi
+                setDetailScheduleId(1);
+            }
+        };
+
+        if (driverPersonId) {
+            fetchDriverSchedule();
+        }
+    }, [driverPersonId, account?.account_id]);
+
+    // Kết nối WebSocket cho DRIVER & PARENT
+    useEffect(() => {
+        if (!account) return;
+
+        // Xác định role để đăng ký với WS
+        let wsRole: "driver" | "parent" | "admin" | null = null;
+        if (isDriver) wsRole = "driver";
+        else if (isParent) wsRole = "parent";
+        else if (isAdmin) wsRole = "admin";
+
+        if (!wsRole) return; // ai không thuộc 3 role này thì khỏi connect
+
+        const ws = new WebSocket("ws://localhost:9050");
+        wsRef.current = ws;
+
+        ws.onopen = () => {
+            const userId =
+                account.person?.person_id ??
+                account.account_id ??
+                Date.now();
+
+            ws.send(
+                JSON.stringify({
+                    type: "register",
+                    role: wsRole,
+                    userId: String(userId),
+                })
+            );
+            console.log("[WS] Connected & registered as", wsRole);
+        };
+
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === "alert") {
+                    // Parent (hoặc bất kỳ) sẽ nhận alert từ server
+                    setParentAlerts((prev) => [...prev, data]);
+                    console.log("[WS] Alert received:", data);
+                }
+            } catch (e) {
+                console.error("[WS] parse error", e);
+            }
+        };
+
+        ws.onclose = () => {
+            console.log("[WS] closed");
+        };
+
+        ws.onerror = (err) => {
+            console.error("[WS] error", err);
+        };
+
+        return () => {
+            ws.close();
+        };
+    }, [account, isDriver, isParent, isAdmin]);
+
+    // Gửi thông báo tới PARENT qua WebSocket
+    const sendAlertToParents = (payload: {
+        type: "pickup_status" | "incident";
+        studentName?: string;
+        studentId?: number;
+        status?: string;
+        note?: string;
+    }) => {
+        // Chỉ driver mới gửi
+        if (!isDriver) return;
+        const ws = wsRef.current;
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+            console.warn("[WS] not connected, cannot send alert");
+            return;
+        }
+
+        // Nội dung text hiển thị bên phía phụ huynh
+        let message = "";
+        if (payload.type === "pickup_status") {
+            if (payload.status === "picked_up") {
+                message = `Đã đón học sinh ${payload.studentName || ""}.`;
+            } else if (payload.status === "late") {
+                message = `Học sinh ${payload.studentName || ""} bị trễ giờ. Ghi chú: ${
+                    payload.note || "Không có"
+                }`;
+            } else {
+                message = `Cập nhật trạng thái cho học sinh ${
+                    payload.studentName || ""
+                }: ${payload.status}`;
+            }
+        } else if (payload.type === "incident") {
+            message = `Báo cáo sự cố: ${payload.note || ""}`;
+        }
+
+        ws.send(
+            JSON.stringify({
+                type: "alert",
+                recipient: "parent", // server sẽ broadcast cho tất cả parent
+                message,
+                meta: payload,
+            })
+        );
+    };
+
+
+    // --------------- KHI MỞ PANEL DANH SÁCH THÌ TỰ LOAD HỌC SINH ---------------
+    useEffect(() => {
+        if (!showList) return;
+        if (!detailScheduleId) return;
         loadStudents();
     }, [showList, detailScheduleId]);
 
-    const [tripStatus, setTripStatus] = useState<TripStatus>("not_started");
-// --------------- TRIP LEVEL ACTIONS (Bắt đầu / Kết thúc / Sự cố) ---------------
-
+    // --------------- TRIP LEVEL ACTIONS ---------------
     const createTripReport = async (
         type: "start_pickup" | "dropped_off" | "warning",
         actionKey: "start" | "end" | "incident",
@@ -78,47 +236,54 @@ export default function TrackingPage() {
             alert("Không tìm thấy detailScheduleId của chuyến.");
             return;
         }
+        if (!driverAccountId) {
+            alert("Không tìm thấy thông tin tài xế. Vui lòng đăng nhập lại.");
+            return;
+        }
 
         let note = defaultNote || "";
 
-        // Nếu là sự cố thì cho driver nhập mô tả
         if (actionKey === "incident") {
             const input = window.prompt("Mô tả sự cố:", defaultNote || "");
-            if (input === null) {
-                // user bấm Cancel
-                return;
-            }
+            if (input === null) return;
             note = input;
         }
 
         setTripAction(actionKey);
         try {
             const body = {
-                accountId: driverPersonId,
+                accountId: driverAccountId,
                 type,
                 note,
             };
 
+            console.log("[TripReport] Calling API with body:", body);
             const res = await driverPickupApi.createTripReport(detailScheduleId, body);
             console.log("[TripReport] res.data =", res.data);
 
             alert("Đã lưu báo cáo chuyến.");
+            // 🔔 Nếu là sự cố thì gửi thông báo cho phụ huynh
+            if (actionKey === "incident") {
+                sendAlertToParents({
+                    type: "incident",
+                    note,
+                });
+            }
         } catch (err: any) {
             console.error("Error createTripReport:", err);
+            console.error("Error response:", err.response?.data);
             alert(
                 "Lỗi tạo báo cáo chuyến: " +
-                (err.response?.data?.error || err.message || "Unknown error")
+                (err.response?.data?.error || err.response?.data?.message || err.message || "Unknown error")
             );
         } finally {
             setTripAction(null);
         }
     };
 
-// handler cho từng nút
     const handleStartTrip = () => {
-        // chỉ cho start 1 lần
         if (tripStatus === "not_started") {
-            setTripStatus("in_progress");  // 👈 CHÍNH XÁC CHUỖI NÀY
+            setTripStatus("in_progress");
             alert("Đã bắt đầu chuyến đi.");
         }
     };
@@ -129,11 +294,12 @@ export default function TrackingPage() {
             alert("Đã kết thúc chuyến đi.");
         }
     };
+
     const handleIncident = () =>
         createTripReport("warning", "incident", "");
+
     const handleToggleList = async () => {
-        // Nếu chuẩn bị mở panel thì load danh sách mới
-        if (!showList) {
+        if (!showList && isDriver) {
             await loadStudents();
         }
         setShowList((v) => !v);
@@ -168,17 +334,13 @@ export default function TrackingPage() {
         })();
     }, []);
 
-    // THÊM: lấy driverPersonId từ account
-    useEffect(() => {
-        if (account?.account_id) {
-            setDriverPersonId(account.account_id);
-        }
-    }, [account]);
-
-
-    // --------------- LOAD DANH SÁCH HỌC SINH ---------------
-
+    // --------------- LOAD DANH SÁCH HỌC SINH (LOGIC GỐC) ---------------
     const loadStudents = async () => {
+        if (!detailScheduleId) {
+            console.log("[Tracking] Chưa có detailScheduleId, bỏ qua load students");
+            return;
+        }
+
         setLoadingList(true);
         setError(null);
         try {
@@ -197,11 +359,7 @@ export default function TrackingPage() {
                 rawList = res.data.data ?? [];
             }
 
-            // sắp xếp theo thứ tự đón (pickupScheduleId tăng dần)
-            rawList.sort(
-                (a, b) => a.pickupScheduleId - b.pickupScheduleId
-            );
-
+            rawList.sort((a, b) => a.pickupScheduleId - b.pickupScheduleId);
             console.log("[Tracking] rawList sau sort =", rawList);
 
             const data: PickupStudent[] = rawList.map((item: any) => ({
@@ -217,7 +375,6 @@ export default function TrackingPage() {
 
             console.log("[Tracking] data map sang PickupStudent =", data);
 
-            // chọn học sinh đầu tiên chưa 'picked_up' hoặc 'late'
             const idx = data.findIndex(
                 (s) => s.status !== "picked_up" && s.status !== "late"
             );
@@ -235,17 +392,17 @@ export default function TrackingPage() {
         }
     };
 
-    // auto load lần đầu (nếu bạn muốn)
+    // ✅ AUTO-LOAD khi có detailScheduleId
     useEffect(() => {
-        loadStudents();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        if (detailScheduleId) {
+            loadStudents();
+        }
+    }, [detailScheduleId]);
 
     const currentStudent =
         students.length > 0 ? students[currentIndex] ?? students[0] : null;
 
     // --------------- GỬI TRẠNG THÁI PICKUP ---------------
-
     const updateStatus = async (
         pickupScheduleId: number,
         studentId: number,
@@ -253,17 +410,26 @@ export default function TrackingPage() {
         note?: string
     ) => {
         if (!isDriver) return;
+        if (!driverAccountId) {
+            alert("Không tìm thấy thông tin tài xế. Vui lòng đăng nhập lại.");
+            return;
+        }
+        if (!detailScheduleId) {
+            alert("Không tìm thấy detailScheduleId.");
+            return;
+        }
 
         setUpdatingId(pickupScheduleId);
         try {
             const body = {
                 detailScheduleId,
                 studentId,
-                accountId: driverPersonId,
+                accountId: driverAccountId,
                 status,
                 note: note || "",
             };
 
+            console.log("[Tracking] updateStatus body:", body);
             const res = await driverPickupApi.updateStatus(pickupScheduleId, body);
             console.log("[Tracking] updateStatus res.data =", res.data);
 
@@ -271,7 +437,6 @@ export default function TrackingPage() {
                 throw new Error(res.data.error || "Update status failed");
             }
 
-            // update local state
             setStudents((prev) =>
                 prev.map((s) =>
                     s.pickupScheduleId === pickupScheduleId
@@ -286,17 +451,16 @@ export default function TrackingPage() {
             );
         } catch (err: any) {
             console.error("Error update status:", err);
+            console.error("Error response:", err.response?.data);
             alert(
                 "Lỗi cập nhật trạng thái: " +
-                (err.response?.data?.error || err.message || "Unknown error")
+                (err.response?.data?.error || err.response?.data?.message || err.message || "Unknown error")
             );
         } finally {
             setUpdatingId(null);
         }
     };
 
-
-    // handler cho 2 nút "Đã đón" & "Quá giờ" trên card
     const handleStatusAndNext = async (status: "picked_up" | "late") => {
         if (!currentStudent) return;
 
@@ -304,33 +468,37 @@ export default function TrackingPage() {
             alert("Bạn phải bấm 'Bắt đầu chuyến' trước khi cập nhật trạng thái học sinh.");
             return;
         }
-        // 1. Update trạng thái local + BE
+
+        const note =
+            status === "picked_up" ? "Đã đón" : "Phụ huynh tới trễ";
+
         await updateStatus(
             currentStudent.pickupScheduleId,
             currentStudent.studentId,
             status,
-            status === "picked_up" ? "Đã đón" : "Phụ huynh tới trễ"
+            note
         );
 
-        // 2. Nhảy sang học sinh tiếp theo dựa trên state local
+        // 🔔 Gửi thông báo cho phụ huynh
+        sendAlertToParents({
+            type: "pickup_status",
+            studentName: currentStudent.studentName,
+            studentId: currentStudent.studentId,
+            status,
+            note,
+        });
+
         setStudents((prev) => {
             const updated = prev;
             const nextIdx = updated.findIndex(
                 (s) => s.status !== "picked_up" && s.status !== "late"
             );
-            // Nếu không còn ai chưa đón thì giữ nguyên index
             setCurrentIndex(nextIdx === -1 ? 0 : nextIdx);
             return updated;
         });
-
-        // reload lại list từ BE để status chuẩn, rồi tự nhảy sang học sinh kế tiếp
-        //await loadStudents();
     };
 
-
-
     // --------------- NAVIGATION ---------------
-
     const handleNavigate = (item: string) => {
         if (item === "tracking") return;
         if (item === "dashboard") {
@@ -340,8 +508,8 @@ export default function TrackingPage() {
         } else if (item === "driver") {
             router.push("/drivers");
         } else if (item === "pickups") {
-            router.push("/pickups");
-        }else if (item === "schedule") {
+            router.push("/schedules");
+        } else if (item === "schedule") {
             router.push("/schedules");
         } else if (item === "route") {
             router.push("/routes");
@@ -351,25 +519,17 @@ export default function TrackingPage() {
     };
 
     // --------------- RENDER ---------------
-
     return (
         <Layout activeItem={activeItem} onNavigate={handleNavigate}>
-            {/* container cho map, các overlay dùng position: fixed nên không bị đè */}
             <div className="relative h-full">
-                {/* MAP chiếm full */}
                 <div className="h-full">
                     <Maps routes={routes} />
                 </div>
 
-                {/* Cụm nút bên PHẢI TRÊN (Bắt đầu / Kết thúc / Báo cáo / Xem danh sách) */}
+                {/* Cụm nút bên PHẢI TRÊN - CHỈ DRIVER */}
                 {isDriver && (
                     <div className="fixed top-6 left-1/2 z-[2000]">
-                        <div
-                            // className="group relative"
-                            // onMouseEnter={() => setShowTripControls(true)}
-                            // onMouseLeave={() => setShowTripControls(false)}
-                        >
-                            {/* Nút nhỏ luôn luôn thấy */}
+                        <div>
                             <button
                                 onClick={() => setShowTripControls((v) => !v)}
                                 className="px-4 py-2 rounded-full bg-slate-900/90 text-white text-sm font-semibold shadow border border-slate-600 flex items-center gap-2"
@@ -377,10 +537,8 @@ export default function TrackingPage() {
                                 <span>Chi tiết chuyến đi</span>
                             </button>
 
-                            {/* Cụm nút chỉ hiện khi hover / click */}
                             {showTripControls && (
                                 <div className="absolute right-0 mt-2 w-56 bg-slate-900/95 rounded-xl shadow-xl p-3 flex flex-col gap-2">
-                                    {/* CHƯA bắt đầu → chỉ hiện nút Bắt đầu */}
                                     {tripStatus === "not_started" && (
                                         <button
                                             className="px-3 py-2 rounded-md bg-sky-500 text-white text-sm font-semibold"
@@ -390,7 +548,6 @@ export default function TrackingPage() {
                                         </button>
                                     )}
 
-                                    {/* ĐANG chạy → ẩn Bắt đầu, hiện Kết thúc + Sự cố */}
                                     {tripStatus === "in_progress" && (
                                         <>
                                             <button
@@ -408,28 +565,25 @@ export default function TrackingPage() {
                                         </>
                                     )}
 
-                                    {/* ĐÃ kết thúc → chỉ hiện label */}
                                     {tripStatus === "finished" && (
                                         <span className="px-3 py-2 rounded-md bg-emerald-700 text-white text-xs text-center">
-        Chuyến đi đã kết thúc
-      </span>
+                                            Chuyến đi đã kết thúc
+                                        </span>
                                     )}
 
                                     <button
-                                        className="px-3 py-2 rounded-md bg-slate-800 text-white text-sm border border-slate-500"
+                                        className="px-3 py-2 rounded-md bg-slate-800 text-white text-sm border border-slate-500 hover:bg-slate-700"
                                         onClick={handleToggleList}
                                     >
                                         {showList ? "Ẩn danh sách" : "Xem danh sách"}
                                     </button>
-
                                 </div>
                             )}
                         </div>
                     </div>
                 )}
 
-
-                {/* CARD HỌC SINH hiện tại ở ĐÁY TRÁI, 2 nút Quá giờ / Đã đón */}
+                {/* CARD HỌC SINH - DRIVER: full control, ADMIN/PARENT: chỉ xem */}
                 {currentStudent && (
                     <div className="fixed left-72 bottom-6 max-w-xl bg-slate-900/95 text-slate-50 rounded-2xl px-5 py-4 shadow-2xl z-1100">
                         <div className="text-lg font-semibold">
@@ -443,16 +597,17 @@ export default function TrackingPage() {
                             Học sinh {currentIndex + 1} / {students.length}
                             {currentStudent.status === "picked_up" && (
                                 <span className="ml-2 px-2 py-0.5 rounded-full bg-emerald-600 text-[11px]">
-                  Đã đón
-                </span>
+                                    Đã đón
+                                </span>
                             )}
                             {currentStudent.status === "late" && (
                                 <span className="ml-2 px-2 py-0.5 rounded-full bg-orange-500 text-[11px]">
-                  Quá giờ
-                </span>
+                                    Quá giờ
+                                </span>
                             )}
                         </div>
 
+                        {/* CHỈ DRIVER mới có nút cập nhật */}
                         {isDriver && (
                             <div className="mt-3 flex gap-3">
                                 <button
@@ -488,97 +643,95 @@ export default function TrackingPage() {
                             </div>
                         )}
 
+                        {/* Admin/Parent chỉ xem */}
+                        {(isAdmin || isParent) && (
+                            <div className="mt-3 text-xs text-slate-400 italic">
+                                {isAdmin ? "Chế độ xem Admin" : "Chế độ xem Phụ huynh"}
+                            </div>
+                        )}
                     </div>
                 )}
 
-                {/* PANEL DANH SÁCH (bật bằng "Xem danh sách") */}
+                {/* PANEL DANH SÁCH - Tất cả đều xem được */}
                 {showList && (
                     <div className="fixed top-24 right-6 w-80 max-h-[70vh] bg-slate-800 rounded-xl p-4 text-slate-100 shadow-xl z-50 flex flex-col">
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-sm font-semibold">
-                                Danh sách học sinh (thứ tự đón)
+                                Danh sách học sinh ({students.length})
                             </h3>
-                            <span className="text-xs text-slate-300">
-                DS ID: {detailScheduleId}
-              </span>
-                        </div>
-
-                        {/* filter nhanh: detailScheduleId + driverPersonId */}
-                        <div className="flex flex-col gap-2 mb-3 text-xs">
-                            <div className="flex gap-2 items-center">
-                                <span>Detail ID:</span>
-                                <input
-                                    type="number"
-                                    min={1}
-                                    className="flex-1 px-2 py-1 rounded bg-slate-900 border border-slate-600 text-xs"
-                                    value={detailScheduleId}
-                                    onChange={(e) =>
-                                        setDetailScheduleId(Number(e.target.value) || 1)
-                                    }
-                                />
-                            </div>
-                            {/*{isDriver && (*/}
-                            {/*    <div className="flex gap-2 items-center">*/}
-                            {/*        <span>Driver:</span>*/}
-                            {/*        <input*/}
-                            {/*            type="number"*/}
-                            {/*            min={1}*/}
-                            {/*            className="flex-1 px-2 py-1 rounded bg-slate-900 border border-slate-600 text-xs"*/}
-                            {/*            value={driverPersonId}*/}
-                            {/*            onChange={(e) =>*/}
-                            {/*                setDriverPersonId(Number(e.target.value) || 1)*/}
-                            {/*            }*/}
-                            {/*        />*/}
-                            {/*    </div>*/}
-                            {/*)}*/}
-                            <button
-                                onClick={loadStudents}
-                                disabled={loadingList}
-                                className="mt-1 px-3 py-1 rounded bg-blue-500 hover:bg-blue-600 text-xs font-medium disabled:opacity-60"
-                            >
-                                {loadingList ? "Đang tải..." : "Tải danh sách"}
-                            </button>
-                            {error && (
-                                <div className="text-xs text-red-400">Lỗi: {error}</div>
+                            {detailScheduleId && (
+                                <span className="text-xs text-slate-400">
+                                    DS: {detailScheduleId}
+                                </span>
                             )}
                         </div>
 
-                        <div className="flex-1 overflow-auto z-1500">
-                            {students.length === 0 ? (
+                        {loadingList && (
+                            <div className="text-center py-4 text-sm text-slate-400">
+                                Đang tải danh sách...
+                            </div>
+                        )}
+
+                        {error && (
+                            <div className="mb-3 p-2 bg-red-500/20 border border-red-500 rounded text-xs text-red-300">
+                                Lỗi: {error}
+                            </div>
+                        )}
+
+                        {/* Admin/Parent chỉ xem, không có form control */}
+                        {(isAdmin || isParent) && !loadingList && (
+                            <div className="mb-3 text-xs text-slate-400 italic border-b border-slate-700 pb-2">
+                                {isAdmin ? "Chế độ giám sát" : "Theo dõi con của bạn"}
+                            </div>
+                        )}
+
+                        <div className="flex-1 overflow-auto">
+                            {!loadingList && students.length === 0 ? (
                                 <div className="text-sm text-slate-300">
-                                    Chưa có học sinh cho detailScheduleId {detailScheduleId}.
+                                    Chưa có học sinh trong chuyến đi này.
                                 </div>
                             ) : (
-                                <ul className="space-y-2 text-sm z-1500">
+                                <ul className="space-y-2 text-sm">
                                     {students.map((s, idx) => {
                                         const isActive = idx === currentIndex;
                                         return (
                                             <li
                                                 key={s.pickupScheduleId}
                                                 onClick={() => {
-                                                    setCurrentIndex(idx);   // đổi học sinh đang xem
-                                                    setShowList(false);     // (tuỳ) đóng panel sau khi chọn
+                                                    setCurrentIndex(idx);
+                                                    if (isDriver) setShowList(false);
                                                 }}
-                                                className={`cursor-pointer px-3 py-2 rounded-lg bg-slate-900 flex justify-between items-center ${
+                                                className={`${isDriver ? 'cursor-pointer' : 'cursor-default'} px-3 py-2 rounded-lg bg-slate-900 flex justify-between items-center ${
                                                     isActive
-                                                        ? "border border-sky-500 ring-1 ring-sky-500"
-                                                        : "hover:bg-slate-800"
+                                                        ? "border-2 border-blue-500 ring-2 ring-blue-400/50"
+                                                        : isDriver ? "hover:bg-slate-700" : ""
                                                 }`}
                                             >
-                                                <div>
-                                                    <div className="font-semibold">{s.studentName}</div>
-                                                    <div className="text-xs text-slate-300">
+                                                <div className="flex-1">
+                                                    <div className="font-semibold flex items-center gap-2">
+                                                        {s.studentName}
+                                                        {s.status === "picked_up" && (
+                                                            <span className="px-1.5 py-0.5 rounded-full bg-emerald-600 text-white text-[10px]">
+                                                                Đã đón
+                                                            </span>
+                                                        )}
+                                                        {s.status === "late" && (
+                                                            <span className="px-1.5 py-0.5 rounded-full bg-orange-500 text-white text-[10px]">
+                                                                Trễ
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="text-xs text-slate-400 mt-0.5">
                                                         {s.studentAddress}
                                                     </div>
                                                 </div>
-                                                <span className="text-[10px] text-slate-300">
-                    #{idx + 1}
-                </span>
+                                                <span className="text-[10px] text-slate-400 ml-2">
+                                                    #{idx + 1}
+                                                </span>
                                             </li>
                                         );
                                     })}
                                 </ul>
-
                             )}
                         </div>
                     </div>

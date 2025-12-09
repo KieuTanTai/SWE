@@ -34,7 +34,7 @@ export const AccountProvider: React.FC<{ children: ReactNode }> = ({ children })
             case 5:
                 return [
                     { name: 'Tracking', path: '/tracking' },
-                    { name: 'Schedules', path: '/pickups' },
+                    { name: 'Schedules', path: '/schedules' },
                 ];
             default:
                 return [];

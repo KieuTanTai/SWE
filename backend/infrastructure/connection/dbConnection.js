@@ -4,10 +4,19 @@
  */
 import Connection from './getConnection.js';
 
-// Create single connection instance
-const dbConnection = new Connection('./.env.development.json');
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 
-// Initialize connection on module load
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const configPath = path.join(process.cwd(), 'env.development.json');
+
+console.log('Looking for config at:', configPath);
+console.log('File exists:', fs.existsSync(configPath));
+
+const dbConnection = new Connection(configPath);
 let connectionPool = null;
 
 /**

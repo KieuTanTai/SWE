@@ -63,6 +63,62 @@ class RouteServices {
     }
 
     /**
+     * Get route by driver person id (from current schedule and detail schedule)
+     * @param {number} driverPersonId
+     * @return {Promise<{success: boolean, data?: Route, error?: string}>} 
+     * @memberof RouteServices
+     */
+    async getByDriverPersonId(driverPersonId) {
+        try {
+            if (!driverPersonId || !Number.isInteger(driverPersonId)) {
+                return {
+                    success: false,
+                    error: 'Invalid driverPersonId'
+                };
+            }
+
+            const result = await withConnection(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.getByDriverPersonId(driverPersonId);
+            });
+            
+            return {
+                success: true,
+                data: result
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Get route by current schedule (schedule that covers today)
+     * @return {Promise<{success: boolean, data?: Route, error?: string}>}
+     * @memberof RouteServices
+     */
+    async getByCurrentSchedule() {
+        try {
+            const result = await withConnection(async (connection) => {
+                const repo = new RouteDAO(connection);
+                return await repo.getByCurrentSchedule();
+            });
+            
+            return {
+                success: true,
+                data: result
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
      * Get routes by multiple IDs
      * @param {number[]} routeIds
      * @return {Promise<{success: boolean, data?: Route[], error?: string}>}

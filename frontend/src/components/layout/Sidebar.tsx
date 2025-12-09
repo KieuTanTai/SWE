@@ -18,7 +18,6 @@ export default function Sidebar({ activeItem, onNavigate, navItems }: SidebarPro
                 <h1 className="text-2xl font-bold text-blue-400">SSB 1.0</h1>
             </div>
 
-            {/* Danh sách điều hướng */}
             <nav className="flex-1 py-4">
                 <ul className="space-y-2 px-3">
                     {navItems.map((item) => {

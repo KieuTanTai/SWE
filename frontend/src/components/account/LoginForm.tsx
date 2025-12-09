@@ -60,6 +60,7 @@ function LoginForm({ onSuccess, onForgotPasswordLinkClick, onRegisterLinkClick }
                                    name="email"
                                    type="email"
                                    autoComplete="email"
+                                   autoFocus
                                    required
                                    placeholder="Email"
                                    value={formData.email}

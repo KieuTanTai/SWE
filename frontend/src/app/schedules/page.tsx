@@ -55,8 +55,8 @@ export default function SchedulesPage() {
                 console.log("Driver mode - person_id:", account.person.person_id);
                 const driverSchedules = allSchedules.filter(
                     (schedule: Schedule) => {
-                        console.log(`Checking schedule ${schedule.schedule_id}: schedule_driver_id = ${schedule.schedule_driver_id}, person_id = ${account.person.person_id}`);
-                        return schedule.schedule_driver_id === account.person.person_id;
+                        console.log(`Checking schedule ${schedule.schedule_id}: schedule_driver_id = ${schedule.schedule_driver_id}, person_id = ${account.person?.person_id}`);
+                        return schedule.schedule_driver_id === account.person?.person_id;
                     }
                 );
                 console.log("Driver schedules found:", driverSchedules.length);
@@ -177,7 +177,7 @@ export default function SchedulesPage() {
             {isDriver && !loading && schedules.length === 0 && (
                 <div className="mb-6 p-4 bg-yellow-900/20 border border-yellow-700 rounded-lg">
                     <p className="text-yellow-300">
-                        <span className="font-medium">Note:</span> You don't have any assigned schedules yet.
+                        <span className="font-medium">Note:</span> You don&apos;t have any assigned schedules yet.
                         Please contact your manager.
                     </p>
                 </div>
@@ -386,19 +386,19 @@ export default function SchedulesPage() {
                                         <div className="text-gray-500">
                                             <Calendar className="mx-auto mb-3 text-gray-600" size={40} />
                                             {searchTerm ? (
-                                                <p className="text-lg mb-2">No schedules found matching "{searchTerm}"</p>
+                                                <p className="text-lg mb-2">No schedules found matching &quot;{searchTerm}&quot;</p>
                                             ) : isDriver ? (
                                                 <>
                                                     <p className="text-lg mb-2">No schedules assigned</p>
                                                     <p className="text-sm text-gray-400">
-                                                        You don't have any schedules yet.
+                                                        You don&apos;t have any schedules yet.
                                                     </p>
                                                 </>
                                             ) : (
                                                 <>
                                                     <p className="text-lg mb-2">No schedules available</p>
                                                     <p className="text-sm text-gray-400">
-                                                        Click "Add Schedule" to create one.
+                                                        Click &quot;Add Schedule&quot; to create one.
                                                     </p>
                                                 </>
                                             )}

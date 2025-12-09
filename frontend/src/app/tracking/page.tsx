@@ -7,7 +7,7 @@ import getRouteDetails, { getDetailRouteNames } from "@/api/detail-routes-api";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/contexts/AccountContext";
 import driverPickupApi from "@/api/driver-pickup-api";
-import { Role } from "@/interfaces";
+import { Role, Schedule } from "@/interfaces";
 import { scheduleService } from "@/services/scheduleService";
 
 interface RouteData {
@@ -84,8 +84,8 @@ export default function TrackingPage() {
             try {
                 console.log("[Tracking] Fetching schedule for driverPersonId:", driverPersonId);
 
-                const allSchedules = await scheduleService.getAll();
-                const driverSchedule = allSchedules.find((s: any) => s.driver_id === account?.account_id);
+                const allSchedules = await scheduleService.getAllSchedules();
+                const driverSchedule = allSchedules.find((s: Schedule) => s.schedule_driver_id === account?.account_id);
 
                 if (driverSchedule && driverSchedule.detailSchedules && driverSchedule.detailSchedules.length > 0) {
                     const firstDetailSchedule = driverSchedule.detailSchedules[0];

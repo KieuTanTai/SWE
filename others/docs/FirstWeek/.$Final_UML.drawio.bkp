@@ -71,7 +71,7 @@
           <mxGeometry y="208" width="260" height="8" as="geometry" />
         </mxCell>
         <mxCell id="ZYyu86cMNYjdMdTjQygq-9" value="VehiceManager" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="850" y="800" width="730" height="294" as="geometry" />
+          <mxGeometry x="850" y="800" width="730" height="320" as="geometry" />
         </mxCell>
         <mxCell id="ZYyu86cMNYjdMdTjQygq-11" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="ZYyu86cMNYjdMdTjQygq-9" vertex="1">
           <mxGeometry y="26" width="730" height="8" as="geometry" />
@@ -94,17 +94,20 @@
         <mxCell id="ZYyu86cMNYjdMdTjQygq-146" value="+ updateVehicleSchedule(scheduleId: number, scheduleType: ScheduleTypeEnum, startDate: Date, endDate: Date): LogResults" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ZYyu86cMNYjdMdTjQygq-9" vertex="1">
           <mxGeometry y="164" width="730" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="ZYyu86cMNYjdMdTjQygq-145" value="+ assignDriverAndBusToRoute(driverId: number, busId: number, routeId: number): LogEntry" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ZYyu86cMNYjdMdTjQygq-9" vertex="1">
+        <mxCell id="ZYyu86cMNYjdMdTjQygq-159" value="+ updateDailyVehicleAssignment(assignmentId: number, vehicleId: number, date: Date, routeId: number, driverId: number): LogResults" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ZYyu86cMNYjdMdTjQygq-9" vertex="1">
           <mxGeometry y="190" width="730" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="ZYyu86cMNYjdMdTjQygq-144" value="+ updateBusLocation(busId: number, latitude: float, longitude: float, timestamp: datetime): LogEntry" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ZYyu86cMNYjdMdTjQygq-9" vertex="1">
+        <mxCell id="ZYyu86cMNYjdMdTjQygq-145" value="+ assignDriverAndBusToRoute(driverId: number, busId: number, routeId: number): LogEntry" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ZYyu86cMNYjdMdTjQygq-9" vertex="1">
           <mxGeometry y="216" width="730" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="ZYyu86cMNYjdMdTjQygq-143" value="+ getBusLocations(): LogResults" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ZYyu86cMNYjdMdTjQygq-9" vertex="1">
+        <mxCell id="ZYyu86cMNYjdMdTjQygq-144" value="+ updateBusLocation(busId: number, latitude: float, longitude: float, timestamp: datetime): LogEntry" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ZYyu86cMNYjdMdTjQygq-9" vertex="1">
           <mxGeometry y="242" width="730" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="ZYyu86cMNYjdMdTjQygq-142" value="+ sendMessage(receiverId: number, receiverType: enum {Driver, Parent}, message: string): LogEntry" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ZYyu86cMNYjdMdTjQygq-9" vertex="1">
+        <mxCell id="ZYyu86cMNYjdMdTjQygq-143" value="+ getBusLocations(): LogResults" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ZYyu86cMNYjdMdTjQygq-9" vertex="1">
           <mxGeometry y="268" width="730" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ZYyu86cMNYjdMdTjQygq-142" value="+ sendMessage(receiverId: number, receiverType: enum {Driver, Parent}, message: string): LogEntry" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ZYyu86cMNYjdMdTjQygq-9" vertex="1">
+          <mxGeometry y="294" width="730" height="26" as="geometry" />
         </mxCell>
         <mxCell id="ZYyu86cMNYjdMdTjQygq-13" value="VehiceDriver" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="310" y="1230" width="580" height="242" as="geometry" />

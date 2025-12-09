@@ -169,6 +169,85 @@ export default class RouteDAO extends BaseDAO {
     }
 
     /**
+     * Get route by driver person id (from current schedule and detail schedule)
+     * @param {number} driverPersonId
+     * @return {Promise<Route>} 
+     * @memberof RouteDAO
+     */
+    async getByDriverPersonId(driverPersonId) {
+        if (!driverPersonId || !Number.isInteger(driverPersonId)) {
+            console.warn(`Warning: driverPersonId is invalid : ${driverPersonId}`);
+            return new Route();
+        }
+
+        try {
+            const currentDate = new Date();
+            const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            
+            // Query to get route from driver person id via schedule and detail_schedule
+            const query = `
+                SELECT r.*
+                FROM route r
+                INNER JOIN detail_schedule ds ON r.route_id = ds.detail_schedule_route_id
+                INNER JOIN schedule s ON ds.detail_schedule_schedule_id = s.schedule_id
+                WHERE s.schedule_driver_id = ?
+                  AND s.schedule_status = 1
+                  AND CURDATE() BETWEEN s.schedule_start_date AND s.schedule_end_date
+                  AND ds.detail_schedule_time_role_id = ?
+                LIMIT 1
+            `;
+            
+            const [results] = await this.connection.execute(query, [driverPersonId, dayOfWeek]);
+            
+            if (!Array.isArray(results) || results.length === 0) {
+                console.warn(`Warning: No route found for driverPersonId ${driverPersonId}`);
+                return new Route();
+            }
+            
+            return Route.fromDatabase(results[0]);
+        } catch (error) {
+            console.error(`Error getByDriverPersonId: ${error.message}`);
+            return new Route();
+        }
+    }
+
+    /**
+     * Get route by current schedule (schedule that covers today)
+     * @return {Promise<Route>} 
+     * @memberof RouteDAO
+     */
+    async getByCurrentSchedule() {
+        try {
+            const currentDate = new Date();
+            const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            
+            // Query to get route from current active schedule
+            const query = `
+                SELECT r.*
+                FROM route r
+                INNER JOIN detail_schedule ds ON r.route_id = ds.detail_schedule_route_id
+                INNER JOIN schedule s ON ds.detail_schedule_schedule_id = s.schedule_id
+                WHERE s.schedule_status = 1
+                  AND CURDATE() BETWEEN s.schedule_start_date AND s.schedule_end_date
+                  AND ds.detail_schedule_time_role_id = ?
+                LIMIT 1
+            `;
+            
+            const [results] = await this.connection.execute(query, [dayOfWeek]);
+            
+            if (!Array.isArray(results) || results.length === 0) {
+                console.warn(`Warning: No route found for current schedule`);
+                return new Route();
+            }
+            
+            return Route.fromDatabase(results[0]);
+        } catch (error) {
+            console.error(`Error getByCurrentSchedule: ${error.message}`);
+            return new Route();
+        }
+    }
+
+    /**
      *
      *
      * @param {Route} route

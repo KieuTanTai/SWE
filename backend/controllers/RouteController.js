@@ -56,6 +56,28 @@ router.get("/name/:routeName", async (req, res) => {
     }
 });
 
+router.get("/id/driver/:driverPersonId", async (req, res) => {
+    try {
+        const driverPersonId = parseInt(req.params.driverPersonId);
+        const service = new RouteService();
+        const result = await service.getByDriverPersonId(driverPersonId);
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /api/routes/current-schedule - Get route by current schedule
+router.get("/current-schedule", async (req, res) => {
+    try {
+        const service = new RouteService();
+        const result = await service.getByCurrentSchedule();
+        result.success ? res.status(200).json(result.data) : res.status(500).json({ error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // GET /api/routes/search?pattern=... - Get routes with name like pattern
 router.get("/search/pattern", async (req, res) => {
     try {

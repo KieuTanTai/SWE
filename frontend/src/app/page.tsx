@@ -5,6 +5,7 @@ import Layout from "../components/layout/Layout";
 import Maps from "../components/maps/ggmaps";
 import DashboardForManager from "../components/admin/DashboardForManager";
 import getRouteDetails, { getDetailRouteNames } from "@/api/detail-routes-api";
+import { useAccount } from "@/contexts/AccountContext";
 // Đã chuyển navItems ra Layout, không cần import icon ở đây nữa
 
 interface RouteData {
@@ -51,8 +52,19 @@ const testPoints = async (): Promise<TestPoints | undefined> => {
 
 export default function HomePage() {
   const router = useRouter();
+  const account = useAccount().account;
   const [activeItem, setActiveItem] = useState("");
   const [routes, setRoutes] = useState<RouteData[]>([]);
+
+  // Sync activeItem when account changes
+  useEffect(() => {
+    if (account?.roles?.[0]?.role_id) {
+      const isManagerOrAdmin = account.roles[0].role_id < 4;
+      setActiveItem(isManagerOrAdmin ? "dashboard" : "tracking");
+    } else {
+      setActiveItem("");
+    }
+  }, [account]);
 
   // Fetch test points on component mount
   useEffect(() => {
@@ -64,53 +76,65 @@ export default function HomePage() {
     })();
   }, []);
 
+  // Fetch route points based on role
+  useEffect(() => {
+    const fetchRoutePoints = async () => {
+      if (!account || activeItem !== "tracking") return;
+
+      const roleId = account.roles?.[0]?.role_id ?? 0;
+      const personId = account.person?.person_id ?? 0;
+    };
+
+    fetchRoutePoints();
+  }, [account, activeItem]);
+
   const handleNavigate = (item: string) => {
-    if (item === "tracking")
-      router.push('/tracking');
-    else if (item === 'student') {
-      router.push('/students');
-    }
-    else if (item === 'driver') {
-      router.push('/drivers');
-    }
-    else if (item === 'schedule') {
-      router.push('/schedules');
-    }
-    else if (item === 'route') {
-      router.push('/routes');
-    }
-    else if (item === 'pickup') {
-      router.push('/pickups');
-    }
-    else {
-      setActiveItem(item);
-    }
-  };
+        if (item === "tracking")
+          router.push('/tracking');
+        else if (item === 'student') {
+          router.push('/students');
+        }
+        else if (item === 'driver') {
+          router.push('/drivers');
+        }
+        else if (item === 'schedule') {
+          router.push('/schedules');
+        }
+        else if (item === 'route') {
+          router.push('/routes');
+        }
+        else if (item === 'pickup') {
+          router.push('/pickups');
+        }
+        else {
+          setActiveItem(item);
+        }
+      };
 
-  const renderContent = () => {
-    switch (activeItem) {
-      case "dashboard":
-        return <DashboardForManager />;
-      case "tracking":
-        return <Maps routes={routes} />;
-      default:
-        return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-2">Hệ thống Smart School Bus</h2>
-              <p className="text-gray-400">Vui lòng đăng nhập tài khoản để tiếp tục</p>
-            </div>
-          </div>
-        );
-    }
-  };
+      const renderContent = () => {
+        switch (activeItem) {
+          case "dashboard":
+            return <DashboardForManager />;
+          case "tracking":
+            return <Maps routes={routes} />;
+          default:
+            return (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold mb-2">Hệ thống Smart School Bus</h2>
+                  <p className="text-gray-400">Vui lòng đăng nhập tài khoản để tiếp tục</p>
+                </div>
+              </div>
+            );
+        }
+      };
 
-  return (
-    <Layout
-      activeItem={activeItem}
-      onNavigate={handleNavigate}
-    >
-      {renderContent()}
-    </Layout>
-  );
-}
+      return (
+        <Layout
+          activeItem={activeItem}
+          onNavigate={handleNavigate}
+        >
+          {renderContent()}
+        </Layout>
+      );
+    }

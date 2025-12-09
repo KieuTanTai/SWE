@@ -12,6 +12,23 @@ CREATE TABLE `Account` (
   `account_login_status` boolean DEFAULT FALSE
 );
 
+	-- 1. Kiểm tra person_id có trong bảng Driver không (thay 5 bằng person_id thực tế)
+	SELECT * FROM Driver WHERE driver_person_id = 6;
+	
+	-- 2. Kiểm tra Schedule có schedule_driver_id = person_id đó không
+	SELECT * FROM Schedule WHERE schedule_driver_id = 6;
+	
+	-- 3. Nếu có schedule, kiểm tra ngày tháng
+	SELECT 
+	    schedule_id,
+	    schedule_driver_id,
+	    schedule_start_date,
+	    schedule_end_date,
+	    schedule_status,
+	    CURDATE() as today
+	FROM Schedule 
+	WHERE schedule_driver_id = 6;
+
 CREATE TABLE `Role` (
   `role_id` integer PRIMARY KEY AUTO_INCREMENT,
   `role_name` varchar(25) NOT NULL,
@@ -210,6 +227,8 @@ BEGIN
     END IF;
 END;
 //
+
+update Account set account_password = '$2b$10$ccIHhGEGT.ZJXBt1WHVSsuVmw1a4q1hDe/xh86L2aD0EGEqtTVzFK'
 
 CREATE TRIGGER trg_check_student_person_type
 BEFORE INSERT ON Student

@@ -74,7 +74,7 @@ export default function CreateSchedulePage() {
 
       // Convert data types
       const scheduleData: CreateScheduleDTO = {
-        schedule_by_manager_id: account?.person?.person_id,
+        schedule_by_manager_id: Number(account?.person?.person_id),
         schedule_driver_id: Number(formData.schedule_driver_id),
         schedule_start_date: formData.schedule_start_date,
         schedule_end_date: formData.schedule_end_date,

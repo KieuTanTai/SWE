@@ -4,84 +4,108 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Layout from "@/components/layout/Layout";
 import Link from "next/link";
-
 import {
-    Calendar, Trash2, Edit, Plus,
-    Search, CheckCircle, XCircle, Clock, Eye
+    Calendar, Trash2, Edit, Plus, Search,
+    CheckCircle, XCircle, Clock, Eye
 } from "lucide-react";
-
 import { scheduleService } from "@/services/scheduleService";
-import { Schedule } from "@/interfaces/schedule";
-
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
+import type { Schedule } from "@/interfaces/schedule";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 import { formatDate } from "@/utils/dateUtils";
+import { useAccount } from "@/contexts/AccountContext";
 
 const MySwal = withReactContent(Swal);
 
 export default function SchedulesPage() {
     const router = useRouter();
+    const { account } = useAccount();
     const [schedules, setSchedules] = useState<Schedule[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [activeItem, setActiveItem] = useState("schedule");
     const searchParams = useSearchParams();
     const refreshFlag = searchParams?.get("refresh");
 
+    // Kiểm tra role: Driver = 5, Admin = 1, 2, 3
+    const isDriver = account?.roles?.some(role => role.role_id === 5);
+    const isAdmin = account?.roles?.some(role => [1, 2, 3].includes(role.role_id));
+
+    // Navigation handler
     const handleNavigate = (item: string) => {
         if (item === "dashboard") router.push("/");
         else if (item === "student") router.push("/students");
         else if (item === "tracking") router.push("/tracking");
-        else if (item === "schedule") router.push("/schedules");
+        else if (item === "schedule" || item === "pickups") {
+            setActiveItem(isDriver ? "pickups" : "schedule");
+        }
         else if (item === "route") router.push("/routes");
         else if (item === "driver") router.push("/drivers");
     };
 
+    // Fetch data based on role
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
-            const schedules = await scheduleService.getAllSchedules();            
-            setSchedules(schedules);
+            const allSchedules = await scheduleService.getAllSchedules();
+            console.log("All schedules:", allSchedules);
+
+            if (isDriver && account?.person?.person_id) {
+                // Driver chỉ thấy schedules được gán cho mình
+                console.log("Driver mode - person_id:", account.person.person_id);
+                const driverSchedules = allSchedules.filter(
+                    (schedule: Schedule) => {
+                        console.log(`Checking schedule ${schedule.schedule_id}: schedule_driver_id = ${schedule.schedule_driver_id}, person_id = ${account.person.person_id}`);
+                        return schedule.schedule_driver_id === account.person.person_id;
+                    }
+                );
+                console.log("Driver schedules found:", driverSchedules.length);
+                setSchedules(driverSchedules);
+            } else {
+                // Admin/Manager thấy tất cả schedules
+                console.log("Admin mode - showing all schedules:", allSchedules.length);
+                setSchedules(allSchedules);
+            }
         } catch (error) {
             console.error("Failed to load schedules", error);
             MySwal.fire({
-                title: 'Error!',
-                text: 'Failed to load schedules data.',
-                icon: 'error',
-                background: '#1f2937',
-                color: '#fff'
+                title: "Error!",
+                text: "Failed to load schedules data.",
+                icon: "error",
+                background: "#1f2937",
+                color: "#fff",
             });
         } finally {
             setLoading(false);
         }
-    }, []);    
+    }, [account?.person?.person_id, isDriver]);
 
     useEffect(() => {
         fetchData();
-    }, []);
-    
+    }, [fetchData]);
+
     useEffect(() => {
         if (refreshFlag === "1") {
-            fetchData(); 
-            router.replace("/schedules"); 
+            fetchData();
+            router.replace("/schedules");
         }
     }, [refreshFlag, fetchData, router]);
 
     const formatId = (id: number) => `#SCH-${String(id).padStart(5, "0")}`;
 
-
     const showDeleteConfirm = async () => {
         return MySwal.fire({
-            title: 'Delete Schedule?',
+            title: "Delete Schedule?",
             text: "This schedule will be marked as inactive. You can restore it later.",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-            background: '#1f2937',
-            color: '#fff',
-            iconColor: '#f87171'
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel",
+            background: "#1f2937",
+            color: "#fff",
+            iconColor: "#f87171",
         });
     };
 
@@ -90,63 +114,84 @@ export default function SchedulesPage() {
 
         if (result.isConfirmed) {
             try {
-                console.log(await scheduleService.deleteSchedule(id));
+                await scheduleService.deleteSchedule(id);
                 MySwal.fire({
-                    title: 'Deleted!',
-                    text: 'Schedule has been marked as inactive.',
-                    icon: 'success',
-                    background: '#1f2937',
-                    color: '#fff',
+                    title: "Deleted!",
+                    text: "Schedule has been marked as inactive.",
+                    icon: "success",
+                    background: "#1f2937",
+                    color: "#fff",
                     timer: 1500,
-                    showConfirmButton: false
+                    showConfirmButton: false,
                 });
                 fetchData();
             } catch (error) {
                 console.error(error);
                 MySwal.fire({
-                    title: 'Error!',
-                    text: 'Failed to delete schedule.',
-                    icon: 'error',
-                    background: '#1f2937',
-                    color: '#fff'
+                    title: "Error!",
+                    text: "Failed to delete schedule.",
+                    icon: "error",
+                    background: "#1f2937",
+                    color: "#fff",
                 });
             }
         }
     };
 
-    const filteredSchedules = schedules.filter(s => {
+    // Filter schedules
+    const filteredSchedules = schedules.filter((s) => {
         const term = searchTerm.toLowerCase();
         const id = s.schedule_id.toString();
         const driverName = s.driver?.person?.person_name?.toLowerCase() || "";
-        return id.includes(term) || driverName.includes(term);
+        const routeName = s.detailSchedules?.[0]?.busRoute?.route?.route_name?.toLowerCase() || "";
+        return id.includes(term) || driverName.includes(term) || routeName.includes(term);
     });
 
     const content = (
         <div className="p-6 w-full text-gray-100">
-            {/* Header */}
+            {/* Header - Dynamic based on role */}
             <div className="mb-8">
                 <div className="flex flex-col md:flex-row justify-between items-end border-b border-gray-700 pb-4 gap-4">
                     <div>
                         <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                            <Calendar className="text-blue-500" size={28} /> 
-                            Schedules Management
+                            <Calendar className="text-blue-500" size={28} />
+                            {isDriver ? "My Schedules" : "Schedules Management"}
                         </h1>
                         <p className="text-gray-400 text-sm mt-1">
-                            Manage all schedules and their information
+                            {isDriver
+                                ? "Your assigned schedules and route information"
+                                : "Manage all schedules and their information"}
                         </p>
                     </div>
+                    {isDriver && (
+                        <div className="text-sm text-gray-400">
+                            Driver: <span className="text-blue-300 font-medium">
+                                {account?.person?.person_name || "Unknown"}
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Search Bar and Add Button */}
+            {/* No schedules message for driver */}
+            {isDriver && !loading && schedules.length === 0 && (
+                <div className="mb-6 p-4 bg-yellow-900/20 border border-yellow-700 rounded-lg">
+                    <p className="text-yellow-300">
+                        <span className="font-medium">Note:</span> You don't have any assigned schedules yet.
+                        Please contact your manager.
+                    </p>
+                </div>
+            )}
+
+            {/* Search Bar and Add Button - Only for Admin */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <div className="relative w-full md:w-auto">
-                    <input 
-                        type="text" 
-                        placeholder="Search Schedule ID, Route or Driver..." 
-                        value={searchTerm} 
-                        onChange={(e) => setSearchTerm(e.target.value)} 
-                        className="bg-gray-800 text-white pl-10 pr-4 py-2 rounded-md border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full md:w-64" 
+                    <input
+                        type="text"
+                        placeholder={`Search Schedule ID${isDriver ? "" : ", Route or Driver"}...`}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-gray-800 text-white pl-10 pr-4 py-2 rounded-md border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full md:w-64"
                     />
                     <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
                 </div>
@@ -155,12 +200,14 @@ export default function SchedulesPage() {
                     <div className="text-sm text-gray-400 whitespace-nowrap">
                         Showing {filteredSchedules.length} of {schedules.length} schedules
                     </div>
-                    <Link 
-                        href="/schedules/create" 
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-colors shadow-sm whitespace-nowrap"
-                    >
-                        <Plus size={18} /> Add Schedule
-                    </Link>
+                    {isAdmin && (
+                        <Link
+                            href="/schedules/create"
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-colors shadow-sm whitespace-nowrap"
+                        >
+                            <Plus size={18} /> Add Schedule
+                        </Link>
+                    )}
                 </div>
             </div>
 
@@ -175,116 +222,150 @@ export default function SchedulesPage() {
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-700">
                             <thead className="bg-gray-900/50">
-                                <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                        Schedule ID
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                        Route
-                                    </th>
+                            <tr>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                    Schedule ID
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                    Route
+                                </th>
+                                {!isDriver && (
                                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
                                         Driver
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                        Bus
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                        Start Time
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                        End Time
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                        Actions
-                                    </th>
-                                </tr>
+                                )}
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                    Bus
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                    Start Date
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                    End Date
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-700 bg-gray-800">
-                                {filteredSchedules.length > 0 ? (
-                                    filteredSchedules.map((schedule) => {
-                                        const isActive = schedule.schedule_status !== false;
+                            {filteredSchedules.length > 0 ? (
+                                filteredSchedules.map((schedule) => {
+                                    const isActive = schedule.schedule_status !== false;
 
-                                        return (
-                                            <tr 
-                                                key={schedule.schedule_id} 
-                                                className={`hover:bg-gray-750 transition-colors ${!isActive ? 'opacity-50 bg-gray-900' : ''}`}
-                                            >
-                                                {/* Schedule ID */}
-                                                <td className="px-6 py-4 text-sm font-medium text-white">
-                                                    {formatId(schedule.schedule_id)}
-                                                </td>
+                                    return (
+                                        <tr
+                                            key={schedule.schedule_id}
+                                            className={`hover:bg-gray-750 transition-colors ${
+                                                !isActive ? "opacity-50 bg-gray-900" : ""
+                                            }`}
+                                        >
+                                            {/* Schedule ID */}
+                                            <td className="px-6 py-4 text-sm font-medium text-white">
+                                                {formatId(schedule.schedule_id)}
+                                            </td>
 
-                                                {/* Route */}
-                                                <td className="px-6 py-4 text-sm text-gray-300">
-                                                    {schedule.detailSchedules?.[0]?.busRoute?.route?.route_name || "Unassigned"}
-                                                </td>
+                                            {/* Route */}
+                                            <td className="px-6 py-4 text-sm text-gray-300">
+                                                {schedule.detailSchedules?.[0]?.busRoute?.route?.route_name || "Unassigned"}
+                                            </td>
 
-                                                {/* Driver */}
+                                            {/* Driver - Only for Admin */}
+                                            {!isDriver && (
                                                 <td className="px-6 py-4 text-sm text-gray-300">
                                                     {schedule.driver?.person?.person_name || "Unassigned"}
                                                 </td>
+                                            )}
 
-                                                {/* Bus */}
-                                                <td className="px-6 py-4 text-sm text-gray-300">
-                                                    {schedule.detailSchedules?.[0]?.busRoute?.bus?.bus_license_plate || "Unassigned"}
-                                                </td>
+                                            {/* Bus */}
+                                            <td className="px-6 py-4 text-sm text-gray-300">
+                                                {schedule.detailSchedules?.[0]?.busRoute?.bus?.bus_license_plate || "Unassigned"}
+                                            </td>
 
-                                                {/* Started Date */}
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-1 text-xs">
-                                                        <Clock size={12} className="text-gray-400" />
-                                                        <span className="text-gray-300">
-                                                            {formatDate(schedule.schedule_start_date)} 
+                                            {/* Start Date */}
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-1 text-xs">
+                                                    <Clock size={12} className="text-gray-400" />
+                                                    <span className="text-gray-300">
+                                                            {formatDate(schedule.schedule_start_date)}
                                                         </span>
-                                                    </div>
-                                                </td>
+                                                </div>
+                                            </td>
 
-                                                {/* End Date */}
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-1 text-xs">
-                                                        <Clock size={12} className="text-gray-400" />
-                                                        <span className="text-gray-300">
+                                            {/* End Date */}
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-1 text-xs">
+                                                    <Clock size={12} className="text-gray-400" />
+                                                    <span className="text-gray-300">
                                                             {formatDate(schedule.schedule_end_date)}
                                                         </span>
-                                                    </div>
-                                                </td>
+                                                </div>
+                                            </td>
 
-                                                {/* Status */}
-                                                <td className="px-6 py-4 text-sm">
-                                                    {isActive ? (
-                                                        <span className="text-green-400 flex items-center gap-1 text-xs bg-green-900/20 px-2 py-1 rounded-full w-fit border border-green-800">
+                                            {/* Status */}
+                                            <td className="px-6 py-4 text-sm">
+                                                {isActive ? (
+                                                    <span className="text-green-400 flex items-center gap-1 text-xs bg-green-900/20 px-2 py-1 rounded-full w-fit border border-green-800">
                                                             <CheckCircle size={12} /> Active
                                                         </span>
-                                                    ) : (
-                                                        <span className="text-red-400 flex items-center gap-1 text-xs bg-red-900/20 px-2 py-1 rounded-full w-fit border border-red-800">
+                                                ) : (
+                                                    <span className="text-red-400 flex items-center gap-1 text-xs bg-red-900/20 px-2 py-1 rounded-full w-fit border border-red-800">
                                                             <XCircle size={12} /> Inactive
                                                         </span>
-                                                    )}
-                                                </td>
+                                                )}
+                                            </td>
 
-                                                {/* Actions */}
-                                                <td className="px-6 py-4 text-sm font-medium">
-                                                    <div className="flex gap-4 items-center">
-                                                        {isActive ? (
+                                            {/* Actions - Different for Driver vs Admin */}
+                                            <td className="px-6 py-4 text-sm font-medium">
+                                                <div className="flex gap-4 items-center">
+                                                    {isDriver ? (
+                                                        // Driver actions: View + Tracking
+                                                        isActive ? (
                                                             <>
-                                                                <Link 
-                                                                    href={`/schedules/view/${schedule.schedule_id}`} 
-                                                                    className="text-teal-400 hover:text-teal-300 flex gap-1 items-center transition-colors" 
+                                                                <Link
+                                                                    href={`/schedules/view/${schedule.schedule_id}`}
+                                                                    className="text-blue-400 hover:text-blue-300 flex gap-1 items-center transition-colors"
                                                                     title="View Details"
                                                                 >
-                                                                    <Eye size={16} />View
+                                                                    <Eye size={16} />
+                                                                    View
                                                                 </Link>
-                                                                <Link 
-                                                                    href={`/schedules/edit/${schedule.schedule_id}`} 
+                                                                <Link
+                                                                    href={`/tracking?scheduleId=${schedule.schedule_id}`}
+                                                                    className="text-teal-400 hover:text-teal-300 flex gap-1 items-center transition-colors px-3 py-1 bg-teal-900/20 rounded-lg hover:bg-teal-900/30"
+                                                                    title="Go to Live Tracking"
+                                                                >
+                                                                    Start Tracking
+                                                                </Link>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-gray-500 text-xs italic px-3 py-1">
+                                                                    Schedule Inactive
+                                                                </span>
+                                                        )
+                                                    ) : (
+                                                        // Admin actions: View, Edit, Delete
+                                                        isActive ? (
+                                                            <>
+                                                                <Link
+                                                                    href={`/schedules/view/${schedule.schedule_id}`}
+                                                                    className="text-teal-400 hover:text-teal-300 flex gap-1 items-center transition-colors"
+                                                                    title="View Details"
+                                                                >
+                                                                    <Eye size={16} />
+                                                                    View
+                                                                </Link>
+                                                                <Link
+                                                                    href={`/schedules/edit/${schedule.schedule_id}`}
                                                                     className="text-blue-400 hover:text-blue-300 flex gap-1 items-center transition-colors"
                                                                 >
                                                                     <Edit size={16} /> Edit
                                                                 </Link>
-                                                                <button 
-                                                                    onClick={() => handleDeleteSchedule(schedule.schedule_id)} 
+                                                                <button
+                                                                    onClick={() => handleDeleteSchedule(schedule.schedule_id)}
                                                                     className="text-red-400 hover:text-red-300 flex gap-1 items-center transition-colors"
                                                                 >
                                                                     <Trash2 size={16} /> Delete
@@ -292,23 +373,39 @@ export default function SchedulesPage() {
                                                             </>
                                                         ) : (
                                                             <span className="text-gray-500 text-xs italic">Archived</span>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                ) : (
-                                    <tr>
-                                        <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                                                        )
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            ) : (
+                                <tr>
+                                    <td colSpan={isDriver ? 7 : 8} className="px-6 py-12 text-center">
+                                        <div className="text-gray-500">
+                                            <Calendar className="mx-auto mb-3 text-gray-600" size={40} />
                                             {searchTerm ? (
-                                                <>No schedules found matching &quot;{searchTerm}&quot;</>
+                                                <p className="text-lg mb-2">No schedules found matching "{searchTerm}"</p>
+                                            ) : isDriver ? (
+                                                <>
+                                                    <p className="text-lg mb-2">No schedules assigned</p>
+                                                    <p className="text-sm text-gray-400">
+                                                        You don't have any schedules yet.
+                                                    </p>
+                                                </>
                                             ) : (
-                                                <>No schedules available. Click &quot;Add Schedule&quot; to create one.</>
+                                                <>
+                                                    <p className="text-lg mb-2">No schedules available</p>
+                                                    <p className="text-sm text-gray-400">
+                                                        Click "Add Schedule" to create one.
+                                                    </p>
+                                                </>
                                             )}
-                                        </td>
-                                    </tr>
-                                )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
                             </tbody>
                         </table>
                     </div>
@@ -317,5 +414,12 @@ export default function SchedulesPage() {
         </div>
     );
 
-    return <Layout activeItem="schedule" onNavigate={handleNavigate}>{content}</Layout>;
+    return (
+        <Layout
+            activeItem={isDriver ? "pickups" : "schedule"}
+            onNavigate={handleNavigate}
+        >
+            {content}
+        </Layout>
+    );
 }

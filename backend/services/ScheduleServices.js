@@ -9,6 +9,8 @@ import Schedule from "../models/Schedule.js";
 import { withConnection, withTransaction } from "../infrastructure/connection/transactionHelper.js";
 import DriverServices from "./DriverServices.js";
 import TimeRoleDAO from "../infrastructure/data/timeRoleDAO.js";
+import AccountServices from "./AccountServices.js";
+
 
 /**
  * ScheduleServices
@@ -260,6 +262,52 @@ class ScheduleServices {
             };
         }
     }
+
+    /**
+     * Lấy tất cả Schedule của 1 tài xế dựa trên accountId
+     * @param {number} accountId
+     * @returns {Promise<{success: boolean, data?: any[], error?: string}>}
+     */
+    async getSchedulesForDriverAccount(accountId) {
+        try {
+            // 1. Lấy account + person từ AccountServices
+            const accountRes = await AccountServices.getByAccountId(accountId);
+            if (!accountRes.success || !accountRes.data?.person) {
+                return {
+                    success: false,
+                    error: "Account hoặc Person không tồn tại",
+                };
+            }
+
+            const driverPersonId = accountRes.data.person.person_id;
+
+            // 2. Lấy tất cả schedule (đã gắn driver, detailSchedules, busRoute, timeRole)
+            const allRes = await this.getAllSchedules();
+            if (!allRes.success) {
+                return allRes; // { success: false, error: ... }
+            }
+
+            // 3. Filter theo driver hiện tại
+            const filtered = allRes.data.filter(
+                (sch) => sch.schedule_driver_id === driverPersonId
+            );
+
+            return {
+                success: true,
+                data: filtered,
+            };
+        } catch (error) {
+            console.error(
+                "[ScheduleServices.getSchedulesForDriverAccount] ERROR:",
+                error
+            );
+            return {
+                success: false,
+                error: error.message,
+            };
+        }
+    }
+
 }
 
 export default new ScheduleServices();

@@ -95,4 +95,31 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+/**
+ * @route GET /api/schedules/driver
+ * @desc Lấy tất cả lịch trình (Schedule) của 1 tài xế
+ * query: accountId
+ */
+router.get("/driver", async (req, res) => {
+    try {
+        const accountId = parseInt(req.query.accountId, 10);
+
+        if (!Number.isInteger(accountId) || accountId <= 0) {
+            return res.status(400).json({ error: "Invalid accountId" });
+        }
+
+        const result =
+            await ScheduleServices.getSchedulesForDriverAccount(accountId);
+
+        if (result.success) {
+            return res.json(result.data); // hoặc { success: true, data: result.data }
+        } else {
+            return res.status(400).json({ error: result.error });
+        }
+    } catch (err) {
+        console.error("[GET /api/schedules/driver] ERROR:", err);
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 export default router;
